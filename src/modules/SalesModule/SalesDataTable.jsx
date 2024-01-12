@@ -13,7 +13,6 @@ import { FiEye, FiEdit, FiTrash2, FiMoreHorizontal } from 'react-icons/fi';
 
 export default function SalesDataTable({ config }) {
     const { dataTableColumn, data, loading } = config;
-
     return (
         <div className="container">
             {loading ? (
@@ -25,6 +24,7 @@ export default function SalesDataTable({ config }) {
             ) : (
                 <>
                     {!data.length ? (
+
                         <div className="py-4">
                             <h6 className="text-center px-3 mt-4 mb-1"><i>Nothing to display yet</i></h6>
                         </div>

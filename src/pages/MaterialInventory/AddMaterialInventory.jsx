@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import useFetch from '../../hooks/useFetch';
 
 import AddFormPageHeader from '../../modules/FspPanelModule/AddFormPageHeader';
 import MaterialInventoryForm from '../../modules/MaterialInventoryModule/MaterialInventoryForm';
@@ -11,27 +10,16 @@ export default function AddMaterialInventory() {
         PAGE_ENTITY_URL: 'inventory/materials',
         ADD_NEW_ENTITY: 'Add New Material Inventory',
     }
-    const [supplier, setSupplier] = useState([])
-    const [data, setData] = useState([])
-    useEffect(() => {
-        let endpoints = [
-            `${API_BASE_URL}supplier/`,
-            `${API_BASE_URL}materials/`,
-        ]
-        axios.all(endpoints.map((endpoint) => axios.get(endpoint)))
-            .then(axios.spread((data1, data2) => {
-                setSupplier(data1.data)
-                setData(data2.data)
-            }))
-            .catch((err) => {
-                console.log(err)
-            })
-    }, [])
+
+    const { data: supplier, loading: supplierLoad, error: supplierErr } = useFetch('supplier/');
+    const { data: material, loading: materialLoad, error: materialErr } = useFetch('materials/');
 
     const config = {
         Labels,
         supplier,
-        data,
+        material,
+        supplierLoad,
+        materialLoad,
     }
 
     return (
