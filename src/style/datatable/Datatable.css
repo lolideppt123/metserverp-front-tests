@@ -1,0 +1,79 @@
+.container .app-table {
+    overflow-x: auto !important;
+    overscroll-behavior-inline: contain;
+}
+
+.app-table {
+    padding-right: 20px !important;
+    padding-bottom: 80px !important;
+}
+
+.container .app-table table thead,
+th,
+td {
+    white-space: nowrap;
+}
+
+.container .app-table table th:nth-child(1),
+th:nth-child(2),
+td:nth-child(1),
+td:nth-child(2) {
+    position: sticky;
+    left: 0px;
+}
+
+.container .app-table table th:nth-child(2) {
+    background-color: #fff;
+}
+
+tr:nth-child(odd) td {
+    background: #f0f0f0;
+}
+
+tr:nth-child(even) td {
+    background: #fff;
+}
+
+/* PAID Style
+
+    color: #389e0d;
+    background: #f6ffed;
+    border-color: #b7eb8f;
+
+    UNPAID Style
+    color: #d4380d;
+    background: #fff2e8;
+    border-color: #ffbb96;
+*/
+/* SALES STATUS STYLE */
+
+.paid-status {
+    color: #389e0d !important;
+    background: #f6ffed !important;
+    border: 1px solid #b7eb8f !important;
+    border-radius: 6px !important;
+}
+
+.unpaid {
+    color: #d4380d !important;
+}
+
+.unpaid-status {
+    color: #d4380d !important;
+    background: #fff2e8 !important;
+    border: 1px solid #ffbb96 !important;
+    border-radius: 6px !important;
+}
+
+@keyframes scroll-shadow-sticky-elements {
+
+    /* start with no shadow */
+    from {
+        box-shadow: none;
+    }
+
+    /* end with shadow pushing out right */
+    to {
+        box-shadow: 10px 10px 15px 0px rgb(0 0 0 / 0.3);
+    }
+}

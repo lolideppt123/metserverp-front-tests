@@ -1,0 +1,8 @@
+@import './partials/bootstrap.min.css';
+@import './partials/navigation.css';
+@import './partials/header.css';
+@import './partials/main.css';
+@import './pages/Dashboard.css';
+@import './datatable/Datatable.css';
+@import './dropdown/datatableaction.css';
+@import './Modal/ModalForm.css';

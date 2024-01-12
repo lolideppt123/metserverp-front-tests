@@ -1,0 +1,37 @@
+body {
+    font-size: 14px !important;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    /* rtl:raw:
+    right: 0;
+    */
+    bottom: 0;
+    /* rtl:remove */
+    left: 0;
+    z-index: 100;
+    /* Behind the navbar */
+    padding: 48px 0 0;
+    /* Height of navbar */
+    box-shadow: rgba(194, 159, 250, 0.15) 0px 0px 20px 3px;
+}
+
+.sidebar .nav-link {
+    padding-left: 1.5rem;
+    height: 40px;
+}
+
+.nav-link {
+    color: #333;
+    font-weight: 500;
+}
+
+.nav-link-icon {
+    width: 1.15em;
+    height: 1.15em;
+    font-weight: 700;
+    vertical-align: text-bottom;
+    margin-right: .5rem;
+}

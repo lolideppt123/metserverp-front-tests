@@ -1,0 +1,32 @@
+.modal-form-container {
+    position: fixed;
+    background-color: black;
+    opacity: 60%;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-form-item-wrapper {
+    height: 600px;
+    width: 1000px;
+    max-width: 100%;
+    background-color: white;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    left: 155px;
+}
+
+.modal-close-btn {
+    position: absolute;
+    left: 26;
+    top: 6;
+    float: right;
+}

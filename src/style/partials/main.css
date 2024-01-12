@@ -1,0 +1,17 @@
+h3 {
+    font-size: 24px
+}
+
+.main-content-wrapper {
+    margin-left: 18.34%;
+    margin-right: 1.66%;
+}
+
+.content-layout {
+    max-width: 1200px;
+    margin: 40px auto 30px;
+    background: #fff;
+    box-shadow: rgba(194, 159, 250, 0.15) 0px 0px 20px 3px;
+    border-radius: 6px;
+    padding: 50px 40px;
+}
