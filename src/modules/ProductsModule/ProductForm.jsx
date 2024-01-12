@@ -16,6 +16,10 @@ export default function ProductForm({ config }) {
         materialLoad,
     } = config;
 
+    // choices you already picked
+    const [chosenMaterials, setChosenMaterials] = useState({})
+    const [IsRemoved, setIsRemoved] = useState()
+
     const { enqueueSnackbar } = useSnackbar();
     const {
         register,
@@ -45,10 +49,17 @@ export default function ProductForm({ config }) {
     const getUnit = watch("product_unit");
     const [inv_type, setType] = useState(false);
 
+    const handleOptionChange = (e) => {
+        let my_name = e.target.name;
+        let my_value = e.target.value;
+        setChosenMaterials({ ...chosenMaterials, [my_name]: my_value })
+    }
+
     useEffect(() => {
         // Rerenders when product_unit changes
         // console.log(inv_type)
-    }, [getUnit, inv_type])
+        setIsRemoved(Object.values(chosenMaterials))
+    }, [getUnit, inv_type, chosenMaterials])
 
     const onSubmit = async (data) => {
         // await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -153,6 +164,7 @@ export default function ProductForm({ config }) {
                                                             {
                                                             ...register(`materials.${index}`, {
                                                                 required: "Material is required",
+                                                                onChange: (e) => handleOptionChange(e)
                                                             }
                                                             )}>
                                                             {!material.length ? (
@@ -161,7 +173,9 @@ export default function ProductForm({ config }) {
                                                                 <>
                                                                     <option value="">Choose...</option>
                                                                     {material.map((item, index) => (
-                                                                        <option key={index} value={item.material_name}>{item.material_name}</option>
+                                                                        <option key={index} value={item.material_name} disabled={IsRemoved.includes(item.material_name)}>
+                                                                            {item.material_name}
+                                                                        </option>
                                                                     ))}
                                                                 </>
                                                             )}
@@ -173,6 +187,7 @@ export default function ProductForm({ config }) {
                                                             {
                                                             ...register(`quantity.${index}`, {
                                                                 valueAsNumber: true,
+                                                                required: "Quantity is required"
                                                             }
                                                             )} />
                                                     </div>
