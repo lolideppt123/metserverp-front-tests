@@ -28,10 +28,10 @@ export default function RawMaterials() {
             title: 'Note',
             key: 'note'
         },
-        {
-            title: '',
-            key: 'action'
-        }
+        // {
+        //     title: '',
+        //     key: 'action'
+        // }
     ]
 
     // const [data, setData] = useState([]);
