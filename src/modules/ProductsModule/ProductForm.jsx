@@ -8,10 +8,10 @@ import { useForm, useFieldArray } from 'react-hook-form';
 export default function ProductForm({ config }) {
     const { category, unit, material } = config;
 
-    // choices existing in dropdown
-    const [materialChoices, setMaterialChoices] = useState([...material])
-    // choices you already picked
-    const [chosenMaterials, setChosenMaterials] = useState()
+    // // choices existing in dropdown
+    // const [materialChoices, setMaterialChoices] = useState([...material])
+    // // choices you already picked
+    // const [chosenMaterials, setChosenMaterials] = useState()
 
     const { enqueueSnackbar } = useSnackbar();
     const {
