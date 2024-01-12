@@ -4,7 +4,7 @@ import { Suspense, lazy } from 'react';
 
 import { BrowserRouter } from 'react-router-dom';
 import { SnackbarProvider } from 'notistack';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, Spin, Flex } from 'antd';
 
 const FspOs = lazy(() => import('./apps/FspOs'))
 
@@ -20,7 +20,14 @@ function RootApp() {
                         colorPrimary: '#470ba9'
                     }
                 }} >
-                    <Suspense fallback={<h1>Loading...</h1>}>
+                    <Suspense fallback={
+                        // <div className='d-flex justify-content-center align-items-center'>
+                        <div style={{ marginTop: '25%' }}>
+                            <Flex vertical>
+                                <Spin size='large' />
+                            </Flex>
+                        </div>
+                    }>
                         <FspOs />
                     </Suspense>
                 </ConfigProvider>
