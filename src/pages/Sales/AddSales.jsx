@@ -1,18 +1,36 @@
-import useFetch from '../../hooks/useFetch';
+import { useEffect } from 'react';
+import useAxiosFunction from '../../hooks/useAxiosFunction';
+import Spinner from '../../components/Fallback/Spinner';
+import NoServerResponse from '../../components/Errors/NoServerResponse';
 
 import AddFormPageHeader from '../../modules/FspPanelModule/AddFormPageHeader';
-import SalesForm from '../../modules/SalesModule/SalesForm';
+import DraftForm from '../../modules/SalesModule/DraftForm';
 
 export default function AddSales() {
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+    const { loading: customerLoad, response: customer, setResponse: setCustomer, error: customerErr, axiosFetch: customerFetch } = useAxiosFunction();
+    const { loading: productLoad, response: product, setResponse: setProduct, error: productErr, axiosFetch: productFetch } = useAxiosFunction();
     const Labels = {
         PAGE_ENTITY: 'Sales',
         PAGE_ENTITY_URL: 'sales',
         ADD_NEW_ENTITY: 'Add New Sales',
+        METHOD: 'post',
+        API_URL: 'sales/'
     }
 
-    const { data: customer, loading: customerLoad, error: customerErr } = useFetch('customer/');
-    const { data: product, loading: productLoad, error: productErr } = useFetch('products/');
+    useEffect(() => {
+        // Needs to wait for first request so refresh token won't double send
+        const getData = async () => {
+            await customerFetch({
+                url: 'customers/',
+                method: 'get'
+            });
+            await productFetch({
+                url: 'products/',
+                method: 'get'
+            });
+        }
+        getData();
+    }, [])
 
     const config = {
         Labels,
@@ -20,11 +38,25 @@ export default function AddSales() {
         product,
         customerLoad,
         productLoad,
+        setCustomer,
+        setProduct,
     }
     return (
         <>
             <AddFormPageHeader config={config} />
-            <SalesForm config={config} />
+            {
+                customerLoad || productLoad ? (
+                    <Spinner />
+                ) : (
+                    productErr || customerErr ? (
+                        <NoServerResponse error={productErr} />
+                    ) : (
+
+                        // <SalesForm config={config} />
+                        <DraftForm config={config} />
+                    )
+                )
+            }
         </>
     )
 }

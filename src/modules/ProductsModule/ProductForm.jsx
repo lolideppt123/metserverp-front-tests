@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react'
-import axiosInstance from '../../helpers/axios';
-import { useSnackbar } from 'notistack';
 import { Spin, Flex } from 'antd';
-
+import { LoadingOutlined } from '@ant-design/icons';
+import useAxiosFunction from '../../hooks/useAxiosFunction';
 import { FiPlus, FiX } from 'react-icons/fi';
 import { useForm, useFieldArray } from 'react-hook-form';
 
+
 export default function ProductForm({ config }) {
+    const { loading, response, success, error, axiosFetch } = useAxiosFunction();
     const {
+        Labels,
         category,
         unit,
         material,
@@ -17,23 +19,26 @@ export default function ProductForm({ config }) {
     } = config;
 
     // choices you already picked
-    const [chosenMaterials, setChosenMaterials] = useState({})
-    const [IsRemoved, setIsRemoved] = useState()
+    const [picked, setPicked] = useState([])
+    const [inv_type, setType] = useState(false);
+    const [FormLoading, setFormLoading] = useState(false);
 
-    const { enqueueSnackbar } = useSnackbar();
     const {
         register,
         handleSubmit,
         reset,
-        setError,
+        setError: formSetError,
+        clearErrors: formClearError,
         getValues,
-        formState: { errors, isSubmitting },
+        setValue,
+        formState: { errors, isSubmitting, isDirty },
         control,
         watch,
-        setValue
     } = useForm({
         defaultValues: {
-            materials: [{ material: "", quantity: 0 }],
+            product_name: "",
+            product_min_stock: 0,
+            materials: [{ material: '', quantity: 0, unit: '' }],
             product_unit: "Piece"
         }
     });
@@ -42,48 +47,48 @@ export default function ProductForm({ config }) {
         name: 'materials',
         control,
         rules: {
-            required: "Required atleast 1 item"
+            required: "Required at least 1 item"
         }
     })
 
-    const getUnit = watch("product_unit");
-    const [inv_type, setType] = useState(false);
+    const handleRemoveItem = (index) => {
+        setPicked(prev => {
+            return prev.filter(prevItem => prevItem !== item[index].material)
+        })
+    }
 
-    const handleOptionChange = (e) => {
-        let my_name = e.target.name;
-        let my_value = e.target.value;
-        setChosenMaterials({ ...chosenMaterials, [my_name]: my_value })
+    const handleChangeItem = (e, index) => {
+        setPicked(prev => [...prev, item[index].material]);
+        material.map((item) => {
+            item.material_name == getValues(`materials.${index}.material`) && setValue(`materials.${index}.unit`, item.material_unit_abbv)
+        })
+    }
+
+    const onSubmit = async (data) => {
+        setFormLoading(true);
+        const configObj = {
+            url: `${Labels.API_URL}`,
+            method: `${Labels.METHOD}`,
+            data: data,
+            formSetError: formSetError
+        }
+        setTimeout(async () => {
+            axiosFetch(configObj);
+            // setFormLoading(false);
+        }, 1500);
     }
 
     useEffect(() => {
-        // Rerenders when product_unit changes
-        // console.log(inv_type)
-        setIsRemoved(Object.values(chosenMaterials))
-    }, [getUnit, inv_type, chosenMaterials])
+        if (success) {
+            setFormLoading(false);
+            reset();
+            formClearError();
+            history.back();
+        }
+    }, [success])
 
-    const onSubmit = async (data) => {
-        // await new Promise((resolve) => setTimeout(resolve, 1000))
-        console.log(data)
-        axiosInstance
-            .post('products/', data, { headers: { 'Content-Type': 'application/json' } })
-            .then((response) => {
-                console.log(response)
-                enqueueSnackbar(response.data.message, { variant: 'success' });
-                reset()
-                history.back()
-            }).catch((err) => {
-                console.log(err)
-                setError(`${err.response.data.label}`, {
-                    type: "manual",
-                    message: `${err.response.data.message}`
-                })
-            })
-    }
-
-    const [maxQuantity, setMaxQuantity] = useState();
-    const getMaterialQuantity = (material) => {
-
-    }
+    const item = watch('materials') // Needed
+    const getUnit = watch("product_unit"); //Needed
 
     return (
         <div className="container">
@@ -110,27 +115,34 @@ export default function ProductForm({ config }) {
                                             {
                                             ...register("inventory_type", {
                                                 required: "Inventory Type is required",
-                                                onChange: () => setType(prevType => !prevType)
+                                                onChange: (e) => setType(e.target.value)
                                             }
                                             )}>
-                                            {/* <option value="">Choose...</option> */}
                                             <option value={"IMPORTED"}>IMPORTED</option>
                                             <option value={"MANUFACTURED"}>MANUFACTURED</option>
+                                            <option value={"LOCAL_PURCHASE"}>LOCAL PURCHASE</option>
                                         </select>
                                         {errors.inventory_type && (<p className='text-danger px-1 mt-1 mb-2' style={{ fontWeight: "600", fontSize: "13px" }}>{errors.inventory_type.message}</p>)}
                                     </div>
                                     <div className="flex-fill mb-2">
                                         <label htmlFor="product_min_stock">Minimum Stock</label>
-                                        <input type="number" className="form-control form-control-sm" id='product_min_stock' min={0} step="0.01" {...register("product_min_stock", { required: "Minimum Stock is required" })} />
+                                        <input type="number" className="form-control form-control-sm" id='product_min_stock' min={1} step="0.01" {
+                                            ...register("product_min_stock",
+                                                {
+                                                    required: "Minimum Stock is required",
+                                                    min: 1,
+                                                    valueAsNumber: true
+                                                }
+                                            )} />
                                         {errors.product_min_stock && (<p className='text-danger px-1 mt-1 mb-2' style={{ fontWeight: "600", fontSize: "13px" }}>{errors.product_min_stock.message}</p>)}
                                     </div>
                                     <div className="flex-fill mb-2">
                                         <label htmlFor="product_unit">Unit</label>
                                         <select className="form-select form-select-sm" autoComplete='off' id='product_unit' {...register("product_unit", { required: "Product Unit is required" })}>
-                                            {category.map((item, index) => (
+                                            {category?.map((item, index) => (
                                                 <optgroup label={item.unit_category} key={index}>
                                                     {
-                                                        unit.map((unit, index) => {
+                                                        unit?.map((unit, index) => {
                                                             if (item.unit_category == unit.unit_category) {
                                                                 return (
                                                                     <option value={unit.unit_name} key={index}>{unit.unit_name}</option>
@@ -150,7 +162,7 @@ export default function ProductForm({ config }) {
                                 </div>
                             </div>
                             <div className="col-md-6 border-start">
-                                {inv_type &&
+                                {inv_type == 'MANUFACTURED' &&
                                     <>
                                         <div className="form-group" style={{ display: "flex", flexDirection: 'row', justifyContent: "center" }}>
                                             <span style={{ fontWeight: '600' }}>Materials Used per {getValues('product_unit')}</span>
@@ -158,22 +170,22 @@ export default function ProductForm({ config }) {
                                         {fields.map((field, index) => {
                                             return (
                                                 <div key={field.id} className="d-flex gap-2">
-                                                    <div className="flex-grow-1 mb-2">
+                                                    <div className="col-lg-6 mb-2">
                                                         <label>Material</label>
-                                                        <select className='form-select form-select-sm'
+                                                        <select className='form-select form-select-sm' disabled={getValues(`materials.${index}.material`) == "" ? false : true}
                                                             {
-                                                            ...register(`materials.${index}`, {
+                                                            ...register(`materials.${index}.material`, {
                                                                 required: "Material is required",
-                                                                onChange: (e) => handleOptionChange(e)
+                                                                onChange: (e) => handleChangeItem(e, index)
                                                             }
                                                             )}>
-                                                            {!material.length ? (
+                                                            {!material?.length ? (
                                                                 <option value="">Choose...</option>
                                                             ) : (
                                                                 <>
                                                                     <option value="">Choose...</option>
                                                                     {material.map((item, index) => (
-                                                                        <option key={index} value={item.material_name} disabled={IsRemoved.includes(item.material_name)}>
+                                                                        <option key={index} value={item.material_name} disabled={picked.includes(item.material_name)}>
                                                                             {item.material_name}
                                                                         </option>
                                                                     ))}
@@ -181,18 +193,29 @@ export default function ProductForm({ config }) {
                                                             )}
                                                         </select>
                                                     </div>
-                                                    <div className="mb-2">
+                                                    <div className="col-lg-3 mb-2">
                                                         <label>Quantity</label>
-                                                        <input type="number" className="form-control form-control-sm" step={0.0001}
+                                                        <input type="number" className="form-control form-control-sm" step={0.0001} min={0.0001}
                                                             {
-                                                            ...register(`quantity.${index}`, {
+                                                            ...register(`materials.${index}.quantity`, {
                                                                 valueAsNumber: true,
+                                                                min: 0.0001,
                                                                 required: "Quantity is required"
                                                             }
                                                             )} />
                                                     </div>
+                                                    <div className="mb-2">
+                                                        <label>Unit</label>
+                                                        <input type="text" className="form-control form-control-sm" disabled={true}
+                                                            {
+                                                            ...register(`materials.${index}.unit`)
+                                                            } />
+                                                    </div>
                                                     <div className="btn-group mb-2">
-                                                        <a type='button' className='text-danger' onClick={() => remove(index)}>
+                                                        <a type='button' className='text-danger' onClick={() => {
+                                                            handleRemoveItem(index)
+                                                            remove(index)
+                                                        }}>
                                                             <FiX style={{ height: '24px', width: '24px', margin: '23px 6px 3px 0' }} />
                                                         </a>
                                                     </div>
@@ -200,12 +223,13 @@ export default function ProductForm({ config }) {
                                             )
                                         })}
                                         <p>{errors.materials?.root?.message}</p>
-                                        <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 mt-2 border-top">
+                                        <div className="d-flex justify-content-center flex-wrap flex-md-nowrap align-items-center pt-2 mt-2 border-top">
                                             <button className='btn btn-primary' type='button'
                                                 onClick={() => {
                                                     append({
-                                                        materials: "",
-                                                        quantity: 0
+                                                        material: "",
+                                                        quantity: 0,
+                                                        unit: ''
                                                     })
                                                 }}>
                                                 <FiPlus style={{ height: '18px', width: '18px', margin: '0 6px 3px 0' }} />Add Item</button>
@@ -217,7 +241,25 @@ export default function ProductForm({ config }) {
                         </div>
                     </form>
                     <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 mt-4 border-top">
-                        <button className='btn btn-primary col-2' form='addProductForm' disabled={isSubmitting}><FiPlus style={{ height: '18px', width: '18px', margin: '0 6px 3px 0' }} />Save</button>
+                        <button className='btn btn-primary col-2' form='addProductForm' disabled={isSubmitting || !isDirty}>
+                            {FormLoading ? (
+                                <Spin
+                                    indicator={
+                                        <LoadingOutlined
+                                            style={{
+                                                fontSize: 18,
+                                                color: 'white',
+                                                margin: '0 8px 3px 0'
+                                            }}
+                                            spin
+                                        />
+                                    }
+                                />
+                            ) : (
+                                <FiPlus style={{ height: '18px', width: '18px', margin: '0 6px 3px 0' }} />
+                            )}
+                            Save
+                        </button>
                         <button className='btn btn btn-outline-secondary'>Cancel</button>
                     </div>
                 </>

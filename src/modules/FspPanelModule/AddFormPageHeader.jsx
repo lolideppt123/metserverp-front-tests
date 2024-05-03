@@ -18,7 +18,7 @@ export default function AddFormPageHeader({ config }) {
                         </ol>
                     </nav>
                     <div className="btn-group">
-                        <NavLink onClick={() => history.back()}><FiX style={{ height: '24px', width: '24px', margin: '0 6px 3px 0' }} /> </NavLink>
+                        <NavLink type='button' onClick={() => history.back()}><FiX style={{ height: '24px', width: '24px', margin: '0 6px 3px 0' }} /> </NavLink>
                     </div>
                 </div>
             )}

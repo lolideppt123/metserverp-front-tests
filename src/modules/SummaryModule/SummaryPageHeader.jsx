@@ -1,6 +1,6 @@
-import AntdDatePicker from "../../components/DatePicker/AntdDatePicker"
+import AntdDatePicker from "../../components/DatePicker/AntdDatePicker";
 
-export default function SummaryPageHeader({Labels, defaultDate, setDate}) {
+export default function SummaryPageHeader({ Labels, defaultDate, setDate }) {
     return (
         <>
             <div className="col-md-9 mb-3">
@@ -12,8 +12,18 @@ export default function SummaryPageHeader({Labels, defaultDate, setDate}) {
                 </nav>
             </div>
 
-            <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-4 mb-4 border-bottom">
-                <AntdDatePicker defaultDate={defaultDate} setDate={setDate} />
+            <div className="row">
+                <div className="col col-lg-3">
+                    {/* <select className='form-select form-select-sm' onChange={(e) => setOptions(e.target.value)}>
+                        <option defaultValue={"ALL"} value="ALL">All</option>
+                        <option value="PRODUCTS">Product Sales</option>
+                        <option value="CUSTOMERS">Customer Sales</option>
+                    </select> */}
+                </div>
+                <div className="col col-lg-5"></div>
+                <div className="col col-lg-4">
+                    <AntdDatePicker defaultDate={defaultDate} setDate={setDate} />
+                </div>
             </div>
         </>
     )

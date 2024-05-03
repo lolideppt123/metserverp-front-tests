@@ -1,14 +1,10 @@
 
 export default function NavBar(props) {
     return (
-        <>
-            <nav id="sidebarMenu" className="sidebar-wrapper sidebar col-lg-2 d-md-block bg-white">
-                <div className="position-sticky pt-2 sidebar-sticky">
-                    <ul className="nav flex-column">
-                        {props.children}
-                    </ul>
-                </div>
-            </nav>
-        </>
+        <nav id="sidebarMenu" className={`sidebar bg-white ${!props.expanded && "close"}`}>
+            <ul className="nav d-flex flex-nowrap flex-column">
+                {props.children}
+            </ul>
+        </nav>
     )
 }

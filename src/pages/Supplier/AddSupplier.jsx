@@ -1,13 +1,13 @@
-import React from 'react'
-
 import AddFormPageHeader from '../../modules/FspPanelModule/AddFormPageHeader';
-import AddCompanyForm from '../../modules/FspPanelModule/AddCompanyForm';
+import CompanyForm from '../../modules/FspPanelModule/CompanyForm';
 
 export default function AddSupplier() {
     const Labels = {
         PAGE_ENTITY: 'Suppliers',
         PAGE_ENTITY_URL: 'suppliers',
         ADD_NEW_ENTITY: 'Add New Supplier',
+        METHOD: 'post',
+        API_URL: 'suppliers/'
     }
     const config = {
         Labels,
@@ -15,7 +15,7 @@ export default function AddSupplier() {
     return (
         <>
             <AddFormPageHeader config={config} onBack />
-            <AddCompanyForm config={config} />
+            <CompanyForm config={config} />
         </>
     )
 }

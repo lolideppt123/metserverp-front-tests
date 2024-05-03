@@ -1,4 +1,4 @@
-.container .app-table {
+/* .container .app-table {
     overflow-x: auto !important;
     overscroll-behavior-inline: contain;
 }
@@ -8,31 +8,41 @@
     padding-bottom: 80px !important;
 }
 
+.multi-app-table {
+    padding-bottom: 10px !important;
+    margin-bottom: 40px !important;
+    max-width: 100%;
+}
+
 .container .app-table table thead,
 th,
 td {
     white-space: nowrap;
-}
+} */
 
-.container .app-table table th:nth-child(1),
-th:nth-child(2),
+/* .container .app-table table th:nth-child(1),
+
 td:nth-child(1),
-td:nth-child(2) {
+.container .app-table table th:nth-child(3),
+td:nth-child(3)
+
+
+    {
     position: sticky;
     left: 0px;
-}
+} */
 
-.container .app-table table th:nth-child(2) {
+/* .container .app-table table th:nth-child(1) {
     background-color: #fff;
-}
+} */
 
-tr:nth-child(odd) td {
+/* tr:nth-child(odd) td {
     background: #f0f0f0;
 }
 
 tr:nth-child(even) td {
     background: #fff;
-}
+} */
 
 /* PAID Style
 
@@ -45,6 +55,23 @@ tr:nth-child(even) td {
     background: #fff2e8;
     border-color: #ffbb96;
 */
+
+.multi-app-table {
+    margin-bottom: 6rem;
+}
+
+/* .ant-table-body::-webkit-scrollbar {
+    width: 1.5em;
+}
+
+.ant-table-body::-webkit-scrollbar-thumb {
+    background-color: #389e0d !important;
+} */
+
+.ant-table-body::-webkit-scrollbar-track {
+    background: hsl(120, 75%, 50% / 1) !important;
+}
+
 /* SALES STATUS STYLE */
 
 .paid-status {
@@ -58,10 +85,21 @@ tr:nth-child(even) td {
     color: #d4380d !important;
 }
 
+.warning {
+    color: #664d03;
+}
+
 .unpaid-status {
     color: #d4380d !important;
     background: #fff2e8 !important;
     border: 1px solid #ffbb96 !important;
+    border-radius: 6px !important;
+}
+
+.warning-status {
+    color: #664d03 !important;
+    background: #fff3cd !important;
+    border: 1px solid #e1c77d !important;
     border-radius: 6px !important;
 }
 

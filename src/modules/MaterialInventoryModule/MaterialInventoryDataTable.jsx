@@ -2,7 +2,7 @@ import moment from 'moment';
 import { NavLink } from 'react-router-dom';
 import { Spin, Flex } from 'antd';
 
-import { NumberFormatter } from '../../settings/MoneyFormatter';
+import MoneyFormatter, { NumberFormatter } from '../../settings/MoneyFormatter';
 
 export default function MaterialInventoryDataTable({ config }) {
     const { dataTableColumn, data, loading } = config;
@@ -16,7 +16,7 @@ export default function MaterialInventoryDataTable({ config }) {
                 </div>
             ) : (
                 <>
-                    {!data.length ? (
+                    {!data?.length ? (
                         <div className="py-4">
                             <h6 className="text-center px-3 mt-4 mb-1"><i>Nothing to display yet</i></h6>
                         </div>
@@ -31,7 +31,7 @@ export default function MaterialInventoryDataTable({ config }) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {data.map((item, index) => (
+                                    {data?.map((item, index) => (
                                         <tr key={index}>
                                             <td className='text-center'>{(moment(item.last_ordered_date)).format("MMM DD, YYYY")}</td>
                                             <td className='col col-lg-3 text-center'><NavLink to={`transaction/${item.material_name}`}>{item.material_name}</NavLink> </td>
@@ -43,7 +43,7 @@ export default function MaterialInventoryDataTable({ config }) {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className='text-center'><NumberFormatter amount={item.unit_price} /> | {item.stock_left}</td>
+                                            <td className='text-center'><MoneyFormatter amount={item.unit_price} /> | {item.stock_left}</td>
                                             <td className='text-center'>{item.material_unit}</td>
                                             <td className='text-center'>{(moment(item.order_update)).format("MMM DD, YYYY")}</td>
                                         </tr>

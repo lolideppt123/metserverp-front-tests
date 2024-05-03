@@ -1,7 +1,14 @@
-import React from 'react'
+import SalesMonthFilter from "../components/Filter/SalesMonthFilter"
+import CustomerList from "../features/customers/CustomerList";
 
 export default function NotFound() {
+
+
     return (
-        <div>NotFound</div>
+        <>
+
+            <CustomerList />
+
+        </>
     )
 }

@@ -1,27 +1,40 @@
 .modal-form-container {
     position: fixed;
-    background-color: black;
-    opacity: 60%;
     top: 0;
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 50;
+    background-color: rgb(200, 200, 200);
     display: flex;
     justify-content: center;
     align-items: center;
+    position: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100vw;
+    z-index: 50;
 }
 
 .modal-form-item-wrapper {
-    height: 600px;
-    width: 1000px;
+    height: 500px;
+    width: 700px;
+    max-height: 100%;
     max-width: 100%;
     background-color: white;
-    padding: 16px;
+    padding: 32px;
     display: flex;
     flex-direction: column;
     position: relative;
     left: 155px;
+    border-radius: 5px;
+}
+
+.modalBody {
+    max-height: 100%;
+    overflow-y: auto;
+
 }
 
 .modal-close-btn {

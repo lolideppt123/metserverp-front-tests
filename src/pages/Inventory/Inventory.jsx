@@ -1,9 +1,14 @@
-import useFetch from '../../hooks/useFetch';
+import { useEffect } from 'react';
+import useAxiosFunction from '../../hooks/useAxiosFunction';
+import Spinner from '../../components/Fallback/Spinner';
+import NoServerResponse from '../../components/Errors/NoServerResponse';
+import GetStartedTemplate from '../../components/Fallback/GetStartedTemplate';
 
 import DataTablePageHeader from '../../modules/FspPanelModule/DataTablePageHeader';
 import InventoryDataTable from '../../modules/InventoryModule/InventoryDataTable';
 
 export default function Inventory() {
+    const { loading, response: data, error, axiosFetch } = useAxiosFunction();
     const Labels = {
         BASE_ENTITY: 'Inventory',
         TABLE_TITLE: 'Product Inventory',
@@ -41,21 +46,17 @@ export default function Inventory() {
         },
     ]
 
-    // const [data, setData] = useState([]);
+    useEffect(() => {
+        // Needs to wait for first request so refresh token won't double send
+        const getData = async () => {
+            await axiosFetch({
+                url: 'inventory/products/',
+                method: 'get'
+            });
+        }
+        getData();
+    }, [])
 
-    // useEffect(() => {
-    //     axiosInstance
-    //         .get('inventory/')
-    //         .then((response) => {
-    //             console.log(response.data)
-    //             setData(response.data)
-    //         })
-    //         .catch((err) => {
-    //             console.log(err)
-    //         })
-    // }, [])
-
-    const { data, loading, error } = useFetch('inventory/');
     const config = {
         dataTableColumn,
         Labels,
@@ -66,7 +67,23 @@ export default function Inventory() {
     return (
         <>
             <DataTablePageHeader Labels={Labels} />
-            <InventoryDataTable config={config} />
+            {
+                loading ?
+                    (
+                        <Spinner />
+                    ) : (
+                        error ?
+                            (
+                                <NoServerResponse error={error} />
+                            ) : (
+                                data?.length == 0 ? (
+                                    <GetStartedTemplate entity={'Product Inventory'} optionalStatement={true} />
+                                ) : (
+                                    <InventoryDataTable config={config} />
+                                )
+                            )
+                    )
+            }
         </>
 
     )

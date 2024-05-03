@@ -1,25 +1,30 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
+import useAxiosFunction from '../../hooks/useAxiosFunction';
 import dayjs from 'dayjs';
+import MoneyFormatter from "../../settings/MoneyFormatter";
 
 import BarChartSummary from "../../components/Charts/BarChartSummary"
 import SummaryPageHeader from "../../modules/SummaryModule/SummaryPageHeader";
 import SalesSummaryDataTable from "../../modules/SummaryModule/SalesSummaryDataTable";
 
+import Spinner from "../../components/Fallback/Spinner";
+import NoServerResponse from "../../components/Errors/NoServerResponse";
+
 const DATE_FORMAT = 'YYYY-MM-DD';
 const today = dayjs().format(DATE_FORMAT)
-const last30Days = dayjs().subtract(360, 'days').format(DATE_FORMAT);
+const last30Days = dayjs().subtract(1, 'year').format(DATE_FORMAT);
 
 export default function SalesSummary() {
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+    const { loading: chartLoad, response: chart, error: chartErr, axiosFetch: chartFetch } = useAxiosFunction();
+    const { loading: tableLoad, response: table, error: tableErr, axiosFetch: tableFetch } = useAxiosFunction();
+    const { loading: totalsLoad, response: totals, error: totalsErr, axiosFetch: totalsFetch } = useAxiosFunction();
+
     const Labels = {
         BASE_ENTITY: 'Sales Summary',
         TABLE_TITLE: 'Sales Summary',
     }
 
     const [defaultDate, setDefaultDate] = useState([last30Days, today])
-    const [salesData, setSalesData] = useState([]);
-    const [salesData2, setSalesData2] = useState([]);
     const [options, setOptions] = useState("ALL")
 
     const postData = {
@@ -28,35 +33,120 @@ export default function SalesSummary() {
         "query": options,
     }
 
-    useEffect(() => {
-        let endpoints = [
-            `${API_BASE_URL}sales/sales-summary/data-chart`,
-            `${API_BASE_URL}sales/sales-summary/data-table`,
-        ]
+    const dataTableColumn = [
+        {
+            title: <div className='fs-md fw-bold text-center'>No.</div>,
+            key: 'no',
+            dataIndex: 'id',
+            width: 65,
+            render: (text, record, index) => <div className='fs-md fw-semibold text-center'>{index + 1}</div>
+        },
+        {
+            title: <div className='fs-md fw-bold text-start'>{options !== "CUSTOMERS" ? "Product" : "Customer"}</div>,
+            key: 'product_customer',
+            dataIndex: ['product', 'customer'],
+            width: 200,
+            render: (text, record) => {
+                return (
+                    <div className={`fs-md fw-semibold text-uppercase`}>
+                        {options !== "CUSTOMERS" ? (
+                            <>
+                                {record?.product?.substr(0, 17)}{record?.product?.length > 17 && '\u2026'}
+                            </>
+                        ) : (
+                            <>
+                                {record?.customer?.substr(0, 17)}{record?.customer?.length > 17 && '\u2026'}
+                            </>
+                        )}
+                    </div>
+                )
+            }
+        },
+        {
+            title: <div className='fs-md fw-bold text-center'>Gross Sales</div>,
+            key: 'grossSales',
+            dataIndex: 'sales_gross',
+            // width: 125,
+            render: (text, record) => {
+                return <div className={`fs-md fw-semibold text-center`}><MoneyFormatter amount={text} /></div>
+            }
+        },
+        {
+            title: <div className='fs-md fw-bold text-center'>Cost of Sales</div>,
+            key: 'costSales',
+            dataIndex: 'sales_cost',
+            // width: 125,
+            render: (text, record) => {
+                return <div className={`fs-md fw-semibold text-center`}><MoneyFormatter amount={text} /></div>
+            }
+        },
+        {
+            title: <div className='fs-md fw-bold text-center'>Margin</div>,
+            key: 'marginSales',
+            dataIndex: 'sales_margin',
+            // width: 125,
+            render: (text, record) => {
+                return <div className={`fs-md fw-semibold text-center`}><MoneyFormatter amount={text} /></div>
+            }
+        },
+        {
+            title: <div className='fs-md fw-bold text-center'>%Margin</div>,
+            key: 'grossSales',
+            dataIndex: 'sales_gross',
+            // width: 125,
+            render: (text, record) => {
+                return <div className={`fs-md fw-semibold text-center`}><MoneyFormatter amount={text} /></div>
+            }
+        },
+    ]
 
-        axios.all(endpoints.map((endpoint) => axios.post(endpoint, postData, { headers: { 'Content-Type': 'application/json' } })))
-            .then(axios.spread((data1, data2) => {
-                // console.log(data1)
-                // console.log(data2)
-                setSalesData(data1.data)
-                setSalesData2(data2.data)
-            }))
-            .catch((err) => {
-                console.log(err.response)
-            })
+    useEffect(() => {
+        const getData = async () => {
+            await chartFetch({
+                url: `sales/sales-summary/data-chart`,
+                method: 'post',
+                data: postData
+            });
+            await tableFetch({
+                url: 'sales/sales-summary/data-table',
+                method: 'post',
+                data: postData
+            });
+            await totalsFetch({
+                url: 'sales/sales-summary/data-table-totals',
+                method: 'post',
+                data: postData
+            });
+        }
+        getData();
     }, [defaultDate, options])
+
+    const config = {
+        dataTableColumn,
+        table,
+        totals,
+        defaultDate,
+        options,
+        setOptions,
+    }
 
     return (
         <>
             <SummaryPageHeader defaultDate={defaultDate} Labels={Labels} setDate={setDefaultDate} />
-            {!salesData.length || !salesData2.length ? (
-                <h6 className="text-center px-3 mt-4 mb-1"><i>Nothing to display yet</i></h6>
-            ) : (
-                <>
-                    <BarChartSummary data={salesData} type={"sales"} options={options} />
-                    <SalesSummaryDataTable data={salesData2} defaultDate={defaultDate} setOptions={setOptions} />
-                </>
-            )
+            {
+                chartLoad || tableLoad || totalsLoad ? (
+                    <Spinner />
+                ) : (
+                    chartErr || tableErr || totalsErr ? (
+                        <NoServerResponse error={chartErr} />
+                    ) : (
+                        <>
+                            <BarChartSummary data={chart} type={"sales"} options={options} />
+                            <SalesSummaryDataTable config={config} />
+                        </>
+                    )
+                )
+
             }
         </>
 

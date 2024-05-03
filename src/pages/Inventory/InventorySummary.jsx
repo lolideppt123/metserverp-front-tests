@@ -1,6 +1,8 @@
 import axiosInstance from "../../helpers/axios";
 import { useEffect, useState } from "react";
 import dayjs from 'dayjs';
+import Spinner from '../../components/Fallback/Spinner';
+import NoServerResponse from '../../components/Errors/NoServerResponse';
 
 import BarChartSummary from "../../components/Charts/BarChartSummary"
 import SummaryPageHeader from "../../modules/SummaryModule/SummaryPageHeader";
@@ -15,10 +17,13 @@ export default function InventorySummary() {
         TABLE_TITLE: 'Inventory Summary',
     }
 
-    const [defaultDate, setDefaultDate] = useState([last30Days, today])
+    const [defaultDate, setDefaultDate] = useState([last30Days, today]);
+    const [IsLoading, setIsLoading] = useState(false);
+    const [errors, setError] = useState()
     const [inventoryData, setInventoryData] = useState([]);
 
     useEffect(() => {
+        setIsLoading(true)
         axiosInstance
             .post('inventory/inventory-summary', { "start": defaultDate[0], "end": defaultDate[1] }, { headers: { 'Content-Type': 'application/json' } })
             .then((response) => {
@@ -27,21 +32,37 @@ export default function InventorySummary() {
                 // enqueueSnackbar(response.data.message, { variant: 'success' });
                 // reset();
                 // history.back();
+                setIsLoading(false)
             })
             .catch((err) => {
                 console.log(err)
+                setError(err)
                 // console.log(err.response.data)
                 // setError(`${err.response.data.label}`, {
                 //     type: "manual",
                 //     message: `${err.response.data.message}`
                 // })
+                setIsLoading(false)
             })
     }, [defaultDate])
 
     return (
         <>
             <SummaryPageHeader defaultDate={defaultDate} Labels={Labels} setDate={setDefaultDate} />
-            <BarChartSummary data={inventoryData} type={"inventory"} />
+            {
+                IsLoading ?
+                    (
+                        <Spinner />
+                    ) : (
+                        errors ?
+                            (
+                                <NoServerResponse error={errors} />
+                            ) : (
+                                <BarChartSummary data={inventoryData} type={"inventory"} />
+                            )
+                    )
+            }
+
         </>
     )
 }

@@ -5,7 +5,7 @@ const { RangePicker } = DatePicker;
 const DATE_FORMAT_UI = 'MMMM DD, YYYY';
 
 
-export default function AntdDatePicker({defaultDate, setDate}) {
+export default function AntdDatePicker({ defaultDate, setDate }) {
 
     // console.log(defaultDate)
 
@@ -20,7 +20,7 @@ export default function AntdDatePicker({defaultDate, setDate}) {
         <Space direction="vertical" size={12}>
             <RangePicker
                 format={DATE_FORMAT_UI}
-                onChange={(values) => handleDateChange(values)}
+                onChange={(values) => values !== null && handleDateChange(values)}
                 defaultValue={[dayjs(defaultDate[0]), dayjs(defaultDate[1])]}
             />
         </Space>

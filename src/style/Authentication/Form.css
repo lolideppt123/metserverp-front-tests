@@ -1,0 +1,63 @@
+.form-body {
+    display: grid;
+    grid-template-columns: 0fr 1fr;
+    transition: grid-template-columns 1000ms ease-in;
+    background-color: #f3f1f6;
+}
+
+.form-loaded {
+    grid-template-columns: 1fr 1fr !important;
+}
+
+.form-body-contents {
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.form-container-left {
+    padding: 5rem 2.5rem;
+    border-radius: 1.5rem;
+    border-width: 2px;
+    border-color: rgba(243, 244, 246, 1);
+    box-shadow: 10px 40px -14px rgba(0, 0, 0, 0.25);
+    background: #fff;
+    font-weight: 500;
+}
+
+.input-wrapper {
+    margin-top: 28px;
+    border-radius: 8px;
+}
+
+.input-item {
+    border: none;
+    outline: none;
+    color: black;
+}
+
+.input-wrapper,
+.input-item {
+    background: #E5E4E2;
+}
+
+.input-item-icon {
+    position: relative;
+    top: 13px;
+    left: 9px;
+    width: 26px;
+    height: 26px;
+    float: left;
+    color: #333;
+}
+
+.signup-wrapper {
+    color: black;
+}
+
+.signup-link {
+    text-decoration: none;
+    margin-left: 3px;
+}

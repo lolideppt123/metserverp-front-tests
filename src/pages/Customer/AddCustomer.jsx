@@ -1,12 +1,13 @@
-
 import AddFormPageHeader from '../../modules/FspPanelModule/AddFormPageHeader';
-import AddCompanyForm from '../../modules/FspPanelModule/AddCompanyForm';
+import CompanyForm from '../../modules/FspPanelModule/CompanyForm';
 
 export default function AddCustomer() {
     const Labels = {
         PAGE_ENTITY: 'Customers',
         PAGE_ENTITY_URL: 'customers',
         ADD_NEW_ENTITY: 'Add New Customer',
+        METHOD: 'post',
+        API_URL: 'customers/'
     }
     const config = {
         Labels,
@@ -14,7 +15,7 @@ export default function AddCustomer() {
     return (
         <>
             <AddFormPageHeader config={config} onBack />
-            <AddCompanyForm config={config} />
+            <CompanyForm config={config} />
         </>
     )
 }

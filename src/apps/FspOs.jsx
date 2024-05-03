@@ -1,20 +1,37 @@
 import { lazy, Suspense } from 'react';
-import { Spin, Flex } from 'antd';
+import Fallback from '../components/Fallback/Fallback';
 
+import useAuth from '../hooks/useAuth';
+import AuthRouter from '../router/AuthRouter';
 const FspApp = lazy(() => import('./FspApp'))
+
+import { useSelector } from 'react-redux';
+import { selectUser } from '../features/auth/authSlice';
 
 export default function FspOs() {
     // Check here if user is logged in
+    // const USER = useSelector(selectUser);
+    const { user, token } = useAuth();
     return (
-        <Suspense fallback={
-            // <div className='d-flex justify-content-center align-items-center'>
-            <div style={{ marginTop: '25%' }}>
-                <Flex vertical>
-                    <Spin size='large' />
-                </Flex>
-            </div>
-        }>
-            <FspApp />
-        </Suspense>
+        <>
+            {
+                user ? (
+                    <>
+                        <MainApp />
+                    </>
+                ) : (
+                    <AuthRouter />
+                )
+            }
+
+        </>
+
     )
 }
+
+
+const MainApp = () => (
+    <Suspense fallback={<Fallback />}>
+        <FspApp />
+    </Suspense>
+)

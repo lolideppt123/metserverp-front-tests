@@ -1,41 +1,25 @@
-import { useState, useRef } from 'react';
 import { NavLink } from 'react-router-dom';
-
 import { FiX } from 'react-icons/fi';
 
-export default function ModalForm(props, { child }) {
-    const [openModal, setOpenModal] = useState(false);
-    const iconRef = useRef();
+export default function ModalForm(props) {
     return (
-        <>
-
-            <NavLink className="link-underline-opacity-0" onClick={() => setOpenModal(!openModal)}>
-                {/* <span>{props.mainicon}</span>
-                <span>{props.maintext}</span> */}
-
-                <li className='d-flex'>
-                    <div className="flex-shrink-1 DD-item-icon">
-                        {props.icon}
+        <div className="modal-form-container" onClick={props.closeModal}>
+            <div className="modal-form-item-wrapper" onClick={(e) => { e.stopPropagation() }}>
+                <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-4 mb-4 border-bottom">
+                    <div className="title">
+                        <h2>{props.title} Form</h2>
                     </div>
-                    <div className="flex-fill DD-item-text text-center">
-                        <span>{props.text}</span>
+                    <div className="btn-group">
+                        <NavLink onClick={props.closeModal}><FiX style={{ height: '24px', width: '24px', margin: '0 6px 3px 0', color: '#8540f5' }} /> </NavLink>
                     </div>
-                </li >
-
-                {/* <span>Helloworld</span> */}
-            </NavLink>
-            {openModal && (
-                <div onClick={() => setOpenModal(!openModal)} className='modal-form-container'>
-                    <div onClick={(e) => { e.stopPropagation() }} className="modal-form-item-wrapper">
-                        {/* <div className="bg-white w-100 h-100">
-
-                        </div> */}
-                            <FiX className='modal-close-btn' onClick={() => setOpenModal(!openModal)} />
-                            <span>Helloworld</span>
-                    </div>
-                    {/* {child} */}
                 </div>
-            )}
-        </>
+                <div className="modalBody">
+                    {props.modalBody}
+                </div>
+                <div className="modalFooter">
+                    {props.modalFooter}
+                </div>
+            </div>
+        </div>
     )
 }

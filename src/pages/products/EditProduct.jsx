@@ -1,54 +1,85 @@
-import React, { useState, useEffect } from 'react'
-import axios from 'axios';
+import useFetch from '../../hooks/useFetch';
 import { useParams } from 'react-router-dom';
+import Spinner from '../../components/Fallback/Spinner';
+import NoServerResponse from '../../components/Errors/NoServerResponse';
+
+import { useEffect } from 'react';
+import useAxiosFunction from '../../hooks/useAxiosFunction';
 
 import ProductEditForm from '../../modules/ProductsModule/ProductEditForm';
 import AddFormPageHeader from '../../modules/FspPanelModule/AddFormPageHeader';
+import FOrm from '../../modules/ProductsModule/FOrm';
 
 export default function EditProduct() {
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
     const { id } = useParams();
+    const { loading: categoryLoad, response: category, error: categoryErr, axiosFetch: categoryFetch } = useAxiosFunction();
+    const { loading: unitLoad, response: unit, error: unitErr, axiosFetch: unitFetch } = useAxiosFunction();
+    const { loading: productLoad, response: product, error: productErr, axiosFetch: productFetch } = useAxiosFunction();
+    const { loading: materialLoad, response: material, error: materialErr, axiosFetch: materialFetch } = useAxiosFunction();
     const Labels = {
         PAGE_ENTITY: 'Products',
+        PAGE_ENTITY_URL: 'products',
         ADD_NEW_ENTITY: 'Edit Product',
+        METHOD: 'put'
     }
 
-    const [unit, setUnit] = useState([]);
-    const [category, setCategory] = useState([]);
-    const [data, setData] = useState([]);
-
     useEffect(() => {
-        let endpoints = [
-            `${API_BASE_URL}products/unit`,
-            `${API_BASE_URL}products/unitcategory`,
-            `${API_BASE_URL}products/update/${id}`,
-        ]
-        axios.all(endpoints.map((endpoint) => axios.get(endpoint)))
-            .then(axios.spread((data1, data2, data3) => {
-                setUnit(data1.data);
-                setCategory(data2.data);
-                setData(data3.data)
-                // console.log(data1)
-                // console.log(data2)
-                // console.log(data3)
-            }))
-            .catch((error) => {
-                console.log(error)
-            })
-
+        // Needs to wait for first request so refresh token won't double send
+        const getData = async () => {
+            await categoryFetch({
+                url: 'products/unitcategory',
+                method: 'get'
+            });
+            await unitFetch({
+                url: 'products/unit',
+                method: 'get'
+            });
+            await productFetch({
+                url: `products/${id}`,
+                method: 'get'
+            });
+            await materialFetch({
+                url: 'materials/',
+                method: 'get'
+            });
+        }
+        getData();
     }, [])
 
     const config = {
         Labels,
         unit,
         category,
-        data,
+        product,
+        material,
         id,
+        categoryLoad,
+        unitLoad,
+        productLoad,
+        materialLoad,
     }
+
     return (
+
         <>
             <AddFormPageHeader config={config} onBack />
-            <ProductEditForm config={config} />
+            {
+                categoryLoad || unitLoad || productLoad ?
+                    (
+                        <Spinner />
+                    ) : (
+                        categoryErr || unitErr || productErr || materialErr ?
+                            (
+                                <NoServerResponse error={productErr} />
+                            ) : (
+                                // <ProductEditForm config={config} />
+                                <FOrm config={config} />
+                            )
+
+                    )
+            }
         </>
+
+
     )
 }

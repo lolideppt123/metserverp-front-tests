@@ -1,32 +1,31 @@
 import { useState } from "react";
-import { FiList, FiChevronDown } from "react-icons/fi";
+import { FiChevronDown } from "react-icons/fi";
 import { NavLink } from "react-router-dom";
-
-
 
 export default function Accordion(props) {
 
     const [accordionOpen, setAccordionOpen] = useState(false);
-  return (
+    return (
         <>
             <li className="nav-item">
-                <NavLink className="d-flex align-items-center nav-link" onClick={() => setAccordionOpen(!accordionOpen)}>
-                    <FiList className='nav-link-icon' />
-                    <span className="flex-fill">{props.text}</span>
-                    <FiChevronDown className='nav-link-icon' style={{transition: "all 0.2s linear", transform: accordionOpen ? "rotate(-180deg)" : "rotate(0)"}} />                 
+                <NavLink
+                    className={`d-flex justify-content-${props.expanded ? "start" : "center"} align-items-center nav-link`}
+                    onClick={() => setAccordionOpen(!accordionOpen)}
+                    to={(e) => e.pervent.default()}
+                >
+                    {props.icon}
+                    <span className={`nav-link-text text-nowrap overflow-hidden ${props.expanded ? "" : "d-none"}`}>{props.text}</span>
+                    <FiChevronDown
+                        className={`nav-link-icon ${accordionOpen ? "icon-rotate" : "icon-revert"} ${props.expanded ? "" : "d-none"}`}
+                        style={{ marginLeft: 'auto' }}
+                    />
                 </NavLink>
             </li>
-            <div className="d-flex flex-column">
-
-            <li className="nav-item px-4" style={{ transition: "all 0.2s ease-in-out", opacity: accordionOpen ? "1" : "0", maxHeight: accordionOpen ? "100%" : "0", overflow: accordionOpen ? "visible" : "hidden"}}>
-                {/* <NavLink to={'/inventory'} className="nav-link">Product Inventory</NavLink>
-                <NavLink to={'/inventory'} className="nav-link">Product Inventory</NavLink>
-                <NavLink to={'/inventory'} className="nav-link">Product Inventory</NavLink> */}
-                {props.children}
-            </li>
+            <div className={`accordion-body ${accordionOpen ? "show" : ""}`}>
+                <div className="accordion-content">
+                    {props.children}
+                </div>
             </div>
-                
-                
         </>
-  )
+    )
 }

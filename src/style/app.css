@@ -6,3 +6,8 @@
 @import './datatable/Datatable.css';
 @import './dropdown/datatableaction.css';
 @import './Modal/ModalForm.css';
+@import './Authentication/Form.css';
+@import './Fallback/getStartedTemplate.css';
+@import './AntD/modalOverride.css';
+@import './AntD/TableOverride.css';
+@import './Charts/charts.css';

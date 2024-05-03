@@ -1,5 +1,5 @@
 import { lazy } from 'react'
-import { useRoutes } from 'react-router-dom';
+import { useRoutes, Navigate } from 'react-router-dom';
 
 const Dashboard = lazy(() => import('../pages/Dashboard'))
 const NotFound = lazy(() => import('../pages/NotFound'))
@@ -15,28 +15,37 @@ const EditInventory = lazy(() => import('../pages/Inventory/EditInventory'))
 const InventorySummary = lazy(() => import('../pages/Inventory/InventorySummary'))
 
 const MaterialInventory = lazy(() => import('../pages/MaterialInventory/MaterialInventory'))
+const MaterialHistory = lazy(() => import('../pages/MaterialInventory/MaterialHistory'))
 const AddMaterialInventory = lazy(() => import('../pages/MaterialInventory/AddMaterialInventory'))
+const EditMaterialInventory = lazy(() => import('../pages/MaterialInventory/EditMaterialInventory'))
 
 const Materials = lazy(() => import('../pages/RawMaterials/RawMaterials'))
+const EditMaterial = lazy(() => import('../pages/RawMaterials/EditRawMaterials'))
 const AddMaterials = lazy(() => import('../pages/RawMaterials/AddRawMaterials'))
-const MaterialHistory = lazy(() => import('../pages/MaterialInventory/MaterialHistory'))
 
 const Sales = lazy(() => import('../pages/Sales/Sales'))
+const SalesOrder = lazy(() => import('../pages/Sales/SalesOrder'))
 const AddSales = lazy(() => import('../pages/Sales/AddSales'))
-const ViewSales = lazy(() => import('../pages/Sales/ViewSales'))
+// const ViewSales = lazy(() => import('../pages/Sales/ViewSales'))
 const EditSales = lazy(() => import('../pages/Sales/EditSales'))
 const SalesSummary = lazy(() => import('../pages/Sales/SalesSummary'))
 
 const Customer = lazy(() => import('../pages/Customer/Customer'))
 const AddCustomer = lazy(() => import('../pages/Customer/AddCustomer'))
+const EditCustomer = lazy(() => import('../pages/Customer/EditCustomer'))
 
 const Supplier = lazy(() => import('../pages/Supplier/Supplier'))
 const AddSupplier = lazy(() => import('../pages/Supplier/AddSupplier'))
+const EditSupplier = lazy(() => import('../pages/Supplier/EditSupplier'))
 
 const Modal = lazy(() => import('../components/DatePicker/AntdDatePicker'))
 
 export default function AppRouter() {
     let element = useRoutes([
+        {
+            path: '/login',
+            element: <Navigate to="/" />,
+        },
         {
             path: '/',
             element: <Dashboard />
@@ -70,11 +79,15 @@ export default function AppRouter() {
             element: <AddInventory />
         },
         {
-            path: '/inventory/transaction/:id/edit',
+            path: '/inventory/materials/transaction/:id/edit',
+            element: <EditMaterialInventory />
+        },
+        {
+            path: '/inventory/products/transaction/:id/edit',
             element: <EditInventory />
         },
         {
-            path: '/inventory/products/transaction/:product_name',
+            path: '/inventory/products/transaction/:product_pk/:product_name',
             element: <InventoryHistory />
         },
         {
@@ -84,6 +97,10 @@ export default function AppRouter() {
         {
             path: '/materials',
             element: <Materials />
+        },
+        {
+            path: '/materials/:id',
+            element: <EditMaterial />
         },
         {
             path: '/materials/add',
@@ -98,13 +115,17 @@ export default function AppRouter() {
             element: <Sales />
         },
         {
+            path: '/salesorders',
+            element: <SalesOrder />
+        },
+        {
             path: '/sales/add',
             element: <AddSales />
         },
-        {
-            path: '/sales/transaction/:id/show',
-            element: <ViewSales />
-        },
+        // {
+        //     path: '/sales/transaction/:id/show',
+        //     element: <ViewSales />
+        // },
         {
             path: '/sales/transaction/:id/edit',
             element: <EditSales />
@@ -122,12 +143,20 @@ export default function AppRouter() {
             element: <AddCustomer />
         },
         {
+            path: '/customers/:id',
+            element: <EditCustomer />
+        },
+        {
             path: '/suppliers',
             element: <Supplier />
         },
         {
             path: '/suppliers/add',
             element: <AddSupplier />
+        },
+        {
+            path: '/suppliers/:id',
+            element: <EditSupplier />
         },
         {
             path: '/modal',

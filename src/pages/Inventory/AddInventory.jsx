@@ -1,49 +1,64 @@
-import useFetch from '../../hooks/useFetch';
+import { useEffect } from 'react';
+import useAxiosFunction from '../../hooks/useAxiosFunction';
+import Spinner from '../../components/Fallback/Spinner';
+import NoServerResponse from '../../components/Errors/NoServerResponse';
 
 import AddFormPageHeader from '../../modules/FspPanelModule/AddFormPageHeader';
 import InventoryForm from '../../modules/InventoryModule/InventoryForm';
 
 export default function AddInventory() {
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+    const { setResponse: setSupplier, loading: supplierLoad, response: supplier, error: supplierErr, axiosFetch: supplierFetch } = useAxiosFunction();
+    const { setResponse: setProduct, loading: productLoad, response: product, error: productErr, axiosFetch: productFetch } = useAxiosFunction();
     const Labels = {
         PAGE_ENTITY: 'Product Inventory',
         PAGE_ENTITY_URL: 'inventory/products',
         ADD_NEW_ENTITY: 'Add New Inventory',
+        METHOD: 'post',
+        API_URL: 'inventory/products/'
     }
 
-    // const [supplier, setSupplier] = useState([])
-    // const [data, setData] = useState([])
-
-    // useEffect(() => {
-    //     let endpoints = [
-    //         `${API_BASE_URL}supplier/`,
-    //         `${API_BASE_URL}products/`,
-    //     ]
-    //     axios.all(endpoints.map((endpoint) => axios.get(endpoint)))
-    //         .then(axios.spread((data1, data2) => {
-    //             setSupplier(data1.data)
-    //             setData(data2.data)
-    //         }))
-    //         .catch((err) => {
-    //             console.log(err)
-    //         })
-    // }, [])
-
-    const { data: supplier, loading: supplierLoad, error: supplierErr } = useFetch('supplier/');
-    const { data: product, loading: productLoad, error: productErr } = useFetch('products/');
+    useEffect(() => {
+        // Needs to wait for first request so refresh token won't double send
+        const getData = async () => {
+            await supplierFetch({
+                url: 'suppliers/',
+                method: 'get'
+            });
+            await productFetch({
+                url: 'products/',
+                method: 'get'
+            });
+        }
+        getData();
+    }, [])
 
     const config = {
         Labels,
         supplier,
         product,
         supplierLoad,
-        productLoad
+        productLoad,
+        setSupplier,
+        setProduct
     }
 
     return (
         <>
             <AddFormPageHeader config={config} />
-            <InventoryForm config={config} />
+            {
+                productLoad || supplierLoad ?
+                    (
+                        <Spinner />
+                    ) : (
+                        productErr ?
+                            (
+                                <NoServerResponse error={productErr} />
+                            ) : (
+
+                                <InventoryForm config={config} />
+                            )
+                    )
+            }
         </>
     )
 }

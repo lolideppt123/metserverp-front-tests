@@ -1,14 +1,29 @@
 .dropDownTableAction {
-    position: absolute;
-    top: 1.5rem;
-    left: -1.85rem;
-    width: 90px;
+    opacity: 0 !important;
+    display: none !important;
+    transition: opacity 0.5s, display 0.5s;
+    position: fixed;
+    /* top: 16.85rem; */
+    left: 4.5rem;
+    min-width: 135px;
     padding: 8px 5px 10px !important;
     border-radius: 10px;
     background-color: white !important;
     box-shadow: rgba(0, 0, 0, 0.12) 0 4px 8px 0 !important;
     z-index: 2;
     border: .5px solid lightgrey;
+}
+
+.dropDownTableAction-open {
+    opacity: 1 !important;
+    display: flex !important;
+}
+
+
+@starting-style {
+    .dropDownTableAction-open {
+        opacity: 0 !important;
+    }
 }
 
 .dropDownTableAction ul {
@@ -20,16 +35,19 @@
 }
 
 .dropDownTableAction ul li {
-    padding-left: 5px;
-    padding-right: 5px;
+    padding-left: 5px !important;
+    padding-right: 5px !important;
 }
 
 .dropDownTableAction ul a {
     text-decoration: none;
+    padding: 4px 5px 4px 8px !important;
+    height: 30px !important;
 }
 
 .DD-item-text {
-    padding-top: 2px;
+    font-weight: 500 !important;
+    margin-left: 1px !important;
 }
 
 .DD-item-text,
@@ -37,16 +55,11 @@
     color: var(--bs-table-striped-color);
 }
 
-/* .dropDownTableAction::before {
-    content: "";
-    position: absolute;
-    top: -.65rem;
-    right: 2rem;
-    width: 20px;
-    height: 20px;
-    transform: rotate(45deg);
-    background-color: white !important;
-    box-shadow: rgba(0, 0, 0, 0.12) 0 0 -2px !important;
-    border-top: solid lightgray 1px;
-    border-left: solid lightgray 1px;
-} */
+.DD-link {
+    text-decoration: none !important;
+}
+
+.DD-icon {
+    width: 14px !important;
+    height: 14px !important;
+}

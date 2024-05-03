@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
+import { Tooltip } from 'antd';
 
 
 export default function DropDownMenu(props) {
@@ -24,19 +25,19 @@ export default function DropDownMenu(props) {
     return (
 
         <div className="menu-container position-relative" ref={iconRef}>
-            <NavLink onClick={() => setOpen(!open)}>
-                <span>{props.mainicon}</span>
-                <span>{props.maintext}</span>
-            </NavLink>
-            {open && (
-                <div className='d-flex flex-column dropDownTableAction' ref={menuRef} style={{ width: props.width, top: props.top, left: props.left }}>
-                    <ul className='d-flex flex-column gap-2'>
-                        {props.children}
-                    </ul>
-                </div>
-            )}
-
-
+            <Tooltip title={props.maintext} placement="right">
+                <NavLink className={`d-flex justify-content-center align-items-center nav-link`} onClick={() => setOpen(!open)}>
+                    <span>{props.mainicon}</span>
+                </NavLink>
+            </Tooltip>
+            <div className={`d-flex flex-column dropDownTableAction ${open ? "dropDownTableAction-open" : ""}`}
+                ref={menuRef}
+                style={{ width: props.width, top: props.top, left: props.left }}
+            >
+                <ul className='d-flex flex-column gap-2'>
+                    {props.children}
+                </ul>
+            </div>
         </div>
     )
 }

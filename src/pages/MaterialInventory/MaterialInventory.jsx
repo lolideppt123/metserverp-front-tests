@@ -1,9 +1,14 @@
-import useFetch from '../../hooks/useFetch';
+import { useEffect } from 'react';
+import useAxiosFunction from '../../hooks/useAxiosFunction';
+import Spinner from '../../components/Fallback/Spinner';
+import NoServerResponse from '../../components/Errors/NoServerResponse';
+import GetStartedTemplate from '../../components/Fallback/GetStartedTemplate';
 
 import DataTablePageHeader from '../../modules/FspPanelModule/DataTablePageHeader';
 import MaterialInventoryDataTable from '../../modules/MaterialInventoryModule/MaterialInventoryDataTable';
 
 export default function MaterialInventory() {
+    const { loading, response: data, error, axiosFetch } = useAxiosFunction();
     const Labels = {
         BASE_ENTITY: 'Inventory',
         TABLE_TITLE: 'Material Inventory',
@@ -41,7 +46,17 @@ export default function MaterialInventory() {
         },
     ]
 
-    const { data, loading, error } = useFetch('inventory/materials/');
+    useEffect(() => {
+        // Needs to wait for first request so refresh token won't double send
+        const getData = async () => {
+            await axiosFetch({
+                url: 'inventory/materials/',
+                method: 'get'
+            });
+        }
+        getData();
+    }, [])
+
     const config = {
         dataTableColumn,
         Labels,
@@ -52,7 +67,24 @@ export default function MaterialInventory() {
     return (
         <>
             <DataTablePageHeader Labels={Labels} />
-            <MaterialInventoryDataTable config={config} />
+
+            {
+                loading ?
+                    (
+                        <Spinner />
+                    ) : (
+                        error ?
+                            (
+                                <NoServerResponse error={error} />
+                            ) : (
+                                data?.length == 0 ? (
+                                    <GetStartedTemplate entity={'Material Inventory'} optionalStatement={true} />
+                                ) : (
+                                    <MaterialInventoryDataTable config={config} />
+                                )
+                            )
+                    )
+            }
         </>
 
     )

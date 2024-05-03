@@ -1,92 +1,259 @@
-import React, { useState, useEffect } from 'react';
-import axiosInstance from '../../helpers/axios';
-import useFetch from '../../hooks/useFetch';
+import { useState, useEffect } from 'react';
+import useAxiosFunction from '../../hooks/useAxiosFunction';
+import Spinner from '../../components/Fallback/Spinner';
+import NoServerResponse from '../../components/Errors/NoServerResponse';
+import GetStartedTemplate from '../../components/Fallback/GetStartedTemplate';
+import dayjs from 'dayjs';
 
 import DataTablePageHeader from '../../modules/FspPanelModule/DataTablePageHeader';
 import SalesDataTable from '../../modules/SalesModule/SalesDataTable';
 
+import MoneyFormatter, { NumberFormatter } from '../../settings/MoneyFormatter';
+import { Tooltip } from 'antd';
+
 export default function Sales() {
+    const [SalesFilter, setSalesFilter] = useState("");
+    const { loading, response: data, setResponse: setData, error, axiosFetch: salesFetch } = useAxiosFunction();
     const Labels = {
         BASE_ENTITY: 'Sales',
         TABLE_TITLE: 'Sales',
         ADD_NEW_ENTITY: 'Add New Sales',
         NEW_ENTITY_URL: 'sales/add',
+        API_URL: 'sales/'
     }
     const dataTableColumn = [
-        // {
-        //     title: 'Delivery Receipt',
-        //     key: 'salesDR'
-        // },
-        // {
-        //     title: 'Invoice',
-        //     key: 'salesInvoice'
-        // },
         {
-            title: 'Sale Date',
-            key: 'salesDate'
+            title: <div className='fs-md fw-semibold text-center'>Invoice</div>,
+            key: 'salesInvoice',
+            dataIndex: 'sales_invoice',
+            fixed: 'left',
+            width: 80,
+            render: (text, record) => {
+                return <div className={`fs-md fw-semibold text-uppercase ${record.sales_status == "PAID" ? "paid" : "unpaid"} text-center`}>
+                    {text.length > 4 ? (
+                        <Tooltip className="pointer" title={text}>
+                            {text.substr(0, 4)}{text.length > 4 && '\u2026'}
+                        </Tooltip>
+                    ) : (
+                        <>{text}</>
+                    )}
+                </div>
+            }
         },
         {
-            title: 'Product Name',
-            key: 'productName'
+            title: <div className='fs-md fw-semibold text-center'>DR</div>,
+            key: 'salesDR',
+            dataIndex: 'sales_dr',
+            width: 80,
+            render: (text, record) => {
+                return <div className={`fs-md fw-semibold text-uppercase ${record.sales_status == "PAID" ? "paid" : "unpaid"} text-center`}>
+                    {text?.length > 4 ? (
+                        <Tooltip className="pointer" title={text}>
+                            {text.substr(0, 4)}{text.length > 4 && '\u2026'}
+                        </Tooltip>
+                    ) : (
+                        <>{text}</>
+                    )}
+                </div>
+            }
         },
         {
-            title: 'Customer',
-            key: 'customer'
+            title: <div className='fs-md fw-semibold text-center'>Sale Date</div>,
+            key: 'salesDate',
+            dataIndex: 'sales_date',
+            width: 125,
+            render: (date, record) => {
+                return <div className={`fs-md fw-semibold ${record.sales_status == "PAID" ? "paid" : "unpaid"} text-center text-nowrap`}>{dayjs(date).format('MMM DD, YYYY')}</div>
+            }
         },
         {
-            title: 'Quantity',
-            key: 'salesQuantity'
+            // title: 'Product Name',
+            title: <div className={`fs-md fw-semibold text-center`}>Product Name</div>,
+            key: 'productName',
+            dataIndex: 'product_name',
+            fixed: 'left',
+            width: 200,
+            render: (text, record) => {
+                return <div className={`fs-md fw-semibold text-uppercase ${record.sales_status == "PAID" ? "paid" : "unpaid"}`}>
+                    {text.length > 17 ? (
+                        <Tooltip className="pointer" title={text}>
+                            {text.substr(0, 17)}{text.length > 17 && '\u2026'}
+                        </Tooltip>
+                    ) : (
+                        <>{text}</>
+                    )}
+                </div>
+            }
+        },
+        {
+            // title: 'Customer',
+            title: <div className='fs-md fw-semibold text-center'>Customer</div>,
+            key: 'customer',
+            dataIndex: 'customer',
+            width: 200,
+            render: (text, record) => {
+                return <div className={`fs-md fw-semibold text-uppercase ${record.sales_status == "PAID" ? "paid" : "unpaid"}`}>
+                    {text.length > 17 ? (
+                        <Tooltip className="pointer" title={text}>
+                            {text.substr(0, 17)}{text.length > 17 && '\u2026'}
+                        </Tooltip>
+                    ) : (
+                        <>{text}</>
+                    )}
+                </div>
+            }
+        },
+        {
+            // title: 'Quantity',
+            title: <div className='fs-md fw-semibold text-center'>Quantity</div>,
+            key: 'salesQuantity',
+            dataIndex: 'sales_quantity',
+            width: 125,
+            render: (text, record) => {
+                return <div className={`fs-md fw-semibold text-uppercase ${record.sales_status == "PAID" ? "paid" : "unpaid"} text-center`}>{<NumberFormatter amount={record.sales_quantity} />}</div>
+            }
         },
         // {
         //     title: 'U/Cost',
         //     key: 'unitCost'
         // },
         {
-            title: 'Total Cost',
-            key: 'totalCost'
+            // title: 'Total Cost',
+            title: <div className='fs-md fw-semibold text-center'>Total Cost</div>,
+            key: 'totalCost',
+            dataIndex: 'sales_total_cost',
+            width: 150,
+            render: (text, record) => {
+                return <div className={`fs-md fw-semibold text-uppercase ${record.sales_status == "PAID" ? "paid" : "unpaid"} text-end`}>{<MoneyFormatter amount={record.sales_total_cost} />}</div>
+            }
         },
         // {
         //     title: 'U/Price',
         //     key: 'unitPrice'
         // },
         {
-            title: 'Total Price',
-            key: 'totalPrice'
+            // title: 'Gross Price',
+            title: <div className='fs-md fw-semibold text-center'>Gross Price</div>,
+            key: 'grossPrice',
+            dataIndex: 'sales_gross_price',
+            width: 150,
+            render: (text, record) => {
+                return <div className={`fs-md fw-semibold text-uppercase ${record.sales_status == "PAID" ? "paid" : "unpaid"} text-end`}>{<MoneyFormatter amount={record.sales_gross_price} />}</div>
+            }
         },
         {
-            title: 'Margin',
-            key: 'salesMargin'
-        },
-        // {
-        //     title: '%Margin',
-        //     key: 'salesMarginPercent'
-        // },
-        {
-            title: 'Status',
-            key: 'salesStatus'
+            // title: 'Margin',
+            title: <div className='fs-md fw-semibold text-center'>Margin</div>,
+            key: 'salesMargin',
+            dataIndex: 'sales_margin',
+            width: 150,
+            render: (text, record) => {
+                return <div className={`fs-md fw-semibold text-uppercase ${record.sales_status == "PAID" ? "paid" : "unpaid"} text-end`}>{<MoneyFormatter amount={record.sales_margin} />}</div>
+            }
         },
         {
-            title: 'Date Paid',
-            key: 'datePaid'
+            // title: 'VAT',
+            title: <div className='fs-md fw-semibold text-center'>VAT</div>,
+            key: 'vat',
+            dataIndex: 'sales_VAT',
+            width: 150,
+            render: (text, record) => {
+                return <div className={`fs-md fw-semibold text-uppercase ${record.sales_status == "PAID" ? "paid" : "unpaid"} text-end`}>{<MoneyFormatter amount={record.sales_VAT} />}</div>
+            }
         },
         {
-            title: '',
-            key: 'actions'
+            // title: 'Status',
+            title: <div className='fs-md fw-semibold text-center'>Status</div>,
+            key: 'salesStatus',
+            dataIndex: 'sales_status',
+            width: 100,
+            render: (text, record) => {
+                return <span style={{ fontSize: '12px' }} className={`px-2 py-1 ${record.sales_status == "PAID" ? "paid-status" : "unpaid-status"}`}>{text}</span>
+            }
+        },
+        {
+            // title: 'Date Paid',
+            title: <div className='fs-md fw-semibold text-center'>Date Paid</div>,
+            key: 'datePaid',
+            dataIndex: 'sales_paid_date',
+            width: 125,
+            render: (text, record) => {
+                return (
+                    <>
+                        {record.sales_status == "PAID" ? (
+                            <div className='fs-md fw-semibold'>{(dayjs(record.sales_paid_date)).format("MMM DD, YYYY")}</div>
+                        ) : (<div className="unpaid text-center">---</div>)}
+                    </>
+
+                )
+            }
         },
     ]
 
-    const { data, loading, error } = useFetch('sales/');
+    useEffect(() => {
+        // Needs to wait for first request so refresh token won't double send
+        const getData = async () => {
+            await salesFetch({
+                url: `sales/`,
+                method: 'get'
+            });
+        }
+        getData();
+    }, [])
+
+    useEffect(() => {
+        // Needs to wait for first request so refresh token won't double send
+        const getData = async () => {
+            if (SalesFilter !== "") {
+                await salesFetch({
+                    url: `sales/${SalesFilter}`,
+                    method: 'get'
+                });
+            }
+        }
+        getData();
+    }, [SalesFilter])
+
     const config = {
         dataTableColumn,
         Labels,
         data,
         loading,
         error,
+        setData
     }
     return (
         <>
-            <DataTablePageHeader Labels={Labels} />
-            <SalesDataTable config={config} />
+            <DataTablePageHeader Labels={Labels} salesFilter={SalesFilter} setSalesFilter={setSalesFilter} type={'sales'} data={data} />
+            {
+                loading ?
+                    (
+                        <Spinner />
+                    ) : (
+                        error ?
+                            (
+                                <NoServerResponse error={error} />
+                            ) : (
+                                data?.length == 0 ? (
+                                    <GetStartedTemplate
+                                        customizedHeader=
+                                        {
+                                            <h2 className='fw-bold'>Get started by adding your first Sales!</h2>
+                                        }
+                                        customizedStatement=
+                                        {
+                                            <>
+                                                <p>You are at the last step of MetservERP.</p>
+                                                <p>You can view your performance at the Summary section</p>
+                                            </>
+                                        }
+                                    />
+                                ) : (
+                                    <SalesDataTable config={config} />
+                                )
+                            )
+                    )
+            }
         </>
 
     )

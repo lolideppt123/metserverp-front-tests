@@ -1,8 +1,21 @@
 import dayjs from 'dayjs';
-import { NumberFormatter } from '../../settings/MoneyFormatter';
+import MoneyFormatter, { NumberFormatter } from '../../settings/MoneyFormatter';
+import { Table } from 'antd';
 
-export default function SalesSummaryDataTable({ defaultDate, setOptions, data }) {
-    console.log(data)
+export default function SalesSummaryDataTable({ config }) {
+    const {
+        dataTableColumn,
+        table,
+        totals,
+        defaultDate,
+        options,
+        setOptions,
+    } = config
+
+    if (table) {
+        var footer_data = table[table.length - 1];
+        var body_data = table.slice(0, table.length - 1);
+    }
 
     return (
         <div className='container mt-3 p-4 border-top'>
@@ -15,8 +28,8 @@ export default function SalesSummaryDataTable({ defaultDate, setOptions, data })
             <div className="row">
                 <div className="col-lg-3 text-end">
                     <div className="input-group">
-                        <select className='form-select form-select-sm' onChange={(e) => setOptions(e.target.value)}>
-                            <option defaultValue={"ALL"} value="ALL">All</option>
+                        <select className='form-select form-select-sm' value={options} onChange={(e) => setOptions(e.target.value)}>
+                            <option value="ALL">All</option>
                             <option value="PRODUCTS">Product Sales</option>
                             <option value="CUSTOMERS">Customer Sales</option>
                         </select>
@@ -31,48 +44,60 @@ export default function SalesSummaryDataTable({ defaultDate, setOptions, data })
             </div>
 
             <div className="app-table">
-                {data['serialized'] == undefined ? (
+                {table == undefined ? (
                     <h6 className="text-center px-3 mt-4 mb-1"><i>Nothing to display yet</i></h6>
                 ) : (
 
                     <table className="table table-striped table-hover table-sm my-3">
                         <thead>
                             <tr>
-                                <th className='text-center'>Date</th>
-                                <th>Product</th>
-                                <th>Customer</th>
-                                <th className='text-center'>Sales</th>
+                                <th className='text-center'>No.</th>
+                                {options !== "CUSTOMERS" ? (
+                                    <th className='text-center'>Product</th>
+                                ) : (
+                                    <th className='text-center'>Customer</th>
+                                )}
+                                <th className='text-center'>Gross Sales</th>
                                 <th className='text-center'>Cost of Sales</th>
                                 <th className='text-center'>Margin</th>
+                                <th className='text-center'>%Margin</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {data['serialized'].map((item, index) => (
+                            {body_data?.map((item, index) => (
                                 <tr key={index}>
-                                    <td className='text-center'>{(dayjs(item.sales_date)).format("MMM DD, YYYY")}</td>
-                                    <td>{item.product_name}</td>
-                                    <td>{item.customer}</td>
-                                    <td className={`text-end`}><NumberFormatter amount={item.sales_total_price} /></td>
-                                    <td className={`text-end`}><NumberFormatter amount={item.sales_total_cost} /></td>
-                                    <td className={`text-end`}><NumberFormatter amount={item.sales_margin} /></td>
+                                    <td className='text-center'>{index + 1}</td>
+                                    {options !== "CUSTOMERS" ? (
+                                        <td className='text-center'>{item?.product?.substr(0, 17)}{item?.product?.length > 17 ? '\u2026' : ""}</td>
+                                    ) : (
+                                        <td className='text-center'>{item?.customer?.substr(0, 17)}{item?.customer?.length > 17 ? '\u2026' : ""}</td>
+                                    )}
+                                    <td className={`text-end`}><MoneyFormatter amount={item.sales_gross} /></td>
+                                    <td className={`text-end`}><MoneyFormatter amount={item.sales_cost} /></td>
+                                    <td className={`text-end`}><MoneyFormatter amount={item.sales_margin} /></td>
+                                    <td className={`text-end`}><NumberFormatter amount={item.profit_margin} />%</td>
                                 </tr>
                             ))}
                         </tbody>
 
                         <tfoot style={{ borderTop: "2px solid black" }}>
-                            {data['sales_totals'].map((item, index) => (
-                                <tr key={index}>
-                                    <td className='text-start fw-bold bg-light'>Total</td>
-                                    <td className='bg-light'></td>
-                                    <td className='bg-light'></td>
-                                    <td className={`text-end fw-bold bg-light`}><NumberFormatter amount={item.sales_price} /></td>
-                                    <td className={`text-end fw-bold bg-light`}><NumberFormatter amount={item.sales_cost} /></td>
-                                    <td className={`text-end fw-bold bg-light`}><NumberFormatter amount={item.sales_margin} /></td>
-                                </tr>
-                            ))}
+                            <tr>
+                                <td className='text-center fw-bold bg-light'>Total</td>
+                                <td className='bg-light'></td>
+                                <td className={`text-end fw-bold bg-light`}><MoneyFormatter amount={footer_data?.cumm_sales_price} /></td>
+                                <td className={`text-end fw-bold bg-light`}><MoneyFormatter amount={footer_data?.cumm_sales_cost} /></td>
+                                <td className={`text-end fw-bold bg-light`}><MoneyFormatter amount={footer_data?.cumm_sales_margin} /></td>
+                                <td className='text-end fw-bold bg-light'><NumberFormatter amount={(footer_data?.cumm_sales_margin / footer_data?.cumm_sales_cost) * 100} />%</td>
+                            </tr>
                         </tfoot>
 
                     </table>
+
+                    // <Table
+                    //     columns={dataTableColumn}
+                    //     rowKey={data => data.pk}
+                    //     dataSource={table}
+                    // />
                 )}
             </div>
         </div>

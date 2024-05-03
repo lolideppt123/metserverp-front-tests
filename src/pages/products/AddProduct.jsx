@@ -1,19 +1,43 @@
-import useFetch from '../../hooks/useFetch';
+import { useEffect } from 'react';
+import useAxiosFunction from '../../hooks/useAxiosFunction';
+import Spinner from '../../components/Fallback/Spinner';
+import NoServerResponse from '../../components/Errors/NoServerResponse';
 
-import ProductForm from '../../modules/ProductsModule/ProductForm';
+
 import AddFormPageHeader from '../../modules/FspPanelModule/AddFormPageHeader';
+import ProductForm from '../../modules/ProductsModule/ProductForm';
+import FOrm from '../../modules/ProductsModule/FOrm';
 
 export default function AddProduct() {
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+    const { loading: categoryLoad, response: category, error: categoryErr, axiosFetch: categoryFetch } = useAxiosFunction();
+    const { loading: unitLoad, response: unit, error: unitErr, axiosFetch: unitFetch } = useAxiosFunction();
+    const { loading: materialLoad, response: material, error: materialErr, axiosFetch: materialFetch } = useAxiosFunction();
     const Labels = {
         PAGE_ENTITY: 'Products',
         PAGE_ENTITY_URL: 'products',
         ADD_NEW_ENTITY: 'Add New Product',
+        METHOD: 'post',
+        API_URL: `products/`
     }
 
-    const { data: unit, loading: unitLoad, error: unitErr } = useFetch('products/unit');
-    const { data: category, loading: categoryLoad, error: categoryErr } = useFetch('products/unitcategory');
-    const { data: material, loading: materialLoad, error: materialErr } = useFetch('materials/');
+    useEffect(() => {
+        // Needs to wait for first request so refresh token won't double send
+        const getData = async () => {
+            await categoryFetch({
+                url: 'products/unitcategory',
+                method: 'get'
+            });
+            await unitFetch({
+                url: 'products/unit',
+                method: 'get'
+            });
+            await materialFetch({
+                url: 'materials/',
+                method: 'get'
+            });
+        }
+        getData();
+    }, [])
 
     const config = {
         Labels,
@@ -28,7 +52,21 @@ export default function AddProduct() {
     return (
         <>
             <AddFormPageHeader config={config} onBack />
-            <ProductForm config={config} />
+            {
+                unitLoad || categoryLoad || materialLoad ?
+                    (
+                        <Spinner />
+                    ) : (
+                        materialErr ?
+                            (
+                                <NoServerResponse error={materialErr} />
+                            ) : (
+
+                                // <FOrm config={config} />
+                                <ProductForm config={config} />
+                            )
+                    )
+            }
         </>
     )
 }

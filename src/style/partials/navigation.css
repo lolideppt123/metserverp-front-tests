@@ -3,19 +3,46 @@ body {
 }
 
 .sidebar {
-    position: fixed;
-    top: 0;
-    /* rtl:raw:
-    right: 0;
-    */
-    bottom: 0;
-    /* rtl:remove */
-    left: 0;
-    z-index: 100;
-    /* Behind the navbar */
-    padding: 48px 0 0;
-    /* Height of navbar */
     box-shadow: rgba(194, 159, 250, 0.15) 0px 0px 20px 3px;
+    height: 100%;
+    /* width: 18.34 - 1.66 */
+    width: 16.68%;
+    max-width: 300px;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #111;
+    overflow-x: hidden;
+    transition: 0.5s;
+}
+
+.close {
+    width: 5%;
+    max-width: 75px;
+}
+
+.sideBar-btn {
+    all: unset;
+    width: 24px;
+    height: 24px;
+    background-color: rgb(249, 250, 251);
+    padding: .375rem;
+    border-radius: .375rem;
+}
+
+.sideBar-btn:hover {
+    background-color: rgb(243, 244, 246);
+}
+
+.icon-rotate {
+    transition: 0.5s;
+    transform: rotate(-180deg);
+}
+
+.icon-revert {
+    transition: 0.5s;
+    transform: rotate(0);
 }
 
 .sidebar .nav-link {
@@ -28,10 +55,58 @@ body {
     font-weight: 500;
 }
 
+.nav-link-text {
+    transition: all 0.2s linear;
+    /* width: 0; */
+}
+
+.nav-link-text-close {
+    transition: all 0.2s linear;
+    width: 0;
+}
+
 .nav-link-icon {
-    width: 1.15em;
-    height: 1.15em;
+    min-width: 1.15em;
+    min-height: 1.15em;
+    max-width: 1.5rem;
+    max-height: 1.5rem;
     font-weight: 700;
     vertical-align: text-bottom;
     margin-right: .5rem;
+}
+
+.accordion-body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 500ms ease;
+}
+
+.accordion-content {
+    overflow: hidden;
+}
+
+.show {
+    grid-template-rows: 1fr;
+}
+
+.nav-header {
+    height: 60px !important;
+}
+
+.nav-body {
+    position: absolute !important;
+    width: 100% !important;
+    bottom: 60px !important;
+    top: 60px !important;
+    overflow-y: auto !important;
+    padding-bottom: 15px !important;
+}
+
+.nav-footer {
+    position: absolute !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 60px !important;
+    background-color: '#fff' !important;
+
 }

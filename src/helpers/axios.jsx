@@ -9,3 +9,8 @@ const axiosInstance = axios.create({
 
 export default axiosInstance
 
+export const axiosPrivateInstance = axios.create({
+    baseURL: baseURL,
+    headers: { 'Content-Type': 'application/json' },
+    withCredentials: true
+})

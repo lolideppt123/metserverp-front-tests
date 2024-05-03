@@ -1,87 +1,141 @@
-import moment from 'moment';
-import dayjs from 'dayjs'
-import { NavLink } from 'react-router-dom';
-import { Spin, Flex } from 'antd';
+import dayjs from 'dayjs';
+import Spinner from '../../components/Fallback/Spinner';
+import DropDown from '../../components/DropDown/DropDown';
+import { Table } from 'antd';
+import SalesCard from '../../components/Cards/SalesCard';
 
-import DropDownMenu from '../../components/DropDown/DropDownMenu';
-import DropDownItem from '../../components/DropDown/DropDownItem';
-import ModalForm from '../../components/Modal/ModalForm';
-import ModalFormItem from '../../components/Modal/ModalForm';
-import { NumberFormatter } from '../../settings/MoneyFormatter';
-
-import { FiEye, FiEdit, FiTrash2, FiMoreHorizontal } from 'react-icons/fi';
+import MoneyFormatter from '../../settings/MoneyFormatter';
+import SalesCardModalTitle from '../../components/ModalTitle/SalesCardModalTitle';
+import CSVExportByMonth from '../../components/Exports/CSVExportByMonth';
 
 export default function SalesDataTable({ config }) {
-    const { dataTableColumn, data, loading } = config;
+    const { dataTableColumn, data, loading, Labels, setData } = config;
+    // console.log(data)
+    const get_title = []
+    const get_totals = []
+    const get_cumm_totals = []
+    const get_body = []
+
+    data?.map((item, index) => {
+        get_title.push(item[item.length - 1])
+        get_cumm_totals.push(item[item.length - 2])
+        get_totals.push(item[item.length - 3])
+        if (item.length <= 3) {
+            get_body.push([])
+        }
+        else {
+            get_body.push(item.slice(0, item.length - 3))
+        }
+    })
+
+
+    const columnData = [
+        ...dataTableColumn,
+        {
+            title: '',
+            key: 'action',
+            dataIndex: ['id', 'type'],
+            width: 50,
+            fixed: 'right',
+            render: (text, record) => {
+                return (
+                    <div className='px-auto'>
+                        <DropDown
+                            link1={`default`}
+                            cardHeader={<SalesCardModalTitle cardData={record} />}
+                            ShowCard={<SalesCard data={record} />}
+                            link2={`/sales/transaction/${record.pk}/edit`}
+                            deleteConfig={
+                                {
+                                    link3: `sales/transaction/${record.pk}/edit`,
+                                    message: `Product: ${record?.product_name?.substr(0, 12)}${record?.product_name?.length > 12 ? '\u2026' : ""}, 
+                                                Invoice: ${record?.sales_invoice?.substr(0, 12)}${record?.sales_invoice?.length > 7 ? '\u2026' : ""}, 
+                                                Quantity: ${record.sales_quantity}`,
+                                    notAllowed: false,
+                                    api_url: Labels.API_URL,
+                                    setData: (data) => setData(data)
+                                }
+                            }
+                        />
+                    </div>
+                )
+            }
+        }
+    ]
     return (
         <div className="container">
             {loading ? (
-                <div className="py-5">
-                    <Flex vertical>
-                        <Spin />
-                    </Flex>
-                </div>
+                <Spinner />
             ) : (
                 <>
-                    {!data.length ? (
+                    {
+                        !data?.length ? (
+                            <Spinner />
+                        ) : (
+                            <div className="app-table">
+                                {
+                                    get_body?.map((item, index) => (
+                                        <div className="app-table multi-app-table mt-5" key={index}>
 
-                        <div className="py-4">
-                            <h6 className="text-center px-3 mt-4 mb-1"><i>Nothing to display yet</i></h6>
-                        </div>
-                    ) : (
-                        <div className="app-table">
-                            <table className="table table-striped table-hover">
-                                <thead>
-                                    <tr key='1000'>
-                                        {dataTableColumn.map((value) => (
-                                            <th key={value.key}>{value.title}</th>
-                                        ))}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {data.map((item, index) => (
+                                            <div className="d-flex justify-content-center align-items-center">
+                                                <h5 className="fw-semibold text-center px-3  mb-2" style={{ marginLeft: 'auto' }}>{dayjs(get_title[index]?.data_title).format("MMMM YYYY")}</h5>
+                                                <div className="flex-row-reverse" style={{ marginLeft: 'auto' }}>
+                                                    <CSVExportByMonth title={get_title[index]} body={get_body[index]} foot={get_totals[index]} endFoot={get_cumm_totals[index]} />
+                                                </div>
+                                            </div>
+                                            <Table
+                                                columns={columnData}
+                                                rowKey={data => data.pk}
+                                                dataSource={get_body[index]}
+                                                scroll={{
+                                                    x: 1500,
+                                                    y: 500,
+                                                }}
+                                                pagination={false}
+                                                summary={(data) => (
+                                                    <Table.Summary fixed={'bottom'}>
+                                                        <Table.Summary.Row>
+                                                            <Table.Summary.Cell index={0} colSpan={2} className='text-start fw-bold bg-light h6'>Total</Table.Summary.Cell>
+                                                            {/* <Table.Summary.Cell></Table.Summary.Cell> */}
+                                                            <Table.Summary.Cell className='bg-light'></Table.Summary.Cell>
+                                                            <Table.Summary.Cell className='bg-light'></Table.Summary.Cell>
+                                                            <Table.Summary.Cell className='bg-light'></Table.Summary.Cell>
+                                                            <Table.Summary.Cell className='bg-light'></Table.Summary.Cell>
+                                                            <Table.Summary.Cell className='bg-light text-end fw-bold h6'>{<MoneyFormatter amount={get_totals[index]?.sales_cost} />}</Table.Summary.Cell>
+                                                            <Table.Summary.Cell className='bg-light text-end fw-bold h6'>{<MoneyFormatter amount={get_totals[index]?.sales_price} />}</Table.Summary.Cell>
+                                                            <Table.Summary.Cell className='bg-light text-end fw-bold h6'>{<MoneyFormatter amount={get_totals[index]?.sales_total_margin} />}</Table.Summary.Cell>
+                                                            <Table.Summary.Cell className='bg-light text-end fw-bold h6'>{<MoneyFormatter amount={get_totals[index]?.sales_vat} />}</Table.Summary.Cell>
+                                                            <Table.Summary.Cell className='bg-light'></Table.Summary.Cell>
+                                                            <Table.Summary.Cell className='bg-light'></Table.Summary.Cell>
+                                                            <Table.Summary.Cell className='bg-light'></Table.Summary.Cell>
+                                                            <Table.Summary.Cell className='bg-light'></Table.Summary.Cell>
+                                                        </Table.Summary.Row>
+                                                        <Table.Summary.Row>
+                                                            <Table.Summary.Cell index={0} colSpan={2} className='text-start fw-bold bg-light h6'>Cumulative</Table.Summary.Cell>
+                                                            {/* <Table.Summary.Cell></Table.Summary.Cell> */}
+                                                            <Table.Summary.Cell className='bg-light'></Table.Summary.Cell>
+                                                            <Table.Summary.Cell className='bg-light'></Table.Summary.Cell>
+                                                            <Table.Summary.Cell className='bg-light'></Table.Summary.Cell>
+                                                            <Table.Summary.Cell className='bg-light'></Table.Summary.Cell>
+                                                            <Table.Summary.Cell className='bg-light text-end fw-bold h6'>{<MoneyFormatter amount={get_cumm_totals[index]?.cumm_sales_cost} />}</Table.Summary.Cell>
+                                                            <Table.Summary.Cell className='bg-light text-end fw-bold h6'>{<MoneyFormatter amount={get_cumm_totals[index]?.cumm_sales_price} />}</Table.Summary.Cell>
+                                                            <Table.Summary.Cell className='bg-light text-end fw-bold h6'>{<MoneyFormatter amount={get_cumm_totals[index]?.cumm_sales_margin} />}</Table.Summary.Cell>
+                                                            <Table.Summary.Cell className='bg-light text-end fw-bold h6'>{<MoneyFormatter amount={get_cumm_totals[index]?.cumm_sales_vat} />}</Table.Summary.Cell>
+                                                            <Table.Summary.Cell className='bg-light'></Table.Summary.Cell>
+                                                            <Table.Summary.Cell className='bg-light'></Table.Summary.Cell>
+                                                            <Table.Summary.Cell className='bg-light'></Table.Summary.Cell>
+                                                            <Table.Summary.Cell className='bg-light'></Table.Summary.Cell>
+                                                        </Table.Summary.Row>
+                                                    </Table.Summary>
+                                                )}
+                                            />
+                                        </div>
+                                    ))
+                                }
+                            </div>
 
-                                        <tr key={index}>
-                                            {/* <td className='col col-lg-4'>{item.sales_dr}</td>
-                                        <td className='col col-lg-4'>{item.sales_invoice}</td> 
-                                    */}
-                                            <td className={`${item.sales_status == "PAID" ? "paid" : "unpaid"}`}>{(dayjs(item.sales_date)).format("MMM DD, YYYY")}</td>
-                                            <td className={`col col-lg-3 ${item.sales_status == "PAID" ? "paid" : "unpaid"}`}>{item.product_name}</td>
-                                            <td className={` ${item.sales_status == "PAID" ? "paid" : "unpaid"}`}>{item.customer}</td>
-                                            <td className={`${item.sales_status == "PAID" ? "paid" : "unpaid"} text-end`}>{item.sales_quantity}</td>
-                                            {/* <td className={`${item.sales_status == "PAID" ? "paid" : "unpaid"}`}><NumberFormatter amount={item.sales_unit_cost} /></td>*/}
-                                            <td className={`${item.sales_status == "PAID" ? "paid" : "unpaid"} text-end`}><NumberFormatter amount={item.sales_total_cost} /></td>
-                                            {/* <td className={`${item.sales_status == "PAID" ? "paid" : "unpaid"}`}><NumberFormatter amount={item.sales_unit_price} /></td> */}
-                                            <td className={`${item.sales_status == "PAID" ? "paid" : "unpaid"} text-end`}><NumberFormatter amount={item.sales_total_price} /></td>
-                                            <td className={`${item.sales_status == "PAID" ? "paid" : "unpaid"} text-end`}><NumberFormatter amount={item.sales_margin} /></td>
-                                            {/* <td className={`${item.sales_status == "PAID" ? "paid" : "unpaid"} text-end`}>{item.sales_margin_percent}%</td> */}
-                                            <td><span className={`px-2 py-1 ${item.sales_status == "PAID" ? "paid-status" : "unpaid-status"}`}>{item.sales_status}</span></td>
-                                            {item.sales_status == "PAID" ? (
-                                                <td className="paid">{(dayjs(item.sales_paid_date)).format("MMM DD, YYYY")}</td>
-                                            ) : (
-                                                <td className="unpaid text-center">---</td>
-                                            )}
-                                            <td className='pe-4'>
-                                                <DropDownMenu mainicon={<FiMoreHorizontal style={{ height: '20px', width: '20px' }} />} >
-                                                    {/* <NavLink className="link-underline-opacity-0" to={`/sales/transaction/${item.pk}/show`}>
-                                                <DropDownItem icon={<FiEye />} text={"Show"} />
-                                            </NavLink> */}
-                                                    <ModalForm icon={<FiEye />} text={"Show"} />
-                                                    {/* <ModalFormItem /> */}
-                                                    {/* </ModalForm> */}
-                                                    <NavLink className="link-underline-opacity-0" to={`/sales/transaction/${item.pk}/edit`}>
-                                                        <DropDownItem icon={<FiEdit />} text={"Status"} optionTextStyle={"text-center"} />
-                                                    </NavLink>
-                                                    <DropDownItem icon={<FiTrash2 />} text={"Delete"} optionTextStyle={"text-center text-muted"} />
-                                                </DropDownMenu>
-                                            </td>
-                                        </tr>
-
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
+                        )
+                    }
                 </>
             )}
         </div >

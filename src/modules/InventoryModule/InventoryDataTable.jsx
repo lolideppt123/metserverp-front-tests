@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { NavLink } from 'react-router-dom';
-import { Spin, Flex } from 'antd';
+import Spinner from '../../components/Fallback/Spinner';
 
 import { NumberFormatter } from '../../settings/MoneyFormatter';
 
@@ -9,14 +9,10 @@ export default function InventoryDataTable({ config }) {
     return (
         <div className="container">
             {loading ? (
-                <div className="py-5">
-                    <Flex vertical>
-                        <Spin />
-                    </Flex>
-                </div>
+                <Spinner />
             ) : (
                 <>
-                    {!data.length ? (
+                    {!data?.length ? (
                         <div className="py-4">
                             <h6 className="text-center px-3 mt-4 mb-1"><i>Nothing to display yet</i></h6>
                         </div>
@@ -26,15 +22,15 @@ export default function InventoryDataTable({ config }) {
                                 <thead>
                                     <tr>
                                         {dataTableColumn.map((value) => (
-                                            <th key={value.key}>{value.title}</th>
+                                            <th key={value.key} className='text-center'>{value.title}</th>
                                         ))}
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {data.map((item, index) => (
+                                    {data?.map((item, index) => (
                                         <tr key={index}>
-                                            <td>{(moment(item.last_ordered_date)).format("MMM DD, YYYY")}</td>
-                                            <td className='col col-lg-3'><NavLink to={`transaction/${item.product_name}`}>{item.product_name}</NavLink> </td>
+                                            <td className='text-center'>{(moment(item.last_ordered_date)).format("MMM DD, YYYY")}</td>
+                                            <td className='col col-lg-3 text-center'><NavLink to={`transaction/${item.product_pk}/${encodeURIComponent(item.product_name)}`}>{item.product_name}</NavLink> </td>
                                             {/* <td><NumberFormatter amount={item.total_inventory} /></td> */}
                                             <td className='col col-lg-2'>
                                                 <div className="progress" style={{ height: "20px", border: "1px solid grey" }}>
@@ -43,9 +39,9 @@ export default function InventoryDataTable({ config }) {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td><NumberFormatter amount={item.unit_price} /> | {item.stock_left}</td>
-                                            <td>{item.product_unit}</td>
-                                            <td>{(moment(item.order_update)).format("MMM DD, YYYY")}</td>
+                                            <td className='text-center'><NumberFormatter amount={item.unit_price} /> | {item.stock_left}</td>
+                                            <td className='text-center'>{item.product_unit}</td>
+                                            <td className='text-center'>{(moment(item.order_update)).format("MMM DD, YYYY")}</td>
                                         </tr>
                                     ))}
                                 </tbody>
