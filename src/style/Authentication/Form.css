@@ -1,12 +1,12 @@
 .form-body {
     display: grid;
-    grid-template-columns: 0fr 1fr;
+    grid-template-columns: 0% 1fr;
     transition: grid-template-columns 1000ms ease-in;
     background-color: #f3f1f6;
 }
 
 .form-loaded {
-    grid-template-columns: 1fr 1fr !important;
+    grid-template-columns: 40% 1fr !important;
 }
 
 .form-body-contents {
@@ -17,7 +17,20 @@
     align-items: center;
 }
 
+.login-metserv-image {
+    width: 80%;
+    height: 100%;
+    transition: width 1s, height 1s;
+    transition-delay: 0.05;
+}
+
+.image-shrink {
+    width: 100%;
+    height: 80%;
+}
+
 .form-container-left {
+    width: 60%;
     padding: 5rem 2.5rem;
     border-radius: 1.5rem;
     border-width: 2px;
@@ -25,17 +38,24 @@
     box-shadow: 10px 40px -14px rgba(0, 0, 0, 0.25);
     background: #fff;
     font-weight: 500;
+    overflow: hidden;
 }
 
 .input-wrapper {
     margin-top: 28px;
     border-radius: 8px;
+    text-shadow: no;
+    display: flex;
+    flex-direction: row-reverse;
 }
 
 .input-item {
     border: none;
     outline: none;
     color: black;
+    width: 95%;
+    max-width: 95%;
+    padding-right: 0;
 }
 
 .input-wrapper,
@@ -47,6 +67,7 @@
     position: relative;
     top: 13px;
     left: 9px;
+    max-width: 10%;
     width: 26px;
     height: 26px;
     float: left;
@@ -60,4 +81,22 @@
 .signup-link {
     text-decoration: none;
     margin-left: 3px;
+}
+
+@media only screen and (min-width: 992px) and (max-width: 1023px) {
+    .form-loaded {
+        grid-template-columns: 50% 1fr !important;
+    }
+
+    .form-container-left {
+        width: 80%;
+    }
+
+    .image-shrink {
+        height: 70%;
+    }
+
+    .input-wrapper {
+        margin-top: 23px;
+    }
 }

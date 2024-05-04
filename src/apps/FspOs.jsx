@@ -12,26 +12,20 @@ export default function FspOs() {
     // Check here if user is logged in
     // const USER = useSelector(selectUser);
     const { user, token } = useAuth();
-    return (
-        <>
-            {
-                user ? (
-                    <>
-                        <MainApp />
-                    </>
-                ) : (
-                    <AuthRouter />
-                )
-            }
 
-        </>
-
-    )
+    if (user) {
+        return <MainApp />
+    }
+    else {
+        return <AuthRouter />
+    }
 }
 
 
 const MainApp = () => (
+
     <Suspense fallback={<Fallback />}>
         <FspApp />
     </Suspense>
+
 )

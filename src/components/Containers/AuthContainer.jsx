@@ -21,7 +21,11 @@ export default function AuthContainer(props) {
                 {props.left}
             </div>
             <div className="vh-100 w-100 d-flex justify-content-center align-items-center" style={{ backgroundColor: "#f3f1f6" }}>
-                <img className='' src={loginImage} alt="" style={{ width: loadForm ? '100%' : "80%", height: '100%', transition: 'width 1s' }} />
+                <img
+                    className={`login-metserv-image ${loadForm ? "image-shrink" : ""}`}
+                    src={loginImage}
+                    alt="metserverp-main-image"
+                />
             </div>
         </div>
     )

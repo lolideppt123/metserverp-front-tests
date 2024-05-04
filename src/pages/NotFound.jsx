@@ -5,10 +5,8 @@ export default function NotFound() {
 
 
     return (
-        <>
-
-            <CustomerList />
-
-        </>
+        <div>
+            Page not found
+        </div>
     )
 }
