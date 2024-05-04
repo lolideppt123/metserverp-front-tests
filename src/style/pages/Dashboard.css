@@ -36,3 +36,32 @@
     grid-column: span 6;
     grid-row: span 3;
 }
+
+@media only screen and (max-width: 1220px) {
+    .box-sm {
+        grid-column: span 6;
+        grid-row: span 1;
+    }
+}
+
+@media only screen and (max-width: 950px) {
+    .box-mid {
+        grid-column: span 6;
+        grid-row: span 2;
+    }
+    .box-large {
+        grid-column: span 12;
+        grid-row: span 3;
+    }
+}
+
+@media only screen and (max-width: 690px) {
+    .box-sm {
+        grid-column: span 12;
+        grid-row: span 1;
+    }
+    .box-mid {
+        grid-column: span 12;
+        grid-row: span 2;
+    }
+}
