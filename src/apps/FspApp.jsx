@@ -25,6 +25,9 @@ export default function FspApp() {
             if (window.innerWidth <= 768) {
                 setExpanded(false);
             }
+            if (window.innerWidth >= 1024) {
+                setExpanded(true);
+            }
         }
         window.addEventListener("resize", resizeW);
         return () => window.removeEventListener("resize", resizeW);
