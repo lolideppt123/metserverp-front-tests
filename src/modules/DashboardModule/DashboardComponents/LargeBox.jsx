@@ -42,9 +42,10 @@ export default function LargeBox({ data, loading }) {
                                 columns={dataTableColumn}
                                 rowKey={data => data.name}
                                 dataSource={data.data}
-                                pagination={{
-                                    pageSize: 5,
-                                }}
+                                scroll={{ x: 'max-content' }}
+                            // pagination={{
+                            //     pageSize: 5,
+                            // }}
                             />
                         </div>
                     </>

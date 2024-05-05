@@ -23,8 +23,9 @@ export default function SmallBox({ loading, data }) {
                     <Spinner />
                 ) : (
                     <div className="card-body d-flex justify-content-evenly align-items-center">
-                        <span className='text-center fs-md fw-semibold'>YTD</span>
+                        <span className='small-box-text text-center fs-md fw-semibold'>YTD</span>
                         <Divider
+                            className='small-box-divider'
                             style={{
                                 height: '100%',
                                 padding: '15px 0',

@@ -1,20 +1,20 @@
 import { NavLink } from 'react-router-dom';
 import { Tooltip } from 'antd';
 
-export default function NavItem(props) {
+export default function NavItem({ expanded = true, icon, text, url }) {
     return (
         <li className="nav-item">
-            {props.expanded ? (
-                <NavLink to={props.url} className={`d-flex justify-content-${props.expanded ? "start" : "center"} align-items-center nav-link`}>
-                    {props.icon}
-                    {props.expanded && (
-                        <span className={`nav-link-text text-nowrap overflow-hidden ${props.expanded ? "" : "d-none"}`}>{props.text}</span>
+            {expanded ? (
+                <NavLink to={url} className={`d-flex justify-content-${expanded ? "start" : "center"} align-items-center nav-link`}>
+                    {icon}
+                    {expanded && (
+                        <span className={`nav-link-text text-nowrap overflow-hidden ${expanded ? "" : "d-none"}`}>{text}</span>
                     )}
                 </NavLink>
             ) : (
-                <Tooltip title={props.text} placement="right">
-                    <NavLink to={props.url} className={`d-flex justify-content-${props.expanded ? "start" : "center"} align-items-center nav-link`}>
-                        {props.icon}
+                <Tooltip title={text} placement="right">
+                    <NavLink to={url} className={`d-flex justify-content-${expanded ? "start" : "center"} align-items-center nav-link`}>
+                        {icon}
                     </NavLink>
                 </Tooltip>
             )}
