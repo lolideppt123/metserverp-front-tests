@@ -14,6 +14,7 @@ import { Tooltip } from "antd";
 export default function Sales() {
     const [SalesFilter, setSalesFilter] = useState("");
     const [customerFilter, setCustomerFilter] = useState([]);
+    const [productFilter, setProductFilter] = useState([]);
     const [filteredInfo, setFilteredInfo] = useState({});
 
     const {
@@ -28,6 +29,12 @@ export default function Sales() {
         loading: customerLoading,
         response: customers,
         axiosFetch: fetchCustomers,
+    } = useAxiosFunction();
+
+    const {
+        loading: productLoading,
+        response: products,
+        axiosFetch: fetchProducts,
     } = useAxiosFunction();
 
     const Labels = {
@@ -108,7 +115,6 @@ export default function Sales() {
             },
         },
         {
-            // title: 'Product Name',
             title: (
                 <div className={`fs-md fw-semibold text-center`}>
                     Product Name
@@ -118,6 +124,13 @@ export default function Sales() {
             dataIndex: "product_name",
             fixed: "left",
             width: 200,
+            filters: productFilter,
+            filteredValue: filteredInfo.productName || null,
+            onFilter: (value, record) => record.product_name.includes(value),
+            // onFilter: (value, record) => {
+            //     console.log(record);
+            //     console.log(value);
+            // },
             render: (text, record) => {
                 return (
                     <div
@@ -138,7 +151,6 @@ export default function Sales() {
             },
         },
         {
-            // title: 'Customer',
             title: (
                 <div className="fs-md fw-semibold text-center">Customer</div>
             ),
@@ -146,16 +158,6 @@ export default function Sales() {
             dataIndex: "customer",
             width: 200,
             filters: customerFilter,
-            // filters: [
-            //     {
-            //         text: "London",
-            //         value: "London",
-            //     },
-            //     {
-            //         text: "New York",
-            //         value: "New York",
-            //     },
-            // ],
             filteredValue: filteredInfo.customer || null,
             onFilter: (value, record) => record.customer.includes(value),
             render: (text, record) => {
@@ -331,7 +333,7 @@ export default function Sales() {
     ];
 
     const handleOnFilter = (pagination, filters, sorter) => {
-        // console.log("Various parameters", pagination, filters, sorter);
+        console.log(filters.productName);
         setFilteredInfo(filters);
     };
 
@@ -344,6 +346,10 @@ export default function Sales() {
             });
             await fetchCustomers({
                 url: "customers/",
+                method: "GET",
+            });
+            await fetchProducts({
+                url: "products/",
                 method: "GET",
             });
         };
@@ -366,6 +372,7 @@ export default function Sales() {
     useEffect(() => {
         if (customers) {
             // console.log(customers);
+            setCustomerFilter([]);
             customers.map((item) =>
                 setCustomerFilter((prev) => [
                     ...prev,
@@ -373,13 +380,23 @@ export default function Sales() {
                 ])
             );
         }
-    }, [customers]);
+        if (products) {
+            setProductFilter([]);
+            products.map((item) =>
+                setProductFilter((prev) => [
+                    ...prev,
+                    { text: item.product_name, value: item.product_name },
+                ])
+            );
+        }
+    }, [customers, products]);
 
     const config = {
         dataTableColumn,
         Labels,
         data,
         customerLoading,
+        productLoading,
         loading,
         error,
         setData,
@@ -395,7 +412,7 @@ export default function Sales() {
                 type={"sales"}
                 data={data}
             />
-            {loading && customerLoading ? (
+            {loading && customerLoading && productLoading ? (
                 <Spinner />
             ) : error ? (
                 <NoServerResponse error={error} />

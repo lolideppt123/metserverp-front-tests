@@ -14,6 +14,7 @@ export default function SalesDataTable({ config }) {
         data,
         loading,
         customerLoading,
+        productLoading,
         Labels,
         setData,
         handleOnFilter,
@@ -87,7 +88,7 @@ export default function SalesDataTable({ config }) {
     ];
     return (
         <div className="container">
-            {loading && customerLoading ? (
+            {loading && customerLoading && productLoading ? (
                 <Spinner />
             ) : (
                 <>
@@ -297,7 +298,6 @@ export default function SalesDataTable({ config }) {
                                                 }
                                             );
                                             if (index === 0) {
-                                                console.log(totalCost);
                                                 cummulatives[index] = {
                                                     cum_totalCost: totalCost,
                                                     cum_grossPrice: grossPrice,
