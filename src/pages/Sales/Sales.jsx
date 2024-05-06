@@ -13,6 +13,9 @@ import { Tooltip } from "antd";
 
 export default function Sales() {
     const [SalesFilter, setSalesFilter] = useState("");
+    const [customerFilter, setCustomerFilter] = useState([]);
+    const [filteredInfo, setFilteredInfo] = useState({});
+
     const {
         loading,
         response: data,
@@ -114,10 +117,6 @@ export default function Sales() {
             key: "productName",
             dataIndex: "product_name",
             fixed: "left",
-            filters: [
-                { text: "Male", value: "male" },
-                { text: "Female", value: "female" },
-            ],
             width: 200,
             render: (text, record) => {
                 return (
@@ -146,6 +145,19 @@ export default function Sales() {
             key: "customer",
             dataIndex: "customer",
             width: 200,
+            filters: customerFilter,
+            // filters: [
+            //     {
+            //         text: "London",
+            //         value: "London",
+            //     },
+            //     {
+            //         text: "New York",
+            //         value: "New York",
+            //     },
+            // ],
+            filteredValue: filteredInfo.customer || null,
+            onFilter: (value, record) => record.customer.includes(value),
             render: (text, record) => {
                 return (
                     <div
@@ -172,7 +184,7 @@ export default function Sales() {
             ),
             key: "salesQuantity",
             dataIndex: "sales_quantity",
-            width: 125,
+            width: 150,
             render: (text, record) => {
                 return (
                     <div
@@ -196,7 +208,7 @@ export default function Sales() {
             ),
             key: "totalCost",
             dataIndex: "sales_total_cost",
-            width: 150,
+            width: 200,
             render: (text, record) => {
                 return (
                     <div
@@ -220,7 +232,7 @@ export default function Sales() {
             ),
             key: "grossPrice",
             dataIndex: "sales_gross_price",
-            width: 150,
+            width: 200,
             render: (text, record) => {
                 return (
                     <div
@@ -238,7 +250,7 @@ export default function Sales() {
             title: <div className="fs-md fw-semibold text-center">Margin</div>,
             key: "salesMargin",
             dataIndex: "sales_margin",
-            width: 150,
+            width: 200,
             render: (text, record) => {
                 return (
                     <div
@@ -256,7 +268,7 @@ export default function Sales() {
             title: <div className="fs-md fw-semibold text-center">VAT</div>,
             key: "vat",
             dataIndex: "sales_VAT",
-            width: 150,
+            width: 200,
             render: (text, record) => {
                 return (
                     <div
@@ -277,16 +289,18 @@ export default function Sales() {
             width: 100,
             render: (text, record) => {
                 return (
-                    <span
-                        style={{ fontSize: "12px" }}
-                        className={`px-2 py-1 ${
-                            record.sales_status == "PAID"
-                                ? "paid-status"
-                                : "unpaid-status"
-                        }`}
-                    >
-                        {text}
-                    </span>
+                    <div className="text-center">
+                        <span
+                            style={{ fontSize: "12px" }}
+                            className={`px-2 py-1 ${
+                                record.sales_status == "PAID"
+                                    ? "paid-status"
+                                    : "unpaid-status"
+                            }`}
+                        >
+                            {text}
+                        </span>
+                    </div>
                 );
             },
         },
@@ -315,6 +329,11 @@ export default function Sales() {
             },
         },
     ];
+
+    const handleOnFilter = (pagination, filters, sorter) => {
+        // console.log("Various parameters", pagination, filters, sorter);
+        setFilteredInfo(filters);
+    };
 
     useEffect(() => {
         // Needs to wait for first request so refresh token won't double send
@@ -346,7 +365,13 @@ export default function Sales() {
 
     useEffect(() => {
         if (customers) {
-            console.log(customers);
+            // console.log(customers);
+            customers.map((item) =>
+                setCustomerFilter((prev) => [
+                    ...prev,
+                    { text: item.company_name, value: item.company_name },
+                ])
+            );
         }
     }, [customers]);
 
@@ -358,7 +383,9 @@ export default function Sales() {
         loading,
         error,
         setData,
+        handleOnFilter,
     };
+
     return (
         <>
             <DataTablePageHeader
@@ -368,7 +395,7 @@ export default function Sales() {
                 type={"sales"}
                 data={data}
             />
-            {loading || customerLoading ? (
+            {loading && customerLoading ? (
                 <Spinner />
             ) : error ? (
                 <NoServerResponse error={error} />
