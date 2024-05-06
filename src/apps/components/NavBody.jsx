@@ -3,6 +3,7 @@ import Accordion from "./Accordion";
 import AccordionItem from "./AccordionItem";
 import DropDownMenu from "../../components/DropDown/DropDownMenu";
 import { FiHome, FiShoppingCart, FiFileText, FiList, FiFilePlus } from "react-icons/fi";
+import { ImStatsBars } from "react-icons/im";
 import { FaRegFolderOpen } from "react-icons/fa";
 
 export default function NavBody({ expanded }) {
@@ -47,8 +48,21 @@ export default function NavBody({ expanded }) {
             <h6 className={`sidebar-heading d-flex justify-content-between align-items-center px-3 mb-1 text-muted text-uppercase ${expanded ? "mt-4" : "mt-2"}`}>
                 <span className={`${expanded ? "" : "d-none"}`} style={{ fontSize: ".75rem" }}>Summary</span>
             </h6>
-            <NavItem expanded={expanded} url={'/sales/sales-summary'} icon={<FiFileText className='nav-link-icon' />} text={`Sales Analysis`} />
-            <NavItem expanded={expanded} url={'/inventory/inventory-summary'} icon={<FiFileText className='nav-link-icon' />} text={`Inventory Analysis`} />
+            {
+                expanded ? (
+                    <Accordion expanded={expanded} text={`Statistics`} icon={<ImStatsBars className='nav-link-icon' />}>
+                        <AccordionItem url={'/sales/sales-summary'} text={'Sales Stats'} />
+                        <AccordionItem url={'/inventory/inventory-summary'} text={'Inventory Stats'} />
+                        <AccordionItem url={'/customers/customer-summary'} text={'Customer Stats'} />
+                    </Accordion>
+                ) : (
+                    <DropDownMenu expanded={expanded} mainicon={<ImStatsBars className='nav-link-icon' />} maintext={`Statistics`}>
+                        <AccordionItem url={'/sales/sales-summary'} text={'Sales Stats'} />
+                        <AccordionItem url={'/inventory/inventory-summary'} text={'Inventory Stats'} />
+                        <AccordionItem url={'/customers/customer-summary'} text={'Customer Stats'} />
+                    </DropDownMenu>
+                )
+            }
         </div>
     )
 }

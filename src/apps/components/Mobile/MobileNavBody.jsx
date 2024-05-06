@@ -28,6 +28,7 @@ export default function MobileNavBody({ setDrawer }) {
                 </h6>
                 <NavItem url={'/sales/sales-summary'} icon={<FiFileText className='nav-link-icon' />} text={`Sales Analysis`} />
                 <NavItem url={'/inventory/inventory-summary'} icon={<FiFileText className='nav-link-icon' />} text={`Inventory Analysis`} />
+                <NavItem url={'/inventory/inventory-summary'} icon={<FiFileText className='nav-link-icon' />} text={`Customer Stats`} />
             </div>
         </div>
     )
