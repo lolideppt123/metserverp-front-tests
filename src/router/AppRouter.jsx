@@ -33,6 +33,7 @@ const SalesSummary = lazy(() => import('../pages/Sales/SalesSummary'))
 const Customer = lazy(() => import('../pages/Customer/Customer'))
 const AddCustomer = lazy(() => import('../pages/Customer/AddCustomer'))
 const EditCustomer = lazy(() => import('../pages/Customer/EditCustomer'))
+const CustomerSummary = lazy(() => import('../pages/Customer/CustomerSummary'))
 
 const Supplier = lazy(() => import('../pages/Supplier/Supplier'))
 const AddSupplier = lazy(() => import('../pages/Supplier/AddSupplier'))
@@ -145,6 +146,10 @@ export default function AppRouter() {
         {
             path: '/customers/:id',
             element: <EditCustomer />
+        },
+        {
+            path: '/customers/customer-summary',
+            element: <CustomerSummary />
         },
         {
             path: '/suppliers',
