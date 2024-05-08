@@ -15,6 +15,7 @@ export default function SalesDataTable({ config }) {
         loading,
         customerLoading,
         productLoading,
+        supplierLoading,
         Labels,
         setData,
         handleOnFilter,
@@ -60,22 +61,19 @@ export default function SalesDataTable({ config }) {
                                 message: `Product: ${record?.product_name?.substr(
                                     0,
                                     12
-                                )}${
-                                    record?.product_name?.length > 12
-                                        ? "\u2026"
-                                        : ""
-                                }, 
+                                )}${record?.product_name?.length > 12
+                                    ? "\u2026"
+                                    : ""
+                                    }, 
                                                 Invoice: ${record?.sales_invoice?.substr(
-                                                    0,
-                                                    12
-                                                )}${
-                                    record?.sales_invoice?.length > 7
+                                        0,
+                                        12
+                                    )}${record?.sales_invoice?.length > 7
                                         ? "\u2026"
                                         : ""
-                                }, 
-                                                Quantity: ${
-                                                    record.sales_quantity
-                                                }`,
+                                    }, 
+                                                Quantity: ${record.sales_quantity
+                                    }`,
                                 notAllowed: false,
                                 api_url: Labels.API_URL,
                                 setData: (data) => setData(data),
@@ -88,7 +86,7 @@ export default function SalesDataTable({ config }) {
     ];
     return (
         <div className="container">
-            {loading && customerLoading && productLoading ? (
+            {loading && customerLoading && productLoading && supplierLoading ? (
                 <Spinner />
             ) : (
                 <>
