@@ -27,6 +27,14 @@ export default function Sales() {
     } = useAxiosFunction();
 
     const {
+        loading: filteredDataLoading,
+        response: filteredData,
+        setResponse: setFilteredData,
+        error: filteredDataError,
+        axiosFetch: fetchFilteredData,
+    } = useAxiosFunction();
+
+    const {
         loading: customerLoading,
         response: customers,
         axiosFetch: fetchCustomers,
@@ -333,9 +341,14 @@ export default function Sales() {
         },
     ];
 
-    const handleOnFilter = (pagination, filters, sorter, extra) => {
-        console.log(filters);
-        console.log(extra);
+    const handleOnFilter = async (pagination, filters, sorter, extra) => {
+
+        await fetchFilteredData({
+            url: `sales-data-filter/`,
+            method: "POST",
+            data: { ...filters, SalesFilter }
+        })
+
         setFilteredInfo(filters);
     };
 
@@ -395,7 +408,10 @@ export default function Sales() {
         if (suppliers) {
             customMapper(suppliers, { text: 'company_name', value: 'id' }, setSupplierFilter);
         }
-    }, [customers, products, suppliers]);
+        if (filteredData) {
+            setData(filteredData);
+        }
+    }, [customers, products, suppliers, filteredData]);
 
     useEffect(() => {
         if (supplierFilter.length > 0) {
@@ -419,6 +435,8 @@ export default function Sales() {
         setData,
         handleOnFilter,
     };
+
+    // console.log(filteredData)
 
     return (
         <>

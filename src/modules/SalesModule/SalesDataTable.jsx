@@ -20,7 +20,7 @@ export default function SalesDataTable({ config }) {
         setData,
         handleOnFilter,
     } = config;
-    // console.log(data)
+
     const cummulatives = [];
     const get_title = [];
     const get_totals = [];
@@ -84,6 +84,7 @@ export default function SalesDataTable({ config }) {
             },
         },
     ];
+
     return (
         <div className="container">
             {loading && customerLoading && productLoading && supplierLoading ? (
@@ -130,141 +131,6 @@ export default function SalesDataTable({ config }) {
                                             y: 500,
                                         }}
                                         pagination={false}
-                                        // summary={(data) => (
-                                        //     <Table.Summary fixed={"bottom"}>
-                                        //         <Table.Summary.Row>
-                                        //             <Table.Summary.Cell
-                                        //                 index={0}
-                                        //                 colSpan={2}
-                                        //                 className="text-start fw-bold bg-light h6"
-                                        //             >
-                                        //                 Total
-                                        //             </Table.Summary.Cell>
-                                        //             {/* <Table.Summary.Cell></Table.Summary.Cell> */}
-                                        //             <Table.Summary.Cell className="bg-light"></Table.Summary.Cell>
-                                        //             <Table.Summary.Cell className="bg-light"></Table.Summary.Cell>
-                                        //             <Table.Summary.Cell className="bg-light"></Table.Summary.Cell>
-                                        //             <Table.Summary.Cell className="bg-light"></Table.Summary.Cell>
-                                        //             <Table.Summary.Cell className="bg-light text-end fw-bold h6">
-                                        //                 {
-                                        //                     <MoneyFormatter
-                                        //                         amount={
-                                        //                             get_totals[
-                                        //                                 index
-                                        //                             ]
-                                        //                                 ?.sales_cost
-                                        //                         }
-                                        //                     />
-                                        //                 }
-                                        //             </Table.Summary.Cell>
-                                        //             <Table.Summary.Cell className="bg-light text-end fw-bold h6">
-                                        //                 {
-                                        //                     <MoneyFormatter
-                                        //                         amount={
-                                        //                             get_totals[
-                                        //                                 index
-                                        //                             ]
-                                        //                                 ?.sales_price
-                                        //                         }
-                                        //                     />
-                                        //                 }
-                                        //             </Table.Summary.Cell>
-                                        //             <Table.Summary.Cell className="bg-light text-end fw-bold h6">
-                                        //                 {
-                                        //                     <MoneyFormatter
-                                        //                         amount={
-                                        //                             get_totals[
-                                        //                                 index
-                                        //                             ]
-                                        //                                 ?.sales_total_margin
-                                        //                         }
-                                        //                     />
-                                        //                 }
-                                        //             </Table.Summary.Cell>
-                                        //             <Table.Summary.Cell className="bg-light text-end fw-bold h6">
-                                        //                 {
-                                        //                     <MoneyFormatter
-                                        //                         amount={
-                                        //                             get_totals[
-                                        //                                 index
-                                        //                             ]?.sales_vat
-                                        //                         }
-                                        //                     />
-                                        //                 }
-                                        //             </Table.Summary.Cell>
-                                        //             <Table.Summary.Cell className="bg-light"></Table.Summary.Cell>
-                                        //             <Table.Summary.Cell className="bg-light"></Table.Summary.Cell>
-                                        //             <Table.Summary.Cell className="bg-light"></Table.Summary.Cell>
-                                        //             <Table.Summary.Cell className="bg-light"></Table.Summary.Cell>
-                                        //         </Table.Summary.Row>
-                                        //         <Table.Summary.Row>
-                                        //             <Table.Summary.Cell
-                                        //                 index={0}
-                                        //                 colSpan={2}
-                                        //                 className="text-start fw-bold bg-light h6"
-                                        //             >
-                                        //                 Cumulative
-                                        //             </Table.Summary.Cell>
-                                        //             {/* <Table.Summary.Cell></Table.Summary.Cell> */}
-                                        //             <Table.Summary.Cell className="bg-light"></Table.Summary.Cell>
-                                        //             <Table.Summary.Cell className="bg-light"></Table.Summary.Cell>
-                                        //             <Table.Summary.Cell className="bg-light"></Table.Summary.Cell>
-                                        //             <Table.Summary.Cell className="bg-light"></Table.Summary.Cell>
-                                        //             <Table.Summary.Cell className="bg-light text-end fw-bold h6">
-                                        //                 {
-                                        //                     <MoneyFormatter
-                                        //                         amount={
-                                        //                             get_cumm_totals[
-                                        //                                 index
-                                        //                             ]
-                                        //                                 ?.cumm_sales_cost
-                                        //                         }
-                                        //                     />
-                                        //                 }
-                                        //             </Table.Summary.Cell>
-                                        //             <Table.Summary.Cell className="bg-light text-end fw-bold h6">
-                                        //                 {
-                                        //                     <MoneyFormatter
-                                        //                         amount={
-                                        //                             get_cumm_totals[
-                                        //                                 index
-                                        //                             ]
-                                        //                                 ?.cumm_sales_price
-                                        //                         }
-                                        //                     />
-                                        //                 }
-                                        //             </Table.Summary.Cell>
-                                        //             <Table.Summary.Cell className="bg-light text-end fw-bold h6">
-                                        //                 {
-                                        //                     <MoneyFormatter
-                                        //                         amount={
-                                        //                             get_cumm_totals[
-                                        //                                 index
-                                        //                             ]
-                                        //                                 ?.cumm_sales_margin
-                                        //                         }
-                                        //                     />
-                                        //                 }
-                                        //             </Table.Summary.Cell>
-                                        //             <Table.Summary.Cell className="bg-light text-end fw-bold h6">
-                                        //                 {
-                                        //                     <MoneyFormatter
-                                        //                         amount={
-                                        //                             get_cumm_totals[
-                                        //                                 index
-                                        //                             ]
-                                        //                                 ?.cumm_sales_vat
-                                        //                         }
-                                        //                     />
-                                        //                 }
-                                        //             </Table.Summary.Cell>
-                                        //             <Table.Summary.Cell className="bg-light"></Table.Summary.Cell>
-                                        //             <Table.Summary.Cell className="bg-light"></Table.Summary.Cell>
-                                        //             <Table.Summary.Cell className="bg-light"></Table.Summary.Cell>
-                                        //             <Table.Summary.Cell className="bg-light"></Table.Summary.Cell>
-                                        //         </Table.Summary.Row>
-                                        //     </Table.Summary>
-                                        // )}
                                         summary={(data) => {
                                             let totalCost = 0;
                                             let grossPrice = 0;

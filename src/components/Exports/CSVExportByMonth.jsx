@@ -11,6 +11,7 @@ export default function CSVExportByMonth({ title, body, foot, endFoot }) {
         { label: "DR", key: "sales_dr" },
         { label: "INV", key: "sales_invoice" },
         { label: "CUSTOMERS", key: "customer" },
+        { label: "PRODUCTS", key: "product_name" },
         { label: "QUANTITY", key: "sales_quantity" },
         { label: "U/PRICE", key: "sales_unit_price" },
         { label: "SALES", key: "sales_total_price" },
