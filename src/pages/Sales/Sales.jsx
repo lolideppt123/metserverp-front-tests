@@ -11,6 +11,8 @@ import SalesDataTable from "../../modules/SalesModule/SalesDataTable";
 import MoneyFormatter, { NumberFormatter } from "../../settings/MoneyFormatter";
 import { Tooltip } from "antd";
 
+import salesFilterFunc from "../../helpers/salesFilterFunc";
+
 export default function Sales() {
     const [SalesFilter, setSalesFilter] = useState("");
     const [customerFilter, setCustomerFilter] = useState([]);
@@ -20,6 +22,7 @@ export default function Sales() {
 
     const {
         loading,
+        setLoading: setDataLoading,
         response: data,
         setResponse: setData,
         error,
@@ -51,6 +54,11 @@ export default function Sales() {
         response: suppliers,
         axiosFetch: fetchSupplier,
     } = useAxiosFunction();
+
+    const {
+        GenerateCSVData,
+        CSVData
+    } = salesFilterFunc();
 
     const Labels = {
         BASE_ENTITY: "Sales",
@@ -348,7 +356,7 @@ export default function Sales() {
             method: "POST",
             data: { ...filters, SalesFilter }
         })
-
+        console.log(filters);
         setFilteredInfo(filters);
     };
 
@@ -399,6 +407,10 @@ export default function Sales() {
     }, [SalesFilter]);
 
     useEffect(() => {
+        if (data && !filteredData) {
+            console.log("running data")
+            GenerateCSVData(data);
+        }
         if (customers) {
             customMapper(customers, { text: 'company_name', value: 'company_name' }, setCustomerFilter);
         }
@@ -409,9 +421,9 @@ export default function Sales() {
             customMapper(suppliers, { text: 'company_name', value: 'id' }, setSupplierFilter);
         }
         if (filteredData) {
-            setData(filteredData);
+            GenerateCSVData(filteredData);
         }
-    }, [customers, products, suppliers, filteredData]);
+    }, [data, customers, products, suppliers, filteredData]);
 
     useEffect(() => {
         if (supplierFilter.length > 0) {
@@ -427,6 +439,7 @@ export default function Sales() {
         dataTableColumn,
         Labels,
         data,
+        CSVData,
         customerLoading,
         productLoading,
         supplierLoading,
@@ -435,8 +448,6 @@ export default function Sales() {
         setData,
         handleOnFilter,
     };
-
-    // console.log(filteredData)
 
     return (
         <>
@@ -447,7 +458,7 @@ export default function Sales() {
                 type={"sales"}
                 data={data}
             />
-            {loading && customerLoading && productLoading && supplierLoading ? (
+            {loading || customerLoading || productLoading || supplierLoading || filteredDataLoading ? (
                 <Spinner />
             ) : error ? (
                 <NoServerResponse error={error} />

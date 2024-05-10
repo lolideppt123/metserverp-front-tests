@@ -7,9 +7,10 @@ import { LoadingOutlined } from '@ant-design/icons';
 export default function CSVExport({ data, year = "", month = "" }) {
 
     const HEADER = [
-        { label: "DR", key: "sales_dr" },
-        { label: "INV", key: "sales_invoice" },
+        { label: "DELIVERY RECEIPT", key: "sales_dr" },
+        { label: "INVOICE", key: "sales_invoice" },
         { label: "CUSTOMERS", key: "customer" },
+        { label: "PRODUCTS", key: "product_name" },
         { label: "QUANTITY", key: "sales_quantity" },
         { label: "U/PRICE", key: "sales_unit_price" },
         { label: "SALES", key: "sales_total_price" },
@@ -21,8 +22,6 @@ export default function CSVExport({ data, year = "", month = "" }) {
         { label: "%MARGIN", key: "sales_margin_percent" },
         { label: "DATE PAID", key: "sales_paid_date" },
     ]
-
-
 
     const [dataCopy, setDataCopy] = useState();
     const [CSVDATA, setCSVDATA] = useState([]);

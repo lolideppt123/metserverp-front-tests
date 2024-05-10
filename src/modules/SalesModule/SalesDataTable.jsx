@@ -8,10 +8,14 @@ import MoneyFormatter from "../../settings/MoneyFormatter";
 import SalesCardModalTitle from "../../components/ModalTitle/SalesCardModalTitle";
 import CSVExportByMonth from "../../components/Exports/CSVExportByMonth";
 
+import salesFilterFunc from "../../helpers/salesFilterFunc";
+import { useEffect } from "react";
+
 export default function SalesDataTable({ config }) {
     const {
         dataTableColumn,
         data,
+        CSVData,
         loading,
         customerLoading,
         productLoading,
@@ -21,22 +25,13 @@ export default function SalesDataTable({ config }) {
         handleOnFilter,
     } = config;
 
-    const cummulatives = [];
-    const get_title = [];
-    const get_totals = [];
-    const get_cumm_totals = [];
-    const get_body = [];
+    const { CSVData: newData, GenerateCSVData } = salesFilterFunc();
 
-    data?.map((item, index) => {
-        get_title.push(item[item.length - 1]);
-        get_cumm_totals.push(item[item.length - 2]);
-        get_totals.push(item[item.length - 3]);
-        if (item.length <= 3) {
-            get_body.push([]);
-        } else {
-            get_body.push(item.slice(0, item.length - 3));
-        }
-    });
+    const cummulatives = [];
+
+    useEffect(() => {
+        GenerateCSVData(data);
+    }, [data])
 
     const columnData = [
         ...dataTableColumn,
@@ -87,7 +82,7 @@ export default function SalesDataTable({ config }) {
 
     return (
         <div className="container">
-            {loading && customerLoading && productLoading && supplierLoading ? (
+            {loading || customerLoading || productLoading || supplierLoading ? (
                 <Spinner />
             ) : (
                 <>
@@ -95,7 +90,7 @@ export default function SalesDataTable({ config }) {
                         <Spinner />
                     ) : (
                         <div className="app-table">
-                            {get_body?.map((item, index) => (
+                            {newData?.get_body?.map((item, index) => (
                                 <div
                                     className="app-table multi-app-table mt-5"
                                     key={index}
@@ -106,7 +101,7 @@ export default function SalesDataTable({ config }) {
                                             style={{ marginLeft: "auto" }}
                                         >
                                             {dayjs(
-                                                get_title[index]?.data_title
+                                                newData?.get_title[index]?.data_title
                                             ).format("MMMM YYYY")}
                                         </h5>
                                         <div
@@ -114,17 +109,17 @@ export default function SalesDataTable({ config }) {
                                             style={{ marginLeft: "auto" }}
                                         >
                                             <CSVExportByMonth
-                                                title={get_title[index]}
-                                                body={get_body[index]}
-                                                foot={get_totals[index]}
-                                                endFoot={get_cumm_totals[index]}
+                                                title={CSVData.get_title[index]}
+                                                body={CSVData.get_body[index]}
+                                                foot={CSVData.get_totals[index]}
+                                                endFoot={CSVData.get_cumm_totals[index]}
                                             />
                                         </div>
                                     </div>
                                     <Table
                                         columns={columnData}
                                         rowKey={(data) => data.pk}
-                                        dataSource={get_body[index]}
+                                        dataSource={newData?.get_body[index]}
                                         onChange={handleOnFilter}
                                         scroll={{
                                             x: 1500,
