@@ -51,7 +51,7 @@ const useAxiosFunction = () => {
         }
     }
 
-    return { axiosFetch, response, setResponse, loading, success, setSuccess, error }
+    return { axiosFetch, response, setResponse, loading, setLoading, success, setSuccess, error }
 }
 
 export default useAxiosFunction;

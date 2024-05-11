@@ -8,9 +8,10 @@ import dayjs from 'dayjs';
 export default function CSVExportByMonth({ title, body, foot, endFoot }) {
 
     const HEADER = [
-        { label: "DR", key: "sales_dr" },
-        { label: "INV", key: "sales_invoice" },
+        { label: "DELIVERY RECEIPT", key: "sales_dr" },
+        { label: "INVOICE", key: "sales_invoice" },
         { label: "CUSTOMERS", key: "customer" },
+        { label: "PRODUCTS", key: "product_name" },
         { label: "QUANTITY", key: "sales_quantity" },
         { label: "U/PRICE", key: "sales_unit_price" },
         { label: "SALES", key: "sales_total_price" },
@@ -23,9 +24,8 @@ export default function CSVExportByMonth({ title, body, foot, endFoot }) {
         { label: "DATE PAID", key: "sales_paid_date" },
     ]
 
-
-
-    const [dataCopy, setDataCopy] = useState();
+    // const [dataCopy, setDataCopy] = useState();
+    var dataCopy = [];
     const [CSVDATA, setCSVDATA] = useState([]);
 
     const header = HEADER.map(item => item.label);
@@ -33,7 +33,8 @@ export default function CSVExportByMonth({ title, body, foot, endFoot }) {
 
     useEffect(() => {
         if (body) {
-            setDataCopy(body);
+            // setDataCopy(body);
+            dataCopy = body;
             if (dataCopy) {
                 const csvExport = [];
                 csvExport.push(title['data_title'] ? [title['data_title']] : [""]);
@@ -46,10 +47,6 @@ export default function CSVExportByMonth({ title, body, foot, endFoot }) {
                     })
                     csvExport.push(entryRow);
 
-
-                    //             totalRow = [];
-                    //             cummRow = [];
-                    //             console.log("==============NEW LINE===================")
                 })
                 let totalRow = [];
                 let cummRow = [];
@@ -87,7 +84,7 @@ export default function CSVExportByMonth({ title, body, foot, endFoot }) {
                 setCSVDATA(csvExport);
             }
         }
-    }, [body])
+    }, [title, body, foot, endFoot])
 
     return (
         <>

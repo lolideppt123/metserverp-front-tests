@@ -12,7 +12,6 @@ import {
     selectUser,
     selectToken,
 } from "../../../features/auth/authSlice";
-import loginImage from "../../../7088807.jpg";
 import { useLoginMutation } from "../../../features/auth/authApiSlice";
 
 export default function Login() {

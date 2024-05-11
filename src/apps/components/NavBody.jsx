@@ -2,7 +2,7 @@ import NavItem from "./NavItem";
 import Accordion from "./Accordion";
 import AccordionItem from "./AccordionItem";
 import DropDownMenu from "../../components/DropDown/DropDownMenu";
-import { FiHome, FiShoppingCart, FiFileText, FiList, FiFilePlus } from "react-icons/fi";
+import { FiHome, FiShoppingCart, FiList, FiFilePlus } from "react-icons/fi";
 import { ImStatsBars } from "react-icons/im";
 import { FaRegFolderOpen } from "react-icons/fa";
 

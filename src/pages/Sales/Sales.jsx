@@ -11,18 +11,30 @@ import SalesDataTable from "../../modules/SalesModule/SalesDataTable";
 import MoneyFormatter, { NumberFormatter } from "../../settings/MoneyFormatter";
 import { Tooltip } from "antd";
 
+import salesFilterFunc from "../../helpers/salesFilterFunc";
+
 export default function Sales() {
     const [SalesFilter, setSalesFilter] = useState("");
     const [customerFilter, setCustomerFilter] = useState([]);
     const [productFilter, setProductFilter] = useState([]);
+    const [supplierFilter, setSupplierFilter] = useState([]);
     const [filteredInfo, setFilteredInfo] = useState({});
 
     const {
         loading,
+        setLoading: setDataLoading,
         response: data,
         setResponse: setData,
         error,
         axiosFetch: salesFetch,
+    } = useAxiosFunction();
+
+    const {
+        loading: filteredDataLoading,
+        response: filteredData,
+        setResponse: setFilteredData,
+        error: filteredDataError,
+        axiosFetch: fetchFilteredData,
     } = useAxiosFunction();
 
     const {
@@ -36,6 +48,17 @@ export default function Sales() {
         response: products,
         axiosFetch: fetchProducts,
     } = useAxiosFunction();
+
+    const {
+        loading: supplierLoading,
+        response: suppliers,
+        axiosFetch: fetchSupplier,
+    } = useAxiosFunction();
+
+    const {
+        GenerateCSVData,
+        CSVData
+    } = salesFilterFunc();
 
     const Labels = {
         BASE_ENTITY: "Sales",
@@ -55,9 +78,8 @@ export default function Sales() {
             render: (text, record) => {
                 return (
                     <div
-                        className={`fs-md fw-semibold text-uppercase ${
-                            record.sales_status == "PAID" ? "paid" : "unpaid"
-                        } text-center`}
+                        className={`fs-md fw-semibold text-uppercase ${record.sales_status == "PAID" ? "paid" : "unpaid"
+                            } text-center`}
                     >
                         {text.length > 4 ? (
                             <Tooltip className="pointer" title={text}>
@@ -79,9 +101,8 @@ export default function Sales() {
             render: (text, record) => {
                 return (
                     <div
-                        className={`fs-md fw-semibold text-uppercase ${
-                            record.sales_status == "PAID" ? "paid" : "unpaid"
-                        } text-center`}
+                        className={`fs-md fw-semibold text-uppercase ${record.sales_status == "PAID" ? "paid" : "unpaid"
+                            } text-center`}
                     >
                         {text?.length > 4 ? (
                             <Tooltip className="pointer" title={text}>
@@ -105,9 +126,8 @@ export default function Sales() {
             render: (date, record) => {
                 return (
                     <div
-                        className={`fs-md fw-semibold ${
-                            record.sales_status == "PAID" ? "paid" : "unpaid"
-                        } text-center text-nowrap`}
+                        className={`fs-md fw-semibold ${record.sales_status == "PAID" ? "paid" : "unpaid"
+                            } text-center text-nowrap`}
                     >
                         {dayjs(date).format("MMM DD, YYYY")}
                     </div>
@@ -126,17 +146,20 @@ export default function Sales() {
             width: 200,
             filters: productFilter,
             filteredValue: filteredInfo.productName || null,
-            onFilter: (value, record) => record.product_name.includes(value),
-            // onFilter: (value, record) => {
-            //     console.log(record);
-            //     console.log(value);
-            // },
+            onFilter: (value, record) => {
+                if (typeof (value) === 'number') {
+                    return record.sales_transaction[0].supplier.id === value
+                }
+                if (typeof (value) === 'string') {
+                    return record.product_name === value
+                }
+            },
+            filterSearch: true,
             render: (text, record) => {
                 return (
                     <div
-                        className={`fs-md fw-semibold text-uppercase ${
-                            record.sales_status == "PAID" ? "paid" : "unpaid"
-                        }`}
+                        className={`fs-md fw-semibold text-uppercase ${record.sales_status == "PAID" ? "paid" : "unpaid"
+                            }`}
                     >
                         {text.length > 17 ? (
                             <Tooltip className="pointer" title={text}>
@@ -160,12 +183,12 @@ export default function Sales() {
             filters: customerFilter,
             filteredValue: filteredInfo.customer || null,
             onFilter: (value, record) => record.customer.includes(value),
+            filterSearch: true,
             render: (text, record) => {
                 return (
                     <div
-                        className={`fs-md fw-semibold text-uppercase ${
-                            record.sales_status == "PAID" ? "paid" : "unpaid"
-                        }`}
+                        className={`fs-md fw-semibold text-uppercase ${record.sales_status == "PAID" ? "paid" : "unpaid"
+                            }`}
                     >
                         {text.length > 17 ? (
                             <Tooltip className="pointer" title={text}>
@@ -190,9 +213,8 @@ export default function Sales() {
             render: (text, record) => {
                 return (
                     <div
-                        className={`fs-md fw-semibold text-uppercase ${
-                            record.sales_status == "PAID" ? "paid" : "unpaid"
-                        } text-center`}
+                        className={`fs-md fw-semibold text-uppercase ${record.sales_status == "PAID" ? "paid" : "unpaid"
+                            } text-center`}
                     >
                         {<NumberFormatter amount={record.sales_quantity} />}
                     </div>
@@ -214,9 +236,8 @@ export default function Sales() {
             render: (text, record) => {
                 return (
                     <div
-                        className={`fs-md fw-semibold text-uppercase ${
-                            record.sales_status == "PAID" ? "paid" : "unpaid"
-                        } text-end`}
+                        className={`fs-md fw-semibold text-uppercase ${record.sales_status == "PAID" ? "paid" : "unpaid"
+                            } text-end`}
                     >
                         {<MoneyFormatter amount={record.sales_total_cost} />}
                     </div>
@@ -238,9 +259,8 @@ export default function Sales() {
             render: (text, record) => {
                 return (
                     <div
-                        className={`fs-md fw-semibold text-uppercase ${
-                            record.sales_status == "PAID" ? "paid" : "unpaid"
-                        } text-end`}
+                        className={`fs-md fw-semibold text-uppercase ${record.sales_status == "PAID" ? "paid" : "unpaid"
+                            } text-end`}
                     >
                         {<MoneyFormatter amount={record.sales_gross_price} />}
                     </div>
@@ -256,9 +276,8 @@ export default function Sales() {
             render: (text, record) => {
                 return (
                     <div
-                        className={`fs-md fw-semibold text-uppercase ${
-                            record.sales_status == "PAID" ? "paid" : "unpaid"
-                        } text-end`}
+                        className={`fs-md fw-semibold text-uppercase ${record.sales_status == "PAID" ? "paid" : "unpaid"
+                            } text-end`}
                     >
                         {<MoneyFormatter amount={record.sales_margin} />}
                     </div>
@@ -274,9 +293,8 @@ export default function Sales() {
             render: (text, record) => {
                 return (
                     <div
-                        className={`fs-md fw-semibold text-uppercase ${
-                            record.sales_status == "PAID" ? "paid" : "unpaid"
-                        } text-end`}
+                        className={`fs-md fw-semibold text-uppercase ${record.sales_status == "PAID" ? "paid" : "unpaid"
+                            } text-end`}
                     >
                         {<MoneyFormatter amount={record.sales_VAT} />}
                     </div>
@@ -294,11 +312,10 @@ export default function Sales() {
                     <div className="text-center">
                         <span
                             style={{ fontSize: "12px" }}
-                            className={`px-2 py-1 ${
-                                record.sales_status == "PAID"
-                                    ? "paid-status"
-                                    : "unpaid-status"
-                            }`}
+                            className={`px-2 py-1 ${record.sales_status == "PAID"
+                                ? "paid-status"
+                                : "unpaid-status"
+                                }`}
                         >
                             {text}
                         </span>
@@ -332,10 +349,26 @@ export default function Sales() {
         },
     ];
 
-    const handleOnFilter = (pagination, filters, sorter) => {
-        console.log(filters.productName);
+    const handleOnFilter = async (pagination, filters, sorter, extra) => {
+
+        await fetchFilteredData({
+            url: `sales-data-filter/`,
+            method: "POST",
+            data: { ...filters, SalesFilter }
+        })
+        console.log(filters);
         setFilteredInfo(filters);
     };
+
+    const customMapper = (data, { text, value }, setter) => {
+        setter([]);
+        data.map((item) =>
+            setter((prev) => [
+                ...prev,
+                { text: item[text], value: item[value] },
+            ])
+        );
+    }
 
     useEffect(() => {
         // Needs to wait for first request so refresh token won't double send
@@ -350,6 +383,10 @@ export default function Sales() {
             });
             await fetchProducts({
                 url: "products/",
+                method: "GET",
+            });
+            await fetchSupplier({
+                url: "suppliers/",
                 method: "GET",
             });
         };
@@ -370,33 +407,42 @@ export default function Sales() {
     }, [SalesFilter]);
 
     useEffect(() => {
+        if (data && !filteredData) {
+            console.log("running data")
+            GenerateCSVData(data);
+        }
         if (customers) {
-            // console.log(customers);
-            setCustomerFilter([]);
-            customers.map((item) =>
-                setCustomerFilter((prev) => [
-                    ...prev,
-                    { text: item.company_name, value: item.company_name },
-                ])
-            );
+            customMapper(customers, { text: 'company_name', value: 'company_name' }, setCustomerFilter);
         }
         if (products) {
-            setProductFilter([]);
-            products.map((item) =>
-                setProductFilter((prev) => [
-                    ...prev,
-                    { text: item.product_name, value: item.product_name },
-                ])
-            );
+            customMapper(products, { text: 'product_name', value: 'product_name' }, setProductFilter);
         }
-    }, [customers, products]);
+        if (suppliers) {
+            customMapper(suppliers, { text: 'company_name', value: 'id' }, setSupplierFilter);
+        }
+        if (filteredData) {
+            GenerateCSVData(filteredData);
+        }
+    }, [data, customers, products, suppliers, filteredData]);
+
+    useEffect(() => {
+        if (supplierFilter.length > 0) {
+            setProductFilter(prev => [{
+                text: <span className="fw-semibold">Suppliers</span>,
+                value: 'Suppliers',
+                children: supplierFilter
+            }, ...productFilter])
+        }
+    }, [supplierFilter])
 
     const config = {
         dataTableColumn,
         Labels,
         data,
+        CSVData,
         customerLoading,
         productLoading,
+        supplierLoading,
         loading,
         error,
         setData,
@@ -412,7 +458,7 @@ export default function Sales() {
                 type={"sales"}
                 data={data}
             />
-            {loading && customerLoading && productLoading ? (
+            {loading || customerLoading || productLoading || supplierLoading || filteredDataLoading ? (
                 <Spinner />
             ) : error ? (
                 <NoServerResponse error={error} />
