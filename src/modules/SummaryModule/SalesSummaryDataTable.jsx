@@ -16,7 +16,7 @@ export default function SalesSummaryDataTable({ config }) {
         var footer_data = table[table.length - 1];
         var body_data = table.slice(0, table.length - 1);
     }
-console.log(footer_data)
+    
     return (
         <div className='container mt-3 p-4 border-top'>
             <div className="row">
