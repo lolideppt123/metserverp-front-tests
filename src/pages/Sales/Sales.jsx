@@ -449,6 +449,8 @@ export default function Sales() {
         handleOnFilter,
     };
 
+    // console.log(CSVData);
+
     return (
         <>
             <DataTablePageHeader

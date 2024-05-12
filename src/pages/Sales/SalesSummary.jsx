@@ -17,7 +17,7 @@ const last30Days = dayjs().subtract(1, 'year').format(DATE_FORMAT);
 export default function SalesSummary() {
     const { loading: chartLoad, response: chart, error: chartErr, axiosFetch: chartFetch } = useAxiosFunction();
     const { loading: tableLoad, response: table, error: tableErr, axiosFetch: tableFetch } = useAxiosFunction();
-    const { loading: totalsLoad, response: totals, error: totalsErr, axiosFetch: totalsFetch } = useAxiosFunction();
+    // const { loading: totalsLoad, response: totals, error: totalsErr, axiosFetch: totalsFetch } = useAxiosFunction();
 
     const Labels = {
         BASE_ENTITY: 'Sales Summary',
@@ -112,11 +112,6 @@ export default function SalesSummary() {
                 method: 'post',
                 data: postData
             });
-            await totalsFetch({
-                url: 'sales/sales-summary/data-table-totals',
-                method: 'post',
-                data: postData
-            });
         }
         getData();
     }, [defaultDate, options])
@@ -124,7 +119,6 @@ export default function SalesSummary() {
     const config = {
         dataTableColumn,
         table,
-        totals,
         defaultDate,
         options,
         setOptions,
@@ -134,10 +128,10 @@ export default function SalesSummary() {
         <>
             <SummaryPageHeader defaultDate={defaultDate} Labels={Labels} setDate={setDefaultDate} />
             {
-                chartLoad || tableLoad || totalsLoad ? (
+                chartLoad || tableLoad ? (
                     <Spinner />
                 ) : (
-                    chartErr || tableErr || totalsErr ? (
+                    chartErr || tableErr ? (
                         <NoServerResponse error={chartErr} />
                     ) : (
                         <>

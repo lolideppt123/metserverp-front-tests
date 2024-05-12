@@ -6,7 +6,6 @@ export default function SalesSummaryDataTable({ config }) {
     const {
         dataTableColumn,
         table,
-        totals,
         defaultDate,
         options,
         setOptions,
