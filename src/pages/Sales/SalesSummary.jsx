@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import useAxiosFunction from '../../hooks/useAxiosFunction';
 import dayjs from 'dayjs';
-import MoneyFormatter from "../../settings/MoneyFormatter";
+import MoneyFormatter, {NumberFormatter} from "../../settings/MoneyFormatter";
 
 import BarChartSummary from "../../components/Charts/BarChartSummary"
 import SummaryPageHeader from "../../modules/SummaryModule/SummaryPageHeader";
@@ -66,36 +66,36 @@ export default function SalesSummary() {
             title: <div className='fs-md fw-bold text-center'>Gross Sales</div>,
             key: 'grossSales',
             dataIndex: 'sales_gross',
-            // width: 125,
+            sorter: (a, b) => a.sales_gross - b.sales_gross,
             render: (text, record) => {
-                return <div className={`fs-md fw-semibold text-center`}><MoneyFormatter amount={text} /></div>
+                return <div className={`fs-md fw-semibold text-end`}><MoneyFormatter amount={text} /></div>
             }
         },
         {
             title: <div className='fs-md fw-bold text-center'>Cost of Sales</div>,
             key: 'costSales',
             dataIndex: 'sales_cost',
-            // width: 125,
+            sorter: (a, b) => a.sales_cost - b.sales_cost,
             render: (text, record) => {
-                return <div className={`fs-md fw-semibold text-center`}><MoneyFormatter amount={text} /></div>
+                return <div className={`fs-md fw-semibold text-end`}><MoneyFormatter amount={text} /></div>
             }
         },
         {
             title: <div className='fs-md fw-bold text-center'>Margin</div>,
             key: 'marginSales',
             dataIndex: 'sales_margin',
-            // width: 125,
+            sorter: (a, b) => a.sales_margin - b.sales_margin,
             render: (text, record) => {
-                return <div className={`fs-md fw-semibold text-center`}><MoneyFormatter amount={text} /></div>
+                return <div className={`fs-md fw-semibold text-end`}><MoneyFormatter amount={text} /></div>
             }
         },
         {
             title: <div className='fs-md fw-bold text-center'>%Margin</div>,
-            key: 'grossSales',
-            dataIndex: 'sales_gross',
-            // width: 125,
+            key: 'profitMargin',
+            dataIndex: 'profit_margin',
+            sorter: (a, b) => a.profit_margin - b.profit_margin,
             render: (text, record) => {
-                return <div className={`fs-md fw-semibold text-center`}><MoneyFormatter amount={text} /></div>
+                return <div className={`fs-md fw-semibold text-end`}><NumberFormatter amount={text} />%</div>
             }
         },
     ]

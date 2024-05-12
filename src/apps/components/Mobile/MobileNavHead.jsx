@@ -1,4 +1,4 @@
-import ImageHeader from '../../../HeaderImage.svg';
+import ImageHeader from '../../../assets/HeaderImage.svg';
 
 export default function MobileNavHead() {
     return (
