@@ -1,5 +1,5 @@
 import { FiChevronLeft } from "react-icons/fi";
-import ImageHeader from '../../HeaderImage.svg';
+import ImageHeader from '../../assets/HeaderImage.svg';
 export default function NavHead({ expanded, setExpanded }) {
     return (
         <div className={`nav-header p-3 pb-2 d-flex justify-content-${expanded ? "between" : "center"} align-items-center mb-auto`}>

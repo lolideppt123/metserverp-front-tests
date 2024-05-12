@@ -1,4 +1,4 @@
-import loginImage from '../../7088807.jpg'
+import loginImage from '../../assets/7088807.jpg';
 import { useState, useEffect } from 'react';
 
 export default function AuthContainer(props) {
