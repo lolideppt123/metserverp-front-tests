@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import useAxiosFunction from '../../hooks/useAxiosFunction';
 import dayjs from 'dayjs';
-import MoneyFormatter, {NumberFormatter} from "../../settings/MoneyFormatter";
+import MoneyFormatter, { NumberFormatter } from "../../settings/MoneyFormatter";
 
 import BarChartSummary from "../../components/Charts/BarChartSummary"
 import SummaryPageHeader from "../../modules/SummaryModule/SummaryPageHeader";
@@ -9,22 +9,22 @@ import SalesSummaryDataTable from "../../modules/SummaryModule/SalesSummaryDataT
 
 import Spinner from "../../components/Fallback/Spinner";
 import NoServerResponse from "../../components/Errors/NoServerResponse";
+import { Tooltip } from "antd";
 
 const DATE_FORMAT = 'YYYY-MM-DD';
-const today = dayjs().format(DATE_FORMAT)
-const last30Days = dayjs().subtract(1, 'year').format(DATE_FORMAT);
+const today = dayjs().format(DATE_FORMAT);
+const startDay = dayjs().startOf('y').format(DATE_FORMAT);
 
 export default function SalesSummary() {
     const { loading: chartLoad, response: chart, error: chartErr, axiosFetch: chartFetch } = useAxiosFunction();
     const { loading: tableLoad, response: table, error: tableErr, axiosFetch: tableFetch } = useAxiosFunction();
-    // const { loading: totalsLoad, response: totals, error: totalsErr, axiosFetch: totalsFetch } = useAxiosFunction();
 
     const Labels = {
         BASE_ENTITY: 'Sales Summary',
         TABLE_TITLE: 'Sales Summary',
     }
 
-    const [defaultDate, setDefaultDate] = useState([last30Days, today])
+    const [defaultDate, setDefaultDate] = useState([startDay, today])
     const [options, setOptions] = useState("ALL")
 
     const postData = {
@@ -50,13 +50,21 @@ export default function SalesSummary() {
                 return (
                     <div className={`fs-md fw-semibold text-uppercase`}>
                         {options !== "CUSTOMERS" ? (
-                            <>
-                                {record?.product?.substr(0, 17)}{record?.product?.length > 17 && '\u2026'}
-                            </>
+                            record?.product?.length > 17 ? (
+                                <Tooltip className="pointer" title={record?.product}>
+                                    {record?.product?.substr(0, 17)}{record?.product?.length > 17 && '\u2026'}
+                                </Tooltip>
+                            ) : (
+                                <>{record?.product}</>
+                            )
                         ) : (
-                            <>
-                                {record?.customer?.substr(0, 17)}{record?.customer?.length > 17 && '\u2026'}
-                            </>
+                            record?.customer?.length > 17 ? (
+                                <Tooltip className="pointer" title={record?.customer}>
+                                    {record?.customer?.substr(0, 17)}{record?.customer?.length > 17 && '\u2026'}
+                                </Tooltip>
+                            ) : (
+                                <>{record?.customer}</>
+                            )
                         )}
                     </div>
                 )
