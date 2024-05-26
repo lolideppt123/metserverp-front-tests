@@ -29,6 +29,7 @@ export default function InventorySummaryDataTable({ config }) {
                     rowKey={data => data.pk}
                     dataSource={dataTable}
                     pagination={false}
+                    scroll={{ x: 'max-content' }}
                 />
             </div>
         </div>

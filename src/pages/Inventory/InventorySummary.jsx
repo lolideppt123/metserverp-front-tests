@@ -85,24 +85,37 @@ export default function InventorySummary() {
             title: <div className='fs-md fw-bold text-center'>T.Stock Left</div>,
             key: 'totalStockLeft',
             dataIndex: 'total_stock_left',
+            width: 200,
             sorter: (a, b) => a.total_stock_left - b.total_stock_left,
             render: (text, record) => {
-                return <div className={`fs-md fw-semibold text-end`}><NumberFormatter amount={text} /></div>
+                return <div className={`fs-md fw-semibold text-center`}><NumberFormatter amount={text} /></div>
+            }
+        },
+        {
+            title: <div className='fs-md fw-bold text-center'>T.Stock Cost</div>,
+            key: 'totalStockCost',
+            dataIndex: 'total_stock_cost',
+            width: 200,
+            sorter: (a, b) => a.total_stock_cost - b.total_stock_cost,
+            render: (text, record) => {
+                return <div className={`fs-md fw-semibold text-end`}><MoneyFormatter amount={text} /></div>
             }
         },
         {
             title: <div className='fs-md fw-bold text-center'>T.Quantity Bought</div>,
             key: 'totalQuantityBought',
             dataIndex: 'total_quantity_bought',
+            width: 200,
             sorter: (a, b) => a.total_quantity_bought - b.total_quantity_bought,
             render: (text, record) => {
-                return <div className={`fs-md fw-semibold text-end`}><NumberFormatter amount={text} /></div>
+                return <div className={`fs-md fw-semibold text-center`}><NumberFormatter amount={text} /></div>
             }
         },
         {
             title: <div className='fs-md fw-bold text-center'>T.Quantity Cost</div>,
             key: 'totalQuantityCost',
             dataIndex: 'total_quantity_cost',
+            width: 200,
             render: (text, record) => {
                 return <div className={`fs-md fw-semibold text-end`}><MoneyFormatter amount={text} /></div>
             }
@@ -111,6 +124,7 @@ export default function InventorySummary() {
             title: <div className='fs-md fw-bold text-center'><Tooltip className="pointer" title={'Cost Of Goods Sold'}>C.O.G.S.</Tooltip></div>,
             key: 'cogs',
             dataIndex: 'total_COGS',
+            width: 200,
             render: (text, record) => {
                 return <div className={`fs-md fw-semibold text-end`}><MoneyFormatter amount={text} /></div>
             }
@@ -121,7 +135,7 @@ export default function InventorySummary() {
             dataIndex: 'turn_over_ratio',
             sorter: (a, b) => a.turn_over_ratio - b.turn_over_ratio,
             render: (text, record) => {
-                return <div className={`fs-md fw-semibold text-end`}><NumberFormatter amount={text} /></div>
+                return <div className={`fs-md fw-semibold text-center`}><NumberFormatter amount={text} /></div>
             }
         },
     ]
