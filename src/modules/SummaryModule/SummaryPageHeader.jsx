@@ -8,7 +8,8 @@ export default function SummaryPageHeader({
     optionPicker = false,
     product = [],
     material = [],
-    setInventoryFilter = () => { }
+    customer = [],
+    setOptionFilter = () => { }
 }) {
     return (
         <>
@@ -33,20 +34,23 @@ export default function SummaryPageHeader({
                     {optionPicker && (
                         <select
                             className="form-select form-select-sm w-100"
-                            onChange={(e) => setInventoryFilter(e.target.value)}
+                            onChange={(e) => setOptionFilter(e.target.value)}
                         >
                             <option key={'all'} value="">
                                 ALL
                             </option>
-                            {product && (
+                            {product.length && (
                                 <optgroup label="Products">
                                     {product?.map((item, index) => <option key={item.product_name + item.id} value={item.product_name}>{item.product_name}</option>)}
                                 </optgroup>
                             )}
-                            {material && (
+                            {material.length && (
                                 <optgroup label="Materials">
                                     {material?.map((item, index) => <option key={item.material_name + item.id} value={item.material_name}>{item.material_name}</option>)}
                                 </optgroup>
+                            )}
+                            {customer.length && (
+                                customer?.map((item, index) => <option key={item.company_name + item.id} value={item.company_name}>{item.company_name}</option>)
                             )}
 
                         </select>

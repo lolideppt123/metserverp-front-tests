@@ -180,7 +180,7 @@ export default function InventorySummary() {
                 optionPicker={!product || !material ? false : true}
                 product={product}
                 material={material}
-                setInventoryFilter={setInventoryFilter}
+                setOptionFilter={setInventoryFilter}
             />
             {
                 loading ?
