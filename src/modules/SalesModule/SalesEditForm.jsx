@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import useAxiosFunction from '../../hooks/useAxiosFunction';
-import { Spin, Flex } from 'antd';
+import axiosInstance from '../../helpers/axios';
+import { Spin, Flex, Tooltip } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { useForm, Controller } from 'react-hook-form';
 import CreatableSelect from 'react-select/creatable';
 
-import { FiPlus } from 'react-icons/fi';
+import { FiPlus, FiInfo } from 'react-icons/fi';
 
 export default function SalesEditForm({ config }) {
     const { loading, response, success, error, axiosFetch } = useAxiosFunction();
@@ -21,8 +22,7 @@ export default function SalesEditForm({ config }) {
     } = config;
 
     const [FormLoading, setFormLoading] = useState(false);
-
-
+    const [validated, setValidated] = useState(false);
 
     const {
         register,
@@ -38,7 +38,9 @@ export default function SalesEditForm({ config }) {
     } = useForm();
 
     const onSubmit = async (data) => {
-        console.log(data)
+        // inserts new property. Then backend checks if quantity has been changed
+        data['quantity_diff'] = data.sales_quantity - sale.sales_quantity;
+
         setFormLoading(true);
         const configObj = {
             url: `${Labels.API_URL}`,
@@ -52,6 +54,57 @@ export default function SalesEditForm({ config }) {
         }, 1500);
     }
 
+    const onQuantityChange = () => {
+        let taxPercent = taxRate / 100
+        let salesQuantity = isNaN(getValues("sales_quantity")) ? 0 : getValues("sales_quantity");
+        let salesUnitCost = isNaN(getValues('unit_cost')) ? 0 : getValues('unit_cost');
+        let salesUnitPrice = isNaN(getValues('unit_price')) ? 0 : getValues('unit_price');
+        let salesGrossPrice = isNaN(getValues('gross_price')) ? 0 : getValues('gross_price');
+
+        setValue('total_cost', (salesUnitCost * salesQuantity).toFixed(2)) // Set value for total_cost field
+        setValue('gross_price', ((salesUnitPrice * salesQuantity) / (1 + taxPercent)).toFixed(2))
+        setValue('sales_VAT', (salesGrossPrice * taxPercent).toFixed(2))
+        setValue('total_price', (salesGrossPrice + getValues('sales_VAT')).toFixed(2))
+    }
+
+    // Check if there's enough stock for the product
+    const validateProductStock = async () => {
+        let sales_date = getValues('sales_date');
+        let salesQuantity = isNaN(getValues("sales_quantity")) ? 0 : getValues("sales_quantity");
+        let sales_diff = (salesQuantity - sale.sales_quantity) < 0 ? 0 : (salesQuantity - sale.sales_quantity);
+
+        let data = {
+            product_name: sale?.product_name,
+            sales_quantity: [{ sales_diff, quantity: sale.sales_quantity }],
+            sales_date,
+            itemNo: null
+        }
+
+        await axiosInstance
+            .post('products/getunitprice', data, {
+                headers: { 'Content-Type': 'application/json' },
+                withCredentials: true
+            })
+            .then((response) => {
+                formClearError(`sales_quantity`);
+            })
+            .catch((err) => {
+                console.log(err);
+                formSetError(`${err?.response?.data?.label}`, {
+                    type: "manual",
+                    message: `${err?.response?.data?.message}`
+                })
+            })
+
+        setValidated(prev => !prev);
+    }
+
+    const [salesQuantity, unitPrice, grossPrice, taxRate] = watch(['sales_quantity', 'unit_price', 'gross_price', 'tax_percent']);
+
+    useEffect(() => {
+        onQuantityChange()
+    }, [salesQuantity, unitPrice, taxRate, validated])
+
     useEffect(() => {
         if (success) {
             setFormLoading(false);
@@ -64,16 +117,16 @@ export default function SalesEditForm({ config }) {
     useEffect(() => {
         // console.log(sale == null)
         if (sale == null) {
-            console.log("sale does not exists")
+            // console.log("sale does not exists")
         }
         else {
-            console.log(sale);
+            // console.log(sale);
             [
                 { name: 'sales_dr', value: sale.sales_dr },
                 { name: 'sales_invoice', value: sale.sales_invoice },
                 { name: 'sales_date', value: sale.sales_date },
                 { name: 'customer', value: sale.customer },
-                // { name: 'product_name', value: sale.product_name },
+                { name: 'product_name', value: sale.product_name },
                 { name: 'sales_quantity', value: parseFloat(sale.sales_quantity) },
                 { name: 'unit_cost', value: parseFloat(sale.sales_unit_cost) },
                 { name: 'total_cost', value: parseFloat(sale.sales_total_cost) },
@@ -84,22 +137,17 @@ export default function SalesEditForm({ config }) {
                 { name: 'sales_VAT', value: parseFloat(sale.sales_VAT) },
                 { name: 'total_price', value: parseFloat(sale.sales_total_price) },
 
-                // { name: 'sales_status', value: sale.sales_status },
                 { name: 'sales_note', value: sale.sales_note },
                 { name: 'sales_paid_date', value: (sale.sales_paid_date)?.split('T')[0] },
+
+                // Additional properties needed
+                { name: 'pk', value: sale.pk },
+                { name: 'sales_transaction', value: sale.sales_transaction },
+
             ].forEach(({ name, value }) => setValue(name, value))
 
         }
     }, [sale])
-
-    const onQuantityChange = (e) => {
-        setValue("total_cost", getValues("unit_cost") * e.target.value)
-        setValue('total_cost', (getValues('unit_cost') * getValues("sales_quantity"))) // Set value for total_cost field
-        setValue('gross_price', ((getValues('unit_price') * getValues("sales_quantity")) / 1.12).toFixed(2))
-        setValue('sales_VAT', (getValues('gross_price') * 0.12).toFixed(2))
-        setValue('total_price', (getValues('gross_price') + getValues('sales_VAT')))
-    }
-    watch('product_name')
 
     return (
         <div className="container pt-3">
@@ -170,23 +218,25 @@ export default function SalesEditForm({ config }) {
                                 </div>
 
                                 <div className="d-flex gap-3">
-                                    <div className="flex-fill mb-2">
+                                    {/* Disabled sales_quantity field */}
+                                    {/* <div className="flex-fill mb-2">
                                         <label htmlFor="sales_quantity" className="text-md text-gray-500">Quantity</label>
                                         <span className="form-control form-control-sm bg-secondary">{sale?.sales_quantity}</span>
-                                    </div>
-                                    {/* <div className="flex-fill mb-2">
-                                        <label htmlFor="sales_status" className="text-md text-gray-500">Status</label>
-                                        <select className="form-select form-select-sm" autoComplete='off'
-                                            {
-                                            ...register("sales_status", {
-                                                required: "Sales Status is required"
-                                            })
-                                            }>
-                                            <option value={"PAID"}>{"PAID"}</option>
-                                            <option value={"UNPAID"}>{"UNPAID"}</option>
-                                        </select>
-                                        {errors.sales_status && (<p className='text-danger px-1 mt-1 mb-2' style={{ fontWeight: "600", fontSize: "13px" }}>{errors.sales_status.message}</p>)}
                                     </div> */}
+
+                                    <div className="flex-fill mb-2">
+                                        <label htmlFor="sales_quantity" className="text-md text-gray-500">Quantity</label>
+                                        <input type="number" className={`form-control form-control-sm`} autoComplete='off' min={0.01} step={0.01} required
+                                            {...register("sales_quantity", {
+                                                required: "Quantity is Required",
+                                                valueAsNumber: true,
+                                                min: { value: 0.01, message: 'Quantity is required. Min value 0.01' },
+                                                onChange: () => validateProductStock(),
+                                                onBlur: () => validateProductStock()
+                                            }
+                                            )} />
+                                        {errors.sales_quantity && (<p className='text-danger px-1 mt-1 mb-2' style={{ fontWeight: "600", fontSize: "13px" }}>{errors.sales_quantity.message}</p>)}
+                                    </div>
                                 </div>
 
                                 <div className="d-flex gap-3">
@@ -216,19 +266,22 @@ export default function SalesEditForm({ config }) {
                                 <div className="row mt-2">
                                     <div className="col-2 align-self-start"></div>
                                     <div className="col-5 align-self-center text-end">
-                                        <label htmlFor="unit_price" className="fw-bold text-md text-gray-500 col-form-label">Unit Price <span className='fw-normal fs-6'>(Tax Included)</span>:</label>
+                                        <label htmlFor="unit_price" className="fw-bold text-md text-gray-500 col-form-label">
+                                            Unit Price
+                                            <Tooltip title={getValues('tax_percent') == 12 ? `Unit Price INCLUDES VAT of 12%` : `0% Tax`}>
+                                                <FiInfo style={{ color: 'var(--bs-indigo-500)', margin: '2px', cursor: 'pointer' }} />
+                                            </Tooltip>
+                                            :
+                                        </label>
                                     </div>
                                     <div className="col-5 align-self-end">
-                                        <input type="number" className={`form-control form-control-sm`} autoComplete='off' id='unit_cost' step={0.000001}
+                                        <input type="number" className={`form-control form-control-sm`} autoComplete='off' id='unit_cost' step={0.01} required
                                             {...register("unit_price", {
                                                 required: "Unit Price is required",
                                                 valueAsNumber: true,
                                                 min: 0,
-                                                onChange: (e) => {
-                                                    setValue("gross_price", ((e.target.value * getValues("sales_quantity")) / 1.12).toFixed(2))
-                                                    setValue("sales_VAT", (getValues("gross_price") * 0.12).toFixed(2) * 1)
-                                                    setValue("total_price", (getValues("gross_price") + getValues('sales_VAT')).toFixed(2))
-                                                }
+                                                onChange: () => onQuantityChange(),
+                                                onBlur: () => onQuantityChange()
                                             }
                                             )}
                                         />
@@ -237,7 +290,13 @@ export default function SalesEditForm({ config }) {
                                 <div className="row mt-2">
                                     <div className="col-2 align-self-start"></div>
                                     <div className="col-5 align-self-center text-end">
-                                        <label htmlFor="gross_price" className="fw-bold text-md text-gray-500 col-form-label">Gross Price:</label>
+                                        <label htmlFor="gross_price" className="fw-bold text-md text-gray-500 col-form-label">
+                                            Gross Price
+                                            <Tooltip title={getValues('tax_percent') == 12 ? `Gross Price EXCLUDES VAT of 12%` : `0% Tax`}>
+                                                <FiInfo style={{ color: 'var(--bs-indigo-500)', margin: '2px', cursor: 'pointer' }} />
+                                            </Tooltip>
+                                            :
+                                        </label>
                                     </div>
                                     <div className="col-5 align-self-end">
                                         <input type="number" className={`form-control form-control-sm`} autoComplete='off' id='gross_price' min={0} step={0.000001}
@@ -319,7 +378,7 @@ export default function SalesEditForm({ config }) {
                         </div>
                     </form >
                     <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 mt-4 border-top">
-                        <button type='submit' disabled={isSubmitting || !isDirty || !isValid} className='btn btn-primary col-2' form={`add${Labels.PAGE_ENTITY}Form`}>
+                        <button type='submit' disabled={isSubmitting || !isDirty || !isValid || errors['sales_quantity']} className='btn btn-primary col-2' form={`add${Labels.PAGE_ENTITY}Form`}>
                             {FormLoading ? (
                                 <Spin
                                     indicator={

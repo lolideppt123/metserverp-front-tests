@@ -408,7 +408,7 @@ export default function DraftForm({ config }) {
                                                 {errors.products?.[index] &&
                                                     (
                                                         <>
-                                                            {console.log(errors.products?.[index])}
+                                                            {/* {console.log(errors.products?.[index])} */}
                                                             <span className='text-danger text-center fw-semibold'>{errors.products?.[index]?.product?.message}</span>
                                                             <span className='text-danger text-center fw-semibold'>{errors.products?.[index]?.sales_quantity?.message}</span>
                                                             <span className='text-danger text-center fw-semibold'>{errors.products?.[index]?.unit_price?.message}</span>
@@ -449,7 +449,7 @@ export default function DraftForm({ config }) {
                                         </label>
                                     </div>
                                     <div className="col-5 align-self-end">
-                                        <input type="number" className={`form-control form-control-sm`} autoComplete='off' id='gross_price' min={0} step={0.01}
+                                        <input type="number" className={`form-control form-control-sm`} autoComplete='off' id='gross_price' min={0} step={0.01} readOnly disabled
                                             {
                                             ...register("gross_price", {
                                                 required: "Sub Total is required",

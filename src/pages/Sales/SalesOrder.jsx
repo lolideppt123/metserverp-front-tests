@@ -47,7 +47,11 @@ export default function SalesOrder() {
                                 cardData={record}
                             />
                         }
-                        buttonText={`${record?.invoice_num?.substr(0, 4)}${record?.invoice_num?.length > 4 ? '\u2026' : ""}`}
+                        buttonText={
+                            <Tooltip className='pointer' title={record?.invoice_num}>
+                                {record?.invoice_num?.substr(0, 4)}{record?.invoice_num?.length > 4 ? '\u2026' : ""}
+                            </Tooltip>
+                        }
                         modalWidth={720}
                         setDestroy={setDestroy}
                         classList={'fs-md fw-semibold text-center'}

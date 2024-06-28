@@ -42,8 +42,9 @@ const useAxiosFunction = () => {
             }
             // Goes here if item already exists status==500
             if (err?.response?.status === 500) {
-                formSetError(err?.response?.data?.label, { type: "manual", message: err?.response?.data?.message })
-                enqueueSnackbar(err?.response?.data?.message, { variant: 'error', autoHideDuration: 5000 });
+                const errMesssage = err?.response?.data['message'] || "Something went wrong. Please refresh page";
+                formSetError(err?.response?.data?.label, { type: "manual", message: errMesssage })
+                enqueueSnackbar(errMesssage, { variant: 'error', autoHideDuration: 5000 });
             }
         }
         finally {
