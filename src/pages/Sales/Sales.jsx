@@ -14,7 +14,7 @@ import { Tooltip } from "antd";
 import salesFilterFunc from "../../helpers/salesFilterFunc";
 
 export default function Sales() {
-    const [SalesFilter, setSalesFilter] = useState("");
+    const [SalesFilter, setSalesFilter] = useState(dayjs().year());
     const [invoiceFilter, setInvoiceFilter] = useState([]);
     const [customerFilter, setCustomerFilter] = useState([]);
     const [productFilter, setProductFilter] = useState([]);
@@ -379,10 +379,10 @@ export default function Sales() {
         // Needs to wait for first request so refresh token won't double send
         const invoiceFilterList = [{ invoiceFilter: "With Invoice" }, { invoiceFilter: "Without Invoice" }];
         const getData = async () => {
-            await salesFetch({
-                url: `sales/${dayjs().year()}`,
-                method: "get",
-            });
+            // await salesFetch({
+            //     url: `sales/${SalesFilter}`,
+            //     method: "get",
+            // });
             await fetchCustomers({
                 url: "customers/",
                 method: "GET",
@@ -403,6 +403,7 @@ export default function Sales() {
     useEffect(() => {
         // Needs to wait for first request so refresh token won't double send
         const getData = async () => {
+            console.log("caleed")
             if (SalesFilter !== "") {
                 await salesFetch({
                     url: `sales/${SalesFilter}`,
