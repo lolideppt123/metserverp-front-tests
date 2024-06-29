@@ -15,6 +15,7 @@ import salesFilterFunc from "../../helpers/salesFilterFunc";
 
 export default function Sales() {
     const [SalesFilter, setSalesFilter] = useState("");
+    const [invoiceFilter, setInvoiceFilter] = useState([]);
     const [customerFilter, setCustomerFilter] = useState([]);
     const [productFilter, setProductFilter] = useState([]);
     const [supplierFilter, setSupplierFilter] = useState([]);
@@ -74,7 +75,11 @@ export default function Sales() {
             key: "salesInvoice",
             dataIndex: "sales_invoice",
             fixed: "left",
-            width: 80,
+            width: 100,
+            filters: invoiceFilter,
+            filteredValue: filteredInfo.salesInvoice || null,
+            onFilter: (value, record) => record.sales_invoice.includes(value),
+            filterSearch: true,
             render: (text, record) => {
                 return (
                     <div
@@ -372,9 +377,10 @@ export default function Sales() {
 
     useEffect(() => {
         // Needs to wait for first request so refresh token won't double send
+        const invoiceFilterList = [{ invoiceFilter: "With Invoice" }, { invoiceFilter: "Without Invoice" }];
         const getData = async () => {
             await salesFetch({
-                url: `sales/`,
+                url: `sales/${dayjs().year()}`,
                 method: "get",
             });
             await fetchCustomers({
@@ -391,6 +397,7 @@ export default function Sales() {
             });
         };
         getData();
+        customMapper(invoiceFilterList, { text: 'invoiceFilter', value: 'invoiceFilter' }, setInvoiceFilter);
     }, []);
 
     useEffect(() => {
@@ -458,7 +465,7 @@ export default function Sales() {
                 salesFilter={SalesFilter}
                 setSalesFilter={setSalesFilter}
                 type={"sales"}
-                data={data}
+            // data={data}
             />
             {loading || customerLoading || productLoading || supplierLoading || filteredDataLoading ? (
                 <Spinner />

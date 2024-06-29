@@ -41,7 +41,7 @@ export default function DataTablePageHeader({ Labels, type = null, salesFilter =
                 )}
                 <div className="btn-toolbar">
                     <div className="d-grid gap-2 d-md-block">
-                        {type === 'sales' && (
+                        {type === 'sales' && data?.length > 0 && (
                             <div className="btn btn-secondary me-2">
                                 <CSVExport data={data} year={salesFilter} />
                             </div>
