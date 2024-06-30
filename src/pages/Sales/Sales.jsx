@@ -78,7 +78,16 @@ export default function Sales() {
             width: 100,
             filters: invoiceFilter,
             filteredValue: filteredInfo.salesInvoice || null,
-            onFilter: (value, record) => record.sales_invoice.includes(value),
+            onFilter: (value, record) => {
+                const regex = /[a-zA-Z]/i;
+                if (value === "Without Invoice" && regex.test(record.sales_invoice)) {
+                    return true
+                }
+                if (value === "With Invoice" && !regex.test(record.sales_invoice)) {
+                    return true
+                }
+                return false
+            },
             filterSearch: true,
             render: (text, record) => {
                 return (
@@ -403,7 +412,6 @@ export default function Sales() {
     useEffect(() => {
         // Needs to wait for first request so refresh token won't double send
         const getData = async () => {
-            console.log("caleed")
             if (SalesFilter !== "") {
                 await salesFetch({
                     url: `sales/${SalesFilter}`,
