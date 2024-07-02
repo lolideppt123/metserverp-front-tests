@@ -88,6 +88,7 @@ export default function DeleteModal({ deleteConfig }) {
                     </Button>,
                 ]}
                 afterClose={() => setDestroy(true)}
+                maskClosable={false}
                 destroyOnClose
             >
                 <div className="d-flex flex-wrap align-items-center m-0">

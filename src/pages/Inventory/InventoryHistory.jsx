@@ -204,7 +204,10 @@ export default function InventoryHistory() {
                                 <NoServerResponse error={error} />
                             ) : (
                                 data?.length == 0 ? (
-                                    <Spinner />
+                                    // <Spinner />
+                                    <div className="py-4">
+                                        <h6 className="text-center px-3 mt-4 mb-1"><i>No Results Found</i></h6>
+                                    </div>
                                 ) : (
                                     // <InventoryHistoryDataTable config={config} />
                                     <CompanyDataTable config={config} />

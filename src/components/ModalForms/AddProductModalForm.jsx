@@ -106,6 +106,7 @@ export default function AddProductModalForm({ config, loading, setLoading, OpenM
     useEffect(() => {
         // Check if there's errors and setSuccess to false
         if (Object.values(errorsProduct).length) {
+            setLoading(false);
             setSuccess(false);
         }
         if (success && !Object.values(errorsProduct).length) {
@@ -280,9 +281,6 @@ export default function AddProductModalForm({ config, loading, setLoading, OpenM
                         }
                     </form>
                     <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mt-4">
-                        <button className='btn btn btn-outline-secondary' onClick={() => setOpenModal(false)}>
-                            Cancel
-                        </button>
                         <button className='btn btn-primary' form={`add${FORM_ENTITY}Form`}>
                             {loading ? (
                                 <Spin
@@ -301,6 +299,9 @@ export default function AddProductModalForm({ config, loading, setLoading, OpenM
                                 <FiPlus style={{ height: '18px', width: '18px', margin: '0 6px 3px 0' }} />
                             )}
                             Submit
+                        </button>
+                        <button className='btn btn btn-outline-secondary' onClick={() => setOpenModal(false)}>
+                            Cancel
                         </button>
                     </div>
                 </>
