@@ -2,15 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 
 const initialState = {
-    sales_dr: "",
-    sales_invoice: "",
-    sales_date: "",
-    customer: "",
-    products: [{ product: '', sales_quantity: 0, unit_price: 0, unit_cost: 0, total_cost: 0 }],
-    gross_price: 0,
-    sales_VAT: 0,
-    total_price: 0,
-    tax_percent: 12,
+    sales: []
 }
 
 
@@ -18,6 +10,9 @@ export const salesSlice = createSlice({
     name: 'sales',
     initialState: initialState,
     reducers: {
+        populateSales: (state, { payload }) => {
+            state.sales = payload;
+        },
         saveForm: (state, { payload }) => {
             state.sales_dr = payload.sales_dr
             state.sales_invoice = payload.sales_invoice

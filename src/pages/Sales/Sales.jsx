@@ -405,7 +405,22 @@ export default function Sales() {
                 method: "GET",
             });
         };
-        getData();
+        // getData();
+        (() => {
+            fetchCustomers({
+                url: "customers/",
+                method: "GET",
+            });
+            fetchProducts({
+                url: "products/",
+                method: "GET",
+            });
+            fetchSupplier({
+                url: "suppliers/",
+                method: "GET",
+            });
+        })()
+
         customMapper(invoiceFilterList, { text: 'invoiceFilter', value: 'invoiceFilter' }, setInvoiceFilter);
     }, []);
 
@@ -423,6 +438,7 @@ export default function Sales() {
     }, [SalesFilter]);
 
     useEffect(() => {
+        console.log("calls made")
         if (data && !filteredData) {
             console.log("running data")
             GenerateCSVData(data);

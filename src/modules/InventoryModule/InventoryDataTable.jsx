@@ -1,6 +1,7 @@
 import moment from 'moment';
 import { NavLink } from 'react-router-dom';
 import Spinner from '../../components/Fallback/Spinner';
+import { Tooltip } from "antd";
 
 import { NumberFormatter } from '../../settings/MoneyFormatter';
 
@@ -30,7 +31,20 @@ export default function InventoryDataTable({ config }) {
                                     {data?.map((item, index) => (
                                         <tr key={index}>
                                             <td className='text-center'>{(moment(item.last_ordered_date)).format("MMM DD, YYYY")}</td>
-                                            <td className='col col-lg-3 text-center'><NavLink to={`transaction/${item.product_pk}/${encodeURIComponent(item.product_name)}`}>{item.product_name}</NavLink> </td>
+                                            <td className='col col-lg-3 text-center'>
+                                                <NavLink to={`transaction/${item.product_pk}/${encodeURIComponent(item.product_name)}`}>
+                                                    {
+                                                        item.product_name.length > 15 ? (
+                                                            <Tooltip className='pointer' title={item.product_name}>
+                                                                {item.product_name.substr(0, 15)}
+                                                                {item.product_name.length > 15 && "\u2026"}
+                                                            </Tooltip>
+                                                        ) : (
+                                                            <>{item.product_name}</>
+                                                        )
+                                                    }
+                                                </NavLink>
+                                            </td>
                                             {/* <td><NumberFormatter amount={item.total_inventory} /></td> */}
                                             <td className='col col-lg-2'>
                                                 <div className="progress" style={{ height: "20px", border: "1px solid grey" }}>
