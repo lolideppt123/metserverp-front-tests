@@ -1,4 +1,4 @@
-import { lazy } from 'react'
+import { lazy, memo } from 'react'
 import { useRoutes, Navigate } from 'react-router-dom';
 
 const Dashboard = lazy(() => import('../pages/Dashboard'))
@@ -41,7 +41,7 @@ const EditSupplier = lazy(() => import('../pages/Supplier/EditSupplier'))
 
 const Modal = lazy(() => import('../components/DatePicker/AntdDatePicker'))
 
-export default function AppRouter() {
+const AppRouter = () => {
     let element = useRoutes([
         {
             path: '/login',
@@ -176,3 +176,4 @@ export default function AppRouter() {
         element
     )
 }
+export default memo(AppRouter)

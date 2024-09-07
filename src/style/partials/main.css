@@ -2,10 +2,27 @@ h3 {
     font-size: 24px
 }
 
+code {
+    background-color: #fff1f0;
+    border: .1rem solid rgba(0, 0, 0, .1);
+    border: .1rem solid #ffa39e;
+    padding: 3px 5px;
+    font-family: var(--bs-body-font-family);
+    border-radius: 3.4px;
+    font-weight: 600;
+}
+
+kbd {
+    background-color: #dadde1;
+    border: .1rem solid rgba(0, 0, 0, .1);
+    color: #1f1f1f;
+}
+
 .main-content-wrapper {
     transition: 0.5s;
     margin-left: 18.34%;
     margin-right: 1.66%;
+    font-size: 16px;
 }
 
 .main-content-wrapper-close {
@@ -50,6 +67,12 @@ h3 {
     }
 }
 
+@media only screen and (max-width: 1024px) {
+    .submit-form-btn {
+        width: 25%;
+    }
+}
+
 @media only screen and (max-width: 950px) {
     .content-layout {
         padding: 30px 20px;
@@ -72,5 +95,34 @@ h3 {
 
     .content-layout {
         margin-top: 10px;
+    }
+}
+
+@media only screen and (max-width: 661px) {
+
+    .submit-form-btn {
+        width: 100%;
+        padding-top: 8px;
+        padding-bottom: 8px;
+        margin-bottom: 10px;
+        margin-top: 5px;
+    }
+
+    .cancel-form-btn {
+        width: 100%;
+    }
+}
+
+@media only screen and (max-width: 501px) {
+    .submit-form-btn {
+        width: 100%;
+        padding-top: 8px;
+        padding-bottom: 8px;
+        margin-bottom: 10px;
+        margin-top: 5px;
+    }
+
+    .cancel-form-btn {
+        width: 100%;
     }
 }

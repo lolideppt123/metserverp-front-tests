@@ -1,3 +1,37 @@
 .navbar-brand {
     padding: 0.75rem 1rem;
 }
+
+
+@media only screen and (max-width: 980px) {
+
+    /* evens out space on header for title and action button */
+    .page-header-title-wrapper {
+        width: 50%;
+    }
+
+}
+
+/* Shrink font same time as shrink the padding on main */
+@media only screen and (max-width: 950px) {
+
+    .page-header-title-text {
+        font-size: 20px !important;
+        margin-top: 4px;
+        margin-bottom: 4px;
+    }
+
+    /* Reduce data table add button text size */
+    .page-header-action-button {
+        font-size: 15px;
+    }
+}
+
+
+@media only screen and (max-width: 790px) {
+
+    /* Reduce data table add button text size */
+    .page-header-action-button {
+        font-size: 14px;
+    }
+}

@@ -30,15 +30,31 @@
 }
 
 .form-container-left {
-    width: 60%;
-    padding: 5rem 2.5rem;
+    width: 78%;
+    height: 65%;
+    padding: 4rem 2.5rem;
     border-radius: 1.5rem;
     border-width: 2px;
     border-color: rgba(243, 244, 246, 1);
-    box-shadow: 10px 40px -14px rgba(0, 0, 0, 0.25);
+    /* box-shadow: 10px 40px -14px rgba(0, 0, 0, 0.25); */
     background: #fff;
     font-weight: 500;
     overflow: hidden;
+}
+
+
+.login-form-title,
+.login-form-subtitle {
+    text-wrap: nowrap;
+    text-align: center;
+}
+
+.login-form-subtitle {
+    margin-top: 4rem !important;
+}
+
+.email-field {
+    margin-top: 12px !important;
 }
 
 .input-wrapper {
@@ -74,6 +90,13 @@
     color: #333;
 }
 
+.login-submit-btn {
+    text-wrap: nowrap;
+    font-size: 18px;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+}
+
 .signup-wrapper {
     color: black;
 }
@@ -83,20 +106,119 @@
     margin-left: 3px;
 }
 
-@media only screen and (min-width: 992px) and (max-width: 1023px) {
+@media only screen and (max-width: 1300px) {
     .form-loaded {
         grid-template-columns: 50% 1fr !important;
     }
 
     .form-container-left {
-        width: 80%;
+        padding-top: 60px;
+        padding-bottom: 60px;
+        width: 75%;
+        height: 60%;
     }
 
     .image-shrink {
-        height: 70%;
+        height: 65%;
     }
 
     .input-wrapper {
         margin-top: 23px;
+    }
+
+    .input-item {
+        font-size: 1.15rem !important;
+    }
+
+    .input-item-icon {
+        top: 11px;
+    }
+
+    .form-subtitle {
+        font-size: 16px !important;
+        font-family: 'Poppins', 'Montserrat', 'sans-serif';
+    }
+}
+
+@media only screen and (max-width: 900px) {
+
+    .form-body {
+        transition: grid-template-columns 1500ms ease-in;
+    }
+
+    .form-loaded {
+        grid-template-columns: 100% 1fr !important;
+    }
+
+    .login-metserv-image {
+        height: 80%;
+    }
+
+    .image-shrink {
+        width: 60%;
+        height: 50%;
+    }
+
+    .form-container-left {
+        padding-top: 65px;
+        padding-bottom: 65px;
+        width: 55%;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+
+    .form-body {
+        transition: grid-template-columns 1000ms ease-in;
+    }
+
+    .form-container-left {
+        padding: 50px 30px;
+        width: 80%;
+    }
+
+    .login-metserv-image {
+        height: 60%;
+        width: 75%;
+    }
+
+}
+
+@media only screen and (max-width: 500px) {
+
+    .login-metserv-image,
+    .form-body-image {
+        display: none !important;
+    }
+
+    .form-body-contents {
+        width: 100vw;
+        height: 100vh;
+    }
+
+    .form-subtitle {
+        font-size: 14px !important;
+    }
+
+    .input-item {
+        font-size: 1rem !important;
+    }
+
+    .input-item-icon {
+        width: 22px;
+        height: 22px;
+    }
+
+    .login-submit-btn {
+        font-size: 1rem;
+        padding: 8px !important;
+    }
+}
+
+@media only screen and (max-width: 400px) {
+    .form-container-left {
+        width: 85%;
+        padding-left: 18px;
+        padding-right: 18px;
     }
 }

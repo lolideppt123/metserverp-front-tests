@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import useAxiosPrivate from './useAxiosPrivate';
 import { useSnackbar } from 'notistack';
+import useAuth from './useAuth';
 
 const useAxiosFunction = () => {
+    const { logoutUser } = useAuth();
     const axiosPrivate = useAxiosPrivate();
     const [response, setResponse] = useState(null)
     const [loading, setLoading] = useState(false)
@@ -30,6 +32,9 @@ const useAxiosFunction = () => {
             console.log(err)
             setError(true);
             if (err?.response?.status === 401) {
+                if (err?.response?.data?.code === "token_not_valid") {
+                    logoutUser();
+                }
                 enqueueSnackbar(err?.response?.data?.detail, { variant: 'error', autoHideDuration: 5000 });
             }
             // Goes here if permission denied
@@ -52,7 +57,7 @@ const useAxiosFunction = () => {
         }
     }
 
-    return { axiosFetch, response, setResponse, loading, setLoading, success, setSuccess, error }
+    return { axiosFetch, response, setResponse, loading, setLoading, success, setSuccess, error, setError }
 }
 
 export default useAxiosFunction;

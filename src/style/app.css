@@ -2,7 +2,11 @@
 @import './partials/navigation.css';
 @import './partials/header.css';
 @import './partials/main.css';
+/* Pages Style */
 @import './pages/Dashboard.css';
+@import './pages/Dictionary/main.css';
+@import './pages/Dictionary/Products.css';
+/* Pages Style */
 @import './datatable/Datatable.css';
 @import './dropdown/datatableaction.css';
 @import './Modal/ModalForm.css';
@@ -10,4 +14,3 @@
 @import './Fallback/getStartedTemplate.css';
 @import './AntD/modalOverride.css';
 @import './AntD/TableOverride.css';
-@import './Charts/charts.css';

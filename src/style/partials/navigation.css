@@ -155,7 +155,7 @@ body {
 
 }
 
-@media only screen and (min-width: 700px) {
+@media only screen and (min-width: 701px) {
 
     /* hides mobile navbar */
     .mobile-nav-button,
