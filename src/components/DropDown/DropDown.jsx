@@ -4,9 +4,9 @@ import { FiEye, FiEdit, FiTrash2, FiMoreHorizontal } from 'react-icons/fi';
 import DeleteModal from "../Modal/DeleteModal";
 import CardModal from "../Modal/CardModal";
 
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 
-export default function DropDown({ link1, link2, ShowCard, cardWidth, cardHeader, deleteConfig }) {
+const DropDown = ({ link1, link2, ShowCard, cardWidth, cardHeader, deleteConfig }) => {
     const [Destroy, setDestroy] = useState(false);
     useEffect(() => {
         // console.log(Destroy)
@@ -72,3 +72,5 @@ export default function DropDown({ link1, link2, ShowCard, cardWidth, cardHeader
         </Dropdown>
     )
 }
+
+export default memo(DropDown)

@@ -1,9 +1,9 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, memo } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Tooltip } from 'antd';
 
 
-export default function DropDownMenu(props) {
+const DropDownMenu = (props) => {
     const [open, setOpen] = useState(false);
     const iconRef = useRef();
     const menuRef = useRef();
@@ -11,7 +11,7 @@ export default function DropDownMenu(props) {
 
     useEffect(() => {
         let handler = (e) => {
-            if (!iconRef.current.contains(e.target)) {
+            if (!iconRef?.current?.contains(e.target)) {
                 setOpen(false);
             }
             // console.log(!iconRef.current.contains(e.target))
@@ -42,3 +42,4 @@ export default function DropDownMenu(props) {
     )
 }
 
+export default memo(DropDownMenu);

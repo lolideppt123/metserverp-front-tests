@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import NavBar from './components/NavBar';
 import NavHead from './components/NavHead';
@@ -10,27 +10,37 @@ import MobileNavDrawer from './components/Mobile/MobileNavDrawer';
 import MobileNavBar from './components/Mobile/MobileNavBar';
 import MobileNavHead from './components/Mobile/MobileNavHead';
 import MobileNavBody from './components/Mobile/MobileNavBody';
+import MobileNavFooter from './components/Mobile/MobileNavFooter';
 
 import MainContainer from './components/MainContainer';
 import AppRouter from '../router/AppRouter';
 
 
-
 export default function FspApp() {
     const [expanded, setExpanded] = useState(true);
-    const [Drawer, setDrawer] = useState(false);
+    // const [Drawer, setDrawer] = useState(false);
+
+    const handleResize = useCallback(() => {
+        if (window.innerWidth <= 768) {
+            setExpanded(false);
+        }
+        else if (window.innerWidth >= 1024) {
+            setExpanded(true);
+        }
+    }, [])
+
     // Check here if app is mobile
     useEffect(() => {
-        const resizeW = () => {
-            if (window.innerWidth <= 768) {
-                setExpanded(false);
-            }
-            if (window.innerWidth >= 1024) {
-                setExpanded(true);
-            }
-        }
-        window.addEventListener("resize", resizeW);
-        return () => window.removeEventListener("resize", resizeW);
+        // const resizeW = () => {
+        //     if (window.innerWidth <= 768) {
+        //         setExpanded(false);
+        //     }
+        //     if (window.innerWidth >= 1024) {
+        //         setExpanded(true);
+        //     }
+        // }
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
     }, [])
     return (
         <div className='primary-container-fsp mh-100'>
@@ -42,11 +52,12 @@ export default function FspApp() {
             </NavBar>
 
             {/* Mobile */}
-            <MobileNavButton setDrawer={setDrawer} />
-            <MobileNavDrawer Drawer={Drawer} setDrawer={setDrawer}>
+            <MobileNavButton />
+            <MobileNavDrawer >
                 <MobileNavBar>
                     <MobileNavHead />
-                    <MobileNavBody setDrawer={setDrawer} />
+                    <MobileNavBody />
+                    <MobileNavFooter />
                 </MobileNavBar>
             </MobileNavDrawer>
 

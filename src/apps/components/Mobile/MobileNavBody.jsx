@@ -8,7 +8,7 @@ import { FaRegFolderOpen } from "react-icons/fa";
 export default function MobileNavBody({ setDrawer }) {
     return (
         <div className="mobile-nav-body ms-2">
-            <div className="mobile-nav-body-wrapper" onClick={() => setDrawer(prev => !prev)}>
+            <div className="mobile-nav-body-wrapper">
                 <NavItem url={'/'} icon={<FiHome className='nav-link-icon' />} text={`Dasboard`} />
                 <Accordion text={`Inventory`} icon={<FiList className='nav-link-icon' />}>
                     <AccordionItem url={'inventory/materials'} text={'Raw Material'} />
@@ -28,7 +28,7 @@ export default function MobileNavBody({ setDrawer }) {
                 </h6>
                 <NavItem url={'/sales/sales-summary'} icon={<FiFileText className='nav-link-icon' />} text={`Sales Analysis`} />
                 <NavItem url={'/inventory/inventory-summary'} icon={<FiFileText className='nav-link-icon' />} text={`Inventory Analysis`} />
-                <NavItem url={'/inventory/inventory-summary'} icon={<FiFileText className='nav-link-icon' />} text={`Customer Stats`} />
+                {/* <NavItem url={'/inventory/inventory-summary'} icon={<FiFileText className='nav-link-icon' />} text={`Customer Stats`} /> */}
             </div>
         </div>
     )

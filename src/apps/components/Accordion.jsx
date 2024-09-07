@@ -11,7 +11,7 @@ export default function Accordion({ expanded = true, icon, text, children }) {
                 <NavLink
                     className={`d-flex justify-content-${expanded ? "start" : "center"} align-items-center nav-link`}
                     onClick={() => setAccordionOpen(!accordionOpen)}
-                    to={(e) => e.pervent.default()}
+                    to={(e) => e.preventDefault()}
                 >
                     {icon}
                     <span className={`nav-link-text text-nowrap overflow-hidden ${expanded ? "" : "d-none"}`}>{text}</span>

@@ -40,6 +40,7 @@
     background: #fff;
     font-weight: 500;
     overflow: hidden;
+    overflow-y: auto;
 }
 
 

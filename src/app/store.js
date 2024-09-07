@@ -3,6 +3,7 @@ import customerReducer from '../features/customers/customerSlice';
 import userReducer from '../features/user/userSlice';
 // import authReducer from '../features/auth/authSlice';
 import modalReducer from '../features/modal/modalSlice';
+import drawerReducer from '../features/drawer/drawerSlice';
 
 import { apiSlice } from "./api/apiSlice";
 import authReducer from '../features/auth/authSlice';
@@ -11,6 +12,7 @@ import authReducer from '../features/auth/authSlice';
 import { customerApiSlice } from "../features/customers/customerApiSlice";
 
 import salesReducer from '../features/sales/salesSlice';
+import denominationReducer from "../features/utils/denominationSlice";
 
 // For persisting state
 import storage from "redux-persist/lib/storage";
@@ -26,13 +28,20 @@ import {
 
 // For persisting state
 // https://redux-toolkit.js.org/usage/usage-guide#use-with-redux-persist
-const persistConfig = {
+const persistSalesConfig = {
     key: 'root',
     version: 1,
     storage,
 }
 
-const salesPersistReducer = persistReducer(persistConfig, salesReducer)
+const persistUnitConfig = {
+    key: 'unit',
+    version: 2,
+    storage,
+}
+
+const salesPersistReducer = persistReducer(persistSalesConfig, salesReducer);
+const unitPersistReducer = persistReducer(persistSalesConfig, denominationReducer);
 
 export const store = configureStore({
     reducer: {
@@ -40,8 +49,10 @@ export const store = configureStore({
         // user: userReducer,
         // [apiSlice.reducerPath]: apiSlice.reducer,
         sales: salesPersistReducer,
+        denomination: unitPersistReducer,
         auth: authReducer,
         modal: modalReducer,
+        drawer: drawerReducer,
         [apiSlice.reducerPath]: apiSlice.reducer,
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware({
