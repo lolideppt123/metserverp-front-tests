@@ -58,19 +58,19 @@ export default function Login() {
                                 <span className="h6">{errMsg}</span>
                             </div>
                         )}
-                        <h3 className="fs-1 fw-bold card-title">Login</h3>
-                        <p className="fs-5 text-black-50 mt-2 mb-5 text-nowrap">
+                        <h3 className="fs-1 fw-bold card-title login-form-title form-title">Sign In</h3>
+                        <p className="fs-5 text-black-50 mt-5 mb-0 text-nowrap login-form-subtitle form-subtitle">
                             Please enter your credentials
                         </p>
-                        <div>
-                            <div className="input-wrapper">
+                        <div className="form-field-container">
+                            <div className="input-wrapper login-email-field email-field">
                                 <input
                                     type="email"
                                     className="input-item form-control-lg"
                                     placeholder="Enter your email"
                                     autoComplete="off"
                                     {...register("email", {
-                                        required: "email is required",
+                                        required: "Email is required",
                                         pattern: {
                                             value: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
                                             message:
@@ -91,7 +91,7 @@ export default function Login() {
                                     {errors.email.message}
                                 </p>
                             )}
-                            <div className="input-wrapper">
+                            <div className="input-wrapper login-password-field password-field">
                                 <input
                                     type="password"
                                     {...register("password", {
@@ -113,9 +113,9 @@ export default function Login() {
                                     {errors.password.message}
                                 </p>
                             )}
-                            <div className="d-block-inline mb-2 mt-4">
-                                <button className="btn form-control-lg btn-primary w-100 mt-3 fw-bold p-2">
-                                    Login
+                            <div className="d-block-inline mb-2 mt-3">
+                                <button className="btn form-control-lg btn-primary w-100 fw-normal mt-3 p-2 login-submit-btn">
+                                    Sign In
                                 </button>
                             </div>
                             {/* <div className="signup-wrapper d-flex flex-row mt-4 flex justify-content-center align-items-center">

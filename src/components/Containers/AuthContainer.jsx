@@ -20,7 +20,7 @@ export default function AuthContainer(props) {
             <div className={`form-body-contents`}>
                 {props.left}
             </div>
-            <div className="vh-100 w-100 d-flex justify-content-center align-items-center" style={{ backgroundColor: "#f3f1f6" }}>
+            <div className="vh-100 w-100 d-flex justify-content-center align-items-center form-body-image" style={{ backgroundColor: "#f3f1f6" }}>
                 <img
                     className={`login-metserv-image ${loadForm ? "image-shrink" : ""}`}
                     src={loginImage}
