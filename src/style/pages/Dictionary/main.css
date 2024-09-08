@@ -1,0 +1,6 @@
+@media only screen and (max-width: 661px) {
+
+    .company-form-multi-field-wrapper {
+        display: block !important;
+    }
+}
