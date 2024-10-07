@@ -2,6 +2,11 @@
     padding: 0.75rem 1rem;
 }
 
+.header-action-button-icon {
+    height: 18px;
+    width: 18px;
+    margin: 0 6px 3px 0;
+}
 
 @media only screen and (max-width: 980px) {
 
@@ -14,6 +19,10 @@
 
 /* Shrink font same time as shrink the padding on main */
 @media only screen and (max-width: 950px) {
+
+    .breadcrumb-item {
+        font-size: 14px;
+    }
 
     .page-header-title-text {
         font-size: 20px !important;
@@ -34,4 +43,64 @@
     .page-header-action-button {
         font-size: 14px;
     }
+}
+
+@media only screen and (max-width: 500px) {
+
+    .header-container {
+        flex-direction: row-reverse;
+    }
+
+    /* Removes Datatable Page Header Title */
+    .page-header-title-wrapper {
+        display: none;
+    }
+
+    .page-header-action-button {
+        position: fixed;
+        /* Keeps the button fixed relative to the viewport */
+        bottom: 20px;
+        /* Distance from the bottom of the viewport */
+        right: 20px;
+        /* Distance from the right of the viewport */
+        background-color: #007bff;
+        /* Background color */
+        color: white;
+        /* Text color */
+        border: none;
+        /* Remove default border */
+        border-radius: 50%;
+        /* Round shape */
+        width: 50px;
+        /* Width of the button */
+        height: 50px;
+        /* Height of the button */
+        display: inline-flex;
+        /* Center content */
+        align-items: center;
+        /* Center vertically */
+        justify-content: center;
+        /* Center horizontally */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        /* Optional shadow */
+        font-size: 24px;
+        /* Font size for the icon or text */
+        cursor: pointer;
+        /* Pointer cursor on hover */
+        z-index: 1000;
+        /* Ensure the button is above other content */
+        transition: background-color 0.3s;
+        /* Smooth color transition */
+    }
+
+    .button-text {
+        display: none;
+    }
+
+    .page-header-action-button .icon {
+        height: 24px;
+        width: 24px;
+        margin: 0;
+    }
+
 }

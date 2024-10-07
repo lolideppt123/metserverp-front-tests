@@ -1,3 +1,8 @@
+html {
+    overflow: -moz-scrollbars-vertical;
+    overflow-y: scroll;
+}
+
 h3 {
     font-size: 24px
 }
@@ -80,6 +85,14 @@ kbd {
 }
 
 @media only screen and (max-width: 700px) {
+
+    /* 
+    WHen opening a drawer there's a default style that sets the body width -17px
+    therefore should overwrite it
+    */
+    html body {
+        width: 100% !important;
+    }
 
     /* switch to fixed padding since sidebar is already hidden */
     .main-content-wrapper {
