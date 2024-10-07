@@ -18,8 +18,7 @@ const modalSlice = createSlice({
         },
         modalDelete: (state, { payload }) => {
             state.delete.isOpen = payload
-        }
-
+        },
     }
 })
 
