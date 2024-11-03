@@ -4,14 +4,14 @@ import DropDownMenu from '../../components/DropDown/DropDownMenu';
 import DropDownItem from '../../components/DropDown/DropDownItem';
 import CSVExport from '../../components/Exports/CSVExport';
 
-import SalesMonthFilter from '../../components/Filter/SalesMonthFilter';
+import SalesYearMonthFilter from '../../components/Filter/SalesYearMonthFilter';
 import SalesYearFilter from '../../components/Filter/SalesYearFilter';
 
 export default function DataTablePageHeader({ Labels, type = null, salesFilter = null, setSalesFilter, data = [] }) {
     const navigate = useNavigate();
     return (
         <>
-            <div className="col-md-9 mb-3">
+            <div className="breadcrumb-container col-md-9 mb-3">
                 <nav aria-label="breadcrumb">
                     <ol className="breadcrumb m-0 my-2">
                         <li className="breadcrumb-item"><a href="">{Labels.BASE_ENTITY}</a></li>
@@ -20,7 +20,7 @@ export default function DataTablePageHeader({ Labels, type = null, salesFilter =
                 </nav>
             </div>
 
-            <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <div className="header-container d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                 {type == 'inventory' ? (
                     <div className="btn-group me-2">
                         <button className='btn btn-secondary'>
@@ -33,8 +33,8 @@ export default function DataTablePageHeader({ Labels, type = null, salesFilter =
                 ) : (
                     type == 'sales' ? (
                         <div className="col-md-4">
-                            {/* <SalesMonthFilter setSalesFilter={setSalesFilter} /> */}
-                            <SalesYearFilter setSalesFilter={setSalesFilter} />
+                            <SalesYearMonthFilter setSalesFilter={setSalesFilter} />
+                            {/* <SalesYearFilter setSalesFilter={setSalesFilter} /> */}
                         </div>
                     ) : (
                         <div className="col-md-8 ms-2 page-header-title-wrapper">
@@ -49,7 +49,10 @@ export default function DataTablePageHeader({ Labels, type = null, salesFilter =
                                 <CSVExport data={data} year={salesFilter} />
                             </div>
                         )}
-                        <button type='button' onClick={() => navigate(`/${Labels.NEW_ENTITY_URL}`)} className="btn btn-primary page-header-action-button"><FiPlus style={{ height: '18px', width: '18px', margin: '0 6px 3px 0' }} />{Labels.ADD_NEW_ENTITY}</button>
+                        <button type='button' onClick={() => navigate(`/${Labels.NEW_ENTITY_URL}`)} className="btn btn-primary page-header-action-button">
+                            <FiPlus className='header-action-button-icon icon' />
+                            <span className='button-text'>{Labels.ADD_NEW_ENTITY}</span>
+                        </button>
                     </div>
                 </div>
             </div >

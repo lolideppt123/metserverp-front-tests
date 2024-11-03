@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import useAxiosFunction from "../../hooks/useAxiosFunction";
 import Spinner from "../../components/Fallback/Spinner";
 import NoServerResponse from "../../components/Errors/NoServerResponse";
@@ -9,17 +9,29 @@ import DataTablePageHeader from "../../modules/FspPanelModule/DataTablePageHeade
 import SalesDataTable from "../../modules/SalesModule/SalesDataTable";
 
 import MoneyFormatter, { NumberFormatter } from "../../settings/MoneyFormatter";
-import { Tooltip } from "antd";
+import RenderText from "../../components/Tooltip/RenderText";
 
 import salesFilterFunc from "../../helpers/salesFilterFunc";
 
-export default function Sales() {
-    const [SalesFilter, setSalesFilter] = useState(dayjs().year());
+import { useGetAllCustomerQuery } from "../../features/customers/customerApiSlice";
+import { useGetAllProductQuery } from "../../features/products/productApiSlice";
+import { useGetAllSupplierQuery } from "../../features/suppliers/supplierApiSlice";
+
+const YEAR = dayjs().year();
+const MONTH = dayjs().month() + 1;
+
+const Sales = () => {
+    // const [SalesFilter, setSalesFilter] = useState(`${YEAR}-${MONTH}`);
+    const [SalesFilter, setSalesFilter] = useState(`${YEAR}`);
     const [invoiceFilter, setInvoiceFilter] = useState([]);
     const [customerFilter, setCustomerFilter] = useState([]);
     const [productFilter, setProductFilter] = useState([]);
     const [supplierFilter, setSupplierFilter] = useState([]);
     const [filteredInfo, setFilteredInfo] = useState({});
+
+    const { data: customer, isLoading: customerLoading, error: customerErr, isSuccess: customerIsSucc } = useGetAllCustomerQuery();
+    const { data: product, isLoading: productLoading, error: productErr, isSuccess: productIsSucc } = useGetAllProductQuery();
+    const { data: supplier, isLoading: supplierLoading, error: supplierErr, isSuccess: supplierIsSucc } = useGetAllSupplierQuery();
 
     const {
         loading,
@@ -38,23 +50,23 @@ export default function Sales() {
         axiosFetch: fetchFilteredData,
     } = useAxiosFunction();
 
-    const {
-        loading: customerLoading,
-        response: customers,
-        axiosFetch: fetchCustomers,
-    } = useAxiosFunction();
+    // const {
+    //     loading: customerLoading,
+    //     response: customers,
+    //     axiosFetch: fetchCustomers,
+    // } = useAxiosFunction();
 
-    const {
-        loading: productLoading,
-        response: products,
-        axiosFetch: fetchProducts,
-    } = useAxiosFunction();
+    // const {
+    //     loading: productLoading,
+    //     response: products,
+    //     axiosFetch: fetchProducts,
+    // } = useAxiosFunction();
 
-    const {
-        loading: supplierLoading,
-        response: suppliers,
-        axiosFetch: fetchSupplier,
-    } = useAxiosFunction();
+    // const {
+    //     loading: supplierLoading,
+    //     response: suppliers,
+    //     axiosFetch: fetchSupplier,
+    // } = useAxiosFunction();
 
     const {
         GenerateCSVData,
@@ -95,14 +107,7 @@ export default function Sales() {
                         className={`fs-md fw-semibold text-uppercase ${record.sales_status == "PAID" ? "paid" : "unpaid"
                             } text-center`}
                     >
-                        {text.length > 4 ? (
-                            <Tooltip className="pointer" title={text}>
-                                {text.substr(0, 4)}
-                                {text.length > 4 && "\u2026"}
-                            </Tooltip>
-                        ) : (
-                            <>{text}</>
-                        )}
+                        {<RenderText text={text} maxLength={4} />}
                     </div>
                 );
             },
@@ -118,14 +123,7 @@ export default function Sales() {
                         className={`fs-md fw-semibold text-uppercase ${record.sales_status == "PAID" ? "paid" : "unpaid"
                             } text-center`}
                     >
-                        {text?.length > 4 ? (
-                            <Tooltip className="pointer" title={text}>
-                                {text.substr(0, 4)}
-                                {text.length > 4 && "\u2026"}
-                            </Tooltip>
-                        ) : (
-                            <>{text}</>
-                        )}
+                        {<RenderText text={text} maxLength={4} />}
                     </div>
                 );
             },
@@ -161,6 +159,12 @@ export default function Sales() {
             filters: productFilter,
             filteredValue: filteredInfo.productName || null,
             onFilter: (value, record) => {
+                // if (typeof (value) === 'number') {
+                //     return record.sales_transaction[0].supplier.id === value
+                // }
+                // if (typeof (value) === 'string') {
+                //     return record.product_name === value
+                // }
                 if (typeof (value) === 'number') {
                     return record.sales_transaction[0].supplier.id === value
                 }
@@ -175,14 +179,7 @@ export default function Sales() {
                         className={`fs-md fw-semibold text-uppercase ${record.sales_status == "PAID" ? "paid" : "unpaid"
                             }`}
                     >
-                        {text.length > 17 ? (
-                            <Tooltip className="pointer" title={text}>
-                                {text.substr(0, 17)}
-                                {text.length > 17 && "\u2026"}
-                            </Tooltip>
-                        ) : (
-                            <>{text}</>
-                        )}
+                        {<RenderText text={text} maxLength={17} />}
                     </div>
                 );
             },
@@ -204,14 +201,7 @@ export default function Sales() {
                         className={`fs-md fw-semibold text-uppercase ${record.sales_status == "PAID" ? "paid" : "unpaid"
                             }`}
                     >
-                        {text.length > 17 ? (
-                            <Tooltip className="pointer" title={text}>
-                                {text.substr(0, 17)}
-                                {text.length > 17 && "\u2026"}
-                            </Tooltip>
-                        ) : (
-                            <>{text}</>
-                        )}
+                        {<RenderText text={text} maxLength={17} />}
                     </div>
                 );
             },
@@ -364,7 +354,7 @@ export default function Sales() {
     ];
 
     const handleOnFilter = async (pagination, filters, sorter, extra) => {
-
+        console.log("filter called")
         await fetchFilteredData({
             url: `sales-data-filter/`,
             method: "POST",
@@ -375,87 +365,35 @@ export default function Sales() {
     };
 
     const customMapper = (data, { text, value }, setter) => {
-        setter([]);
-        data.map((item) =>
-            setter((prev) => [
-                ...prev,
-                { text: item[text], value: item[value] },
-            ])
-        );
+        const mappedData = data.map((item) => ({ text: item[text], value: item[value] }));
+        setter(mappedData)
     }
 
     useEffect(() => {
-        // Needs to wait for first request so refresh token won't double send
-        const invoiceFilterList = [{ invoiceFilter: "With Invoice" }, { invoiceFilter: "Without Invoice" }];
-        const getData = async () => {
-            // await salesFetch({
-            //     url: `sales/${SalesFilter}`,
-            //     method: "get",
-            // });
-            await fetchCustomers({
-                url: "customers/",
-                method: "GET",
-            });
-            await fetchProducts({
-                url: "products/",
-                method: "GET",
-            });
-            await fetchSupplier({
-                url: "suppliers/",
-                method: "GET",
-            });
-        };
-        // getData();
-        (() => {
-            fetchCustomers({
-                url: "customers/",
-                method: "GET",
-            });
-            fetchProducts({
-                url: "products/",
-                method: "GET",
-            });
-            fetchSupplier({
-                url: "suppliers/",
-                method: "GET",
-            });
-        })()
-
-        customMapper(invoiceFilterList, { text: 'invoiceFilter', value: 'invoiceFilter' }, setInvoiceFilter);
-    }, []);
-
-    useEffect(() => {
-        // Needs to wait for first request so refresh token won't double send
-        const getData = async () => {
-            if (SalesFilter !== "") {
-                await salesFetch({
-                    url: `sales/${SalesFilter}`,
-                    method: "get",
-                });
-            }
-        };
-        getData();
+        if (SalesFilter !== "") {
+            salesFetch({ url: `sales/${SalesFilter}`, method: "get" });
+        }
     }, [SalesFilter]);
 
     useEffect(() => {
-        console.log("calls made")
-        if (data && !filteredData) {
-            console.log("running data")
-            GenerateCSVData(data);
-        }
-        if (customers) {
-            customMapper(customers, { text: 'company_name', value: 'company_name' }, setCustomerFilter);
-        }
-        if (products) {
-            customMapper(products, { text: 'product_name', value: 'product_name' }, setProductFilter);
-        }
-        if (suppliers) {
-            customMapper(suppliers, { text: 'company_name', value: 'id' }, setSupplierFilter);
-        }
         if (filteredData) {
             GenerateCSVData(filteredData);
         }
-    }, [data, customers, products, suppliers, filteredData]);
+        if (data && !filteredData) {
+            GenerateCSVData(data);
+        }
+    }, [data, filteredData])
+
+    useEffect(() => {
+        if (customerIsSucc && supplierIsSucc && productIsSucc) {
+            // Save filters
+            const invoiceFilterList = [{ invoiceFilter: "With Invoice" }, { invoiceFilter: "Without Invoice" }];
+            customMapper(invoiceFilterList, { text: 'invoiceFilter', value: 'invoiceFilter' }, setInvoiceFilter);
+            customMapper(customer, { text: 'company_name', value: 'company_name' }, setCustomerFilter);
+            customMapper(product, { text: 'product_name', value: 'product_name' }, setProductFilter);
+            customMapper(supplier, { text: 'company_name', value: 'id' }, setSupplierFilter);
+        }
+    }, [customer, product, supplier]);
 
     useEffect(() => {
         if (supplierFilter.length > 0) {
@@ -463,7 +401,7 @@ export default function Sales() {
                 text: <span className="fw-semibold">Suppliers</span>,
                 value: 'Suppliers',
                 children: supplierFilter
-            }, ...productFilter])
+            }, ...prev])
         }
     }, [supplierFilter])
 
@@ -472,16 +410,17 @@ export default function Sales() {
         Labels,
         data,
         CSVData,
-        customerLoading,
-        productLoading,
-        supplierLoading,
         loading,
         error,
         setData,
         handleOnFilter,
     };
 
-    // console.log(CSVData);
+    console.log("Sales rendered");
+    console.log(productFilter)
+
+    // const isLoading = loading || customerLoading || productLoading || supplierLoading || filteredDataLoading;
+    // if (isLoading) return <Spinner />
 
     return (
         <>
@@ -519,3 +458,5 @@ export default function Sales() {
         </>
     );
 }
+
+export default memo(Sales)

@@ -173,6 +173,7 @@ export default function MaterialHistory() {
         error,
         setData
     }
+
     return (
         <>
             <AddFormPageHeader config={config} />

@@ -4,7 +4,7 @@ import { Table } from "antd";
 export default function InventoryDataTable({ config }) {
     const { newDataColumn, data, loading, tableWidth } = config;
     return (
-        <div className="container">
+        <div className="container-fluid app-table-container">
             {loading ? (
                 <Spinner />
             ) : (
@@ -24,10 +24,10 @@ export default function InventoryDataTable({ config }) {
                                     x: tableWidth ? tableWidth : 900,
                                     y: null
                                 }}
-                                pagination={{
-                                    pageSize: 10,
-                                    showSizeChanger: true
-                                }}
+                            // pagination={{
+                            //     pageSize: 10,
+                            //     showSizeChanger: true
+                            // }}
                             />
                         </div>
                     )}

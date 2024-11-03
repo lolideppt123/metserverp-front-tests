@@ -91,7 +91,7 @@ export default function ProductForm({ config }) {
     const getUnit = watch("product_unit"); //Needed
 
     return (
-        <div className="container">
+        <div className="container-fluid addProduct-container">
             {unitLoad || categoryLoad || materialLoad ? (
                 <div className="py-5">
                     <Flex vertical>
@@ -102,13 +102,13 @@ export default function ProductForm({ config }) {
                 <>
                     <form id='addProductForm' onSubmit={handleSubmit(onSubmit)}>
                         <div className="row">
-                            <div className="col-md-6">
+                            <div className="col-md-6 addProduct-fields-wrapper">
                                 <div className="form-group mb-2">
                                     <label htmlFor="product_name" className="text-md text-gray-500">Product Name</label>
                                     <input type="text" className={`form-control form-control-sm`} autoComplete='off' id='product_name' {...register("product_name", { required: "Product Name is required", maxLength: { value: 100 } })} />
                                     {errors.product_name && (<p className='text-danger px-1 mt-1 mb-2' style={{ fontWeight: "600", fontSize: "13px" }}>{errors.product_name.message}</p>)}
                                 </div>
-                                <div className="d-flex gap-3">
+                                <div className="d-flex gap-3 addProduct-multi-field-wrapper">
                                     <div className="flex-fill mb-2">
                                         <label htmlFor="supplier" className="text-md text-gray-500">Inventory Type</label>
                                         <select className="form-select form-select-sm" autoComplete='off' id='inventory_type'
@@ -161,16 +161,16 @@ export default function ProductForm({ config }) {
                                     <textarea className="form-control form-control-sm" rows="3" cols="50" style={{ resize: 'none' }} id='product_note' {...register("product_note", { maxLength: 200 })}></textarea>
                                 </div>
                             </div>
-                            <div className="col-md-6 border-start">
+                            <div className="col-md-6 border-start addproduct-material-array-wrapper">
                                 {inv_type == 'MANUFACTURED' &&
                                     <>
-                                        <div className="form-group" style={{ display: "flex", flexDirection: 'row', justifyContent: "center" }}>
-                                            <span style={{ fontWeight: '600' }}>Materials Used per {getValues('product_unit')}</span>
+                                        <div className="form-group d-flex justify-content-center addproduct-materials-header">
+                                            <span style={{ fontWeight: '600' }}>Materials Used per <kbd>{getValues('product_unit')}</kbd></span>
                                         </div>
                                         {fields.map((field, index) => {
                                             return (
-                                                <div key={field.id} className="d-flex gap-2">
-                                                    <div className="col-lg-6 mb-2">
+                                                <div key={field.id} className="d-flex gap-2 addproduct-material-fields-wrapper">
+                                                    <div className="col-sm-6 mb-2 addproduct-material-field-item item-a">
                                                         <label>Material</label>
                                                         <select className='form-select form-select-sm' disabled={getValues(`materials.${index}.material`) == "" ? false : true}
                                                             {
@@ -193,7 +193,7 @@ export default function ProductForm({ config }) {
                                                             )}
                                                         </select>
                                                     </div>
-                                                    <div className="col-lg-3 mb-2">
+                                                    <div className="col-lg-3 mb-2 addproduct-material-field-item item-b">
                                                         <label>Quantity</label>
                                                         <input type="number" className="form-control form-control-sm" step={0.0001} min={0.0001}
                                                             {
@@ -204,14 +204,14 @@ export default function ProductForm({ config }) {
                                                             }
                                                             )} />
                                                     </div>
-                                                    <div className="mb-2">
+                                                    <div className="mb-2 addproduct-material-field-item item-c">
                                                         <label>Unit</label>
                                                         <input type="text" className="form-control form-control-sm" disabled={true}
                                                             {
                                                             ...register(`materials.${index}.unit`)
                                                             } />
                                                     </div>
-                                                    <div className="btn-group mb-2">
+                                                    <div className="btn-group mb-2 addproduct-material-field-item item-d field-action-cancel">
                                                         <a type='button' className='text-danger' onClick={() => {
                                                             handleRemoveItem(index)
                                                             remove(index)
@@ -222,7 +222,7 @@ export default function ProductForm({ config }) {
                                                 </div>
                                             )
                                         })}
-                                        <p>{errors.materials?.root?.message}</p>
+                                        <p className='text-center'><code>{errors.materials?.root?.message}</code></p>
                                         <div className="d-flex justify-content-center flex-wrap flex-md-nowrap align-items-center pt-2 mt-2 border-top">
                                             <button className='btn btn-primary' type='button'
                                                 onClick={() => {
@@ -241,7 +241,7 @@ export default function ProductForm({ config }) {
                         </div>
                     </form>
                     <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 mt-4 border-top">
-                        <button className='btn btn-primary col-2' form='addProductForm' disabled={isSubmitting || !isDirty}>
+                        <button className='btn btn-primary col-2 submit-form-btn' form='addProductForm' disabled={isSubmitting || !isDirty}>
                             {FormLoading ? (
                                 <Spin
                                     indicator={
@@ -260,8 +260,9 @@ export default function ProductForm({ config }) {
                             )}
                             Save
                         </button>
-                        <button className='btn btn btn-outline-secondary'>Cancel</button>
-                    </div>
+                        <button className='btn btn btn-outline-secondary cancel-form-btn' onClick={() => history.back()}>Cancel</button>
+
+                    </div >
                 </>
             )}
         </div >

@@ -23,10 +23,10 @@ export default function MaterialInventoryDataTable({ config }) {
                                     x: tableWidth ? tableWidth : 900,
                                     y: null
                                 }}
-                                pagination={{
-                                    pageSize: 10,
-                                    showSizeChanger: true
-                                }}
+                            // pagination={{
+                            //     pageSize: 10,
+                            //     showSizeChanger: true
+                            // }}
                             />
                         </div>
                     )}

@@ -107,6 +107,33 @@
     margin-left: 3px;
 }
 
+/*  */
+
+.input-wrapper-error {
+    border: 2px solid #dc3545;
+}
+
+.error-message {
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.error-icon {
+    margin-right: 4px;
+    color: #dc3545;
+}
+
+.text-danger {
+    color: #dc3545;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+
+/*  */
+
 @media only screen and (max-width: 1300px) {
     .form-loaded {
         grid-template-columns: 50% 1fr !important;

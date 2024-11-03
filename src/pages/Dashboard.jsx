@@ -3,6 +3,9 @@ import useAxiosFunction from "../hooks/useAxiosFunction";
 import DashboardModule from "../modules/DashboardModule";
 import DefaultDashboard from "../modules/DashboardModule/DashboardComponents/DefaultDashboard";
 
+import { useGetAllUCategoryQuery, useGetAllUnitsQuery } from "../features/utils/unitsApiSlice";
+import useDenomination from "../hooks/useDenomination";
+
 export default function Dashboard() {
     const {
         loading: dashboardLoad,
@@ -11,6 +14,11 @@ export default function Dashboard() {
         error: dashboardErr,
         axiosFetch: dashboardDataFetch,
     } = useAxiosFunction();
+
+    const { saveGlobalDenomination } = useDenomination()
+    const { data: unit, isLoading: unitLoad, isError: isUnitErr, error: unitErr, isSuccess: unitSucc } = useGetAllUnitsQuery();
+    const { data: category, isLoading: categoryLoad, isError: isCategoryErr, error: categoryErr, isSuccess: categorySucc } = useGetAllUCategoryQuery();
+
     const [BoxSM, setBoxSM] = useState(null);
     const [BoxMD, setBoxMD] = useState(null);
     const [BoxLG, setBoxLG] = useState(null);
@@ -36,6 +44,12 @@ export default function Dashboard() {
             // console.log(item);
         });
     }, [dashboard]);
+
+    useEffect(() => {
+        if (unitSucc && categorySucc) {
+            saveGlobalDenomination({ units: unit, category: category })
+        }
+    }, [unit, category])
 
     return (
         <div className="dashboard">

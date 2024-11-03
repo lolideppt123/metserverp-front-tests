@@ -25,6 +25,7 @@ export default function NavBody({ expanded }) {
                 )
             }
             <NavItem expanded={expanded} url={'/sales'} icon={<FiShoppingCart className='nav-link-icon' />} text={`Sales`} />
+            <NavItem expanded={expanded} url={'/sales-draft'} icon={<FiShoppingCart className='nav-link-icon' />} text={`Draft`} />
             <NavItem expanded={expanded} url={'/salesorders'} icon={<FiFilePlus className='nav-link-icon' />} text={`Sales Order`} />
             {
                 expanded ? (

@@ -117,12 +117,12 @@ export default function ProductEditForm({ config }) {
                                     <input type="text" className={`form-control form-control-sm`} autoComplete='off' id='product_name' {...register("product_name", { required: "Product Name is required", maxLength: { value: 100 } })} />
                                     {errors.product_name && (<p className='text-danger px-1 mt-1 mb-2' style={{ fontWeight: "600", fontSize: "13px" }}>{errors.product_name.message}</p>)}
                                 </div>
-                                <div className="d-flex gap-3">
-                                    <div className="flex-fill mb-2">
+                                <div className="d-flex gap-3 multi-field-wrapper">
+                                    <div className="flex-fill mb-2 multi-field-item">
                                         <label htmlFor="inventory_type" className="text-md text-gray-500">Inventory Type</label>
                                         <input type='text' className="form-control form-control-sm" autoComplete='off' id='inventory_type' readOnly {...register("inventory_type")} />
                                     </div>
-                                    <div className="flex-fill mb-2">
+                                    <div className="flex-fill mb-2 multi-field-item">
                                         <label htmlFor="product_min_stock">Minimum Stock</label>
                                         <input type="number" className="form-control form-control-sm" id='product_min_stock' min={1} step="0.01"
                                             {
@@ -134,7 +134,7 @@ export default function ProductEditForm({ config }) {
                                             }
                                         />
                                     </div>
-                                    <div className="flex-fill mb-2">
+                                    <div className="flex-fill mb-2 multi-field-item">
                                         <label htmlFor="product_unit">Unit</label>
                                         <select className="form-select form-select-sm" autoComplete='off' id='product_unit' {...register("product_unit", { required: "Product Unit is required" })}>
                                             {category.map((item, index) => (

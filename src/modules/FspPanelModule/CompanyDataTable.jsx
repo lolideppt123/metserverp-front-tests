@@ -4,34 +4,34 @@ import Spinner from '../../components/Fallback/Spinner';
 
 export default function CompanyDataTable({ config }) {
     const {
-        Labels,
         dataTableColumn,
         data,
-        setData,
-        loading
+        isLoading
     } = config;
 
     return (
-        <div className="container">
-            {loading ? (
+        <div className="container-fluid">
+            {isLoading ? (
                 <Spinner />
             ) : (
-                <>
-                    {!data?.length ? (
-                        <div className="py-4">
-                            <h6 className="text-center px-3 mt-4 mb-1"><i>Nothing to display yet</i></h6>
-                        </div>
-                    ) : (
-                        <div className="app-table">
-                            <Table
-                                columns={dataTableColumn}
-                                dataSource={data}
-                                rowKey={data => data.id}
-                                scroll={{ x: 'max-content' }}
-                            />
-                        </div>
-                    )}
-                </>
+                !data?.length ? (
+                    <div className="py-4">
+                        <h6 className="text-center px-3 mt-4 mb-1"><i>Nothing to display yet</i></h6>
+                    </div>
+                ) : (
+                    <div className="app-table company-data-table">
+                        <Table
+                            columns={dataTableColumn}
+                            dataSource={data}
+                            rowKey={data => data.id}
+                            scroll={{ x: 'max-content' }}
+                        // pagination={{
+                        //     pageSize: 10,
+                        //     showSizeChanger: true
+                        // }}
+                        />
+                    </div>
+                )
             )}
         </div>
     )

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState, useMemo } from 'react'
 
 function salesFilterFunc() {
     const initialData = {
@@ -8,10 +8,44 @@ function salesFilterFunc() {
         get_body: [],
     }
     const [CSVData, setCSVData] = useState(initialData);
+    const [CSVLoading, setCSVLoading] = useState(false);
 
     const GenerateCSVData = (dataArray) => {
 
+        setCSVLoading(true)
         if (dataArray) {
+            // const titles = [];
+            // const bodies = [];
+            // const totals = [];
+            // const cumulativeTotals = [];
+
+            // console.log(dataArray)
+
+            // dataArray['monthly_details'].forEach((item) => {
+            //     titles.push({ data_title: item.month });
+            //     bodies.push(item['transactions']);
+            //     totals.push({
+            //         sales_cost: item.total_cost,
+            //         sales_price: item.total_gross,
+            //         sales_total_margin: item.total_margin,
+            //         sales_vat: item.total_VAT,
+            //     });
+            //     cumulativeTotals.push({
+            //         cumm_sales_cost: item.cumulative_total_cost,
+            //         cumm_sales_margin: item.cumulative_margin,
+            //         cumm_sales_price: item.cumulative_total_gross,
+            //         cumm_sales_vat: item.cumulative_total_VAT,
+            //     });
+            // });
+
+            // setCSVData({
+            //     get_title: titles,
+            //     get_body: bodies,
+            //     get_totals: totals,
+            //     get_cumm_totals: cumulativeTotals,
+            // });
+            console.log("Generating CSV Data")
+            // console.log(dataArray)
 
             setCSVData(initialData);
 
@@ -42,9 +76,10 @@ function salesFilterFunc() {
                 }
             });
         }
+        setCSVLoading(false);
     }
 
-    return { GenerateCSVData, CSVData };
+    return { GenerateCSVData, CSVData, CSVLoading };
 }
 
 export default salesFilterFunc

@@ -210,16 +210,17 @@ export default function DraftForm({ config }) {
         const newFormState = { ...formState };
 
         delete newFormState['_persist'];
+        const salesForm = newFormState['salesObj'];
 
-        const stateKeys = Object.keys(newFormState);
+        const stateKeys = Object.keys(salesForm);
 
         for (const key of stateKeys) {
-            setValue(key, newFormState[key], { shouldDirty: true, shouldValidate: true });
+            setValue(key, salesForm[key], { shouldDirty: true, shouldValidate: true });
         }
 
         const prices = [...PriceList];
 
-        newFormState['products'].map((_, index) => {
+        salesForm['products'].map((_, index) => {
             handleChangeItem(index);
             prices[index] = getValues('products')[index].unit_price * getValues('products')[index].sales_quantity;
             if (isNaN(prices[index])) prices[index] = 0;
@@ -253,11 +254,13 @@ export default function DraftForm({ config }) {
         if ('_persist' in formState) {
             const newFormState = { ...formState };
             delete newFormState['_persist'];
-            if (!_.isEqual(newFormState, fieldData)) {
+            if (!_.isEqual(newFormState['salesObj'], fieldData)) {
                 setLoadDraft(true);
             }
         }
     }, [])
+
+    console.log(LoadDraft)
 
     return (
         <div className="container pt-3">

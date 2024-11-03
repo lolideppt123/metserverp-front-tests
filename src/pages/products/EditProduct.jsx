@@ -1,21 +1,23 @@
-import useFetch from '../../hooks/useFetch';
 import { useParams } from 'react-router-dom';
 import Spinner from '../../components/Fallback/Spinner';
 import NoServerResponse from '../../components/Errors/NoServerResponse';
 
-import { useEffect } from 'react';
-import useAxiosFunction from '../../hooks/useAxiosFunction';
-
-import ProductEditForm from '../../modules/ProductsModule/ProductEditForm';
 import AddFormPageHeader from '../../modules/FspPanelModule/AddFormPageHeader';
 import FOrm from '../../modules/ProductsModule/FOrm';
+import { useGetAllMaterialQuery } from '../../features/materials/materialApiSlice';
+import { useGetProductQuery, useUpdateProductMutation } from '../../features/products/productApiSlice';
+import { useSelector } from 'react-redux';
+import { selectDenomination } from '../../features/utils/denominationSlice';
+
 
 export default function EditProduct() {
     const { id } = useParams();
-    const { loading: categoryLoad, response: category, error: categoryErr, axiosFetch: categoryFetch } = useAxiosFunction();
-    const { loading: unitLoad, response: unit, error: unitErr, axiosFetch: unitFetch } = useAxiosFunction();
-    const { loading: productLoad, response: product, error: productErr, axiosFetch: productFetch } = useAxiosFunction();
-    const { loading: materialLoad, response: material, error: materialErr, axiosFetch: materialFetch } = useAxiosFunction();
+    const { units: unit, category } = useSelector(selectDenomination);
+
+    const { data: material, isLoading: materialLoad, isError: isMaterialErr, error: materialErr } = useGetAllMaterialQuery();
+    const { data: product, isLoading: productLoad, isError: isProductErr, error: productErr } = useGetProductQuery(id);
+    const [updateProduct, { data, error, isLoading, isSuccess }] = useUpdateProductMutation();
+
     const Labels = {
         PAGE_ENTITY: 'Products',
         PAGE_ENTITY_URL: 'products',
@@ -23,40 +25,20 @@ export default function EditProduct() {
         METHOD: 'put'
     }
 
-    useEffect(() => {
-        // Needs to wait for first request so refresh token won't double send
-        const getData = async () => {
-            await categoryFetch({
-                url: 'products/unitcategory',
-                method: 'get'
-            });
-            await unitFetch({
-                url: 'products/unit',
-                method: 'get'
-            });
-            await productFetch({
-                url: `products/${id}`,
-                method: 'get'
-            });
-            await materialFetch({
-                url: 'materials/',
-                method: 'get'
-            });
-        }
-        getData();
-    }, [])
-
     const config = {
         Labels,
+        id,
+        material,
+        product,
         unit,
         category,
-        product,
-        material,
-        id,
-        categoryLoad,
-        unitLoad,
-        productLoad,
         materialLoad,
+        productLoad,
+        action: updateProduct,
+        actionLoading: isLoading,
+        actionSuccess: isSuccess,
+        actionError: error,
+        actionResponse: data
     }
 
     return (
@@ -64,11 +46,11 @@ export default function EditProduct() {
         <>
             <AddFormPageHeader config={config} onBack />
             {
-                categoryLoad || unitLoad || productLoad ?
+                productLoad ?
                     (
                         <Spinner />
                     ) : (
-                        categoryErr || unitErr || productErr || materialErr ?
+                        productErr || materialErr ?
                             (
                                 <NoServerResponse error={productErr} />
                             ) : (

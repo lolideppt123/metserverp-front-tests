@@ -66,6 +66,7 @@ export default function RawMaterials() {
             key: 'action',
             dataIndex: ['id', 'type'],
             width: 50,
+            fixed: 'right',
             render: (text, record) => {
                 return (
                     <div className='px-auto'>

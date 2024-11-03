@@ -41,6 +41,8 @@ const EditSupplier = lazy(() => import('../pages/Supplier/EditSupplier'))
 
 const Modal = lazy(() => import('../components/DatePicker/AntdDatePicker'))
 
+const SalesDraft = lazy(() => import('../pages/Sales/SalesDraft'))
+
 const AppRouter = () => {
     let element = useRoutes([
         {
@@ -114,6 +116,10 @@ const AppRouter = () => {
         {
             path: '/sales',
             element: <Sales />
+        },
+        {
+            path: '/sales-draft',
+            element: <SalesDraft />
         },
         {
             path: '/salesorders',

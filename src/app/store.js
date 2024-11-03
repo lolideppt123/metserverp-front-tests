@@ -3,7 +3,7 @@ import customerReducer from '../features/customers/customerSlice';
 import userReducer from '../features/user/userSlice';
 // import authReducer from '../features/auth/authSlice';
 import modalReducer from '../features/modal/modalSlice';
-// import drawerReducer from '../features/drawer/drawerSlice';
+import drawerReducer from '../features/drawer/drawerSlice';
 
 import { apiSlice } from "./api/apiSlice";
 import authReducer from '../features/auth/authSlice';

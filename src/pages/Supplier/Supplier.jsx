@@ -8,9 +8,12 @@ import CompanyDataTable from '../../modules/FspPanelModule/CompanyDataTable';
 import useAxiosFunction from '../../hooks/useAxiosFunction';
 
 import DropDown from '../../components/DropDown/DropDown';
+import { useGetAllSupplierQuery } from '../../features/suppliers/supplierApiSlice';
+import RenderText from '../../components/Tooltip/RenderText';
 
 export default function Supplier() {
-    const { loading, response: data, setResponse: setData, error, axiosFetch: dataFetch } = useAxiosFunction();
+    // const { loading, response: data, setResponse: setData, error, axiosFetch: dataFetch } = useAxiosFunction();
+    const { data, isLoading, isError, error } = useGetAllSupplierQuery();
     const Labels = {
         BASE_ENTITY: 'Suppliers',
         TABLE_TITLE: 'Supplier',
@@ -18,7 +21,6 @@ export default function Supplier() {
         NEW_ENTITY_URL: 'suppliers/add',
         API_URL: 'suppliers/'
     }
-    // console.log(data)
     const dataTableColumn = [
         {
             title: <div className='fs-md fw-bold'>Company Name</div>,
@@ -26,7 +28,7 @@ export default function Supplier() {
             dataIndex: 'company_name',
             width: 350,
             render: (text, record) => {
-                return <div className={`fs-md fw-semibold`}>{text}</div>
+                return <div className={`fs-md fw-semibold`}>{<RenderText text={text} maxLength={40} />}</div>
             }
         },
         {
@@ -69,7 +71,7 @@ export default function Supplier() {
                     <>
                         {record.company_address !== "" ? (
                             <div className='fs-md fw-semibold text-uppercase'>
-                                {text.substr(0, 60)}{text?.length > 60 && '\u2026'}
+                                {<RenderText text={text} maxLength={20} />}
                             </div>
                         ) : (<div className="fs-md fw-semibold text-center">---</div>)}
                     </>
@@ -82,6 +84,7 @@ export default function Supplier() {
             key: 'action',
             dataIndex: ['id', 'type'],
             width: 50,
+            fixed: 'right',
             render: (text, record) => {
                 return (
                     <div className='px-auto'>
@@ -89,10 +92,10 @@ export default function Supplier() {
                             link2={`${record.id}`}
                             deleteConfig={{
                                 link3: `${Labels?.API_URL}${record.id}`,
-                                message: `${record?.company_name?.substr(0, 12)}${record?.company_name?.length > 12 ? '\u2026' : ""}`,
+                                message: <RenderText text={record?.company_name} maxLength={15} />,
                                 notAllowed: false,
                                 api_url: Labels.API_URL,
-                                setData: (data) => setData(data)
+                                setData: (data) => { }
                             }}
                         />
                     </div>
@@ -101,31 +104,22 @@ export default function Supplier() {
         },
     ]
 
-    useEffect(() => {
-        const configObj = {
-            url: `${Labels.API_URL}`,
-            method: `get`,
-        }
-        dataFetch(configObj);
-    }, [])
     const config = {
         dataTableColumn,
         Labels,
         data,
-        loading,
-        error,
-        setData
+        isLoading,
     }
 
     return (
         <>
             <DataTablePageHeader Labels={Labels} />
             {
-                loading ?
+                isLoading ?
                     (
                         <Spinner />
                     ) : (
-                        error ?
+                        isError ?
                             (
                                 <NoServerResponse error={error} />
                             ) : (

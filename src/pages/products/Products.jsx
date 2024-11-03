@@ -9,8 +9,11 @@ import DataTablePageHeader from '../../modules/FspPanelModule/DataTablePageHeade
 import CompanyDataTable from '../../modules/FspPanelModule/CompanyDataTable';
 
 import DropDown from '../../components/DropDown/DropDown';
+import RenderText from '../../components/Tooltip/RenderText';
+import { useGetAllProductQuery } from '../../features/products/productApiSlice';
 
 export default function Products() {
+    const { data, isLoading, isError, error } = useGetAllProductQuery();
     const Labels = {
         BASE_ENTITY: 'Products',
         TABLE_TITLE: 'Product',
@@ -26,7 +29,7 @@ export default function Products() {
             dataIndex: 'product_name',
             // width: 250,
             render: (text, record) => {
-                return <div className={`fs-md fw-semibold`}>{text}</div>
+                return <div className={`fs-md fw-semibold`}>{<RenderText text={text} maxLength={20} />}</div>
             }
         },
         {
@@ -52,19 +55,14 @@ export default function Products() {
             key: 'note',
             dataIndex: "product_note",
             width: 250,
-            render: (text, record) => {
-                return (
-                    <>
-                        {record.product_note !== "" && <div className={`fs-md fw-semibold text-wrap`}>{text.substr(0, 50) + '\u2026'}</div>}
-                    </>
-                )
-            }
+            render: (text, record) => (<div className={`fs-md fw-semibold`}>{<RenderText text={text} maxLength={30} />}</div>)
         },
         {
             title: '',
             key: 'action',
             dataIndex: ['id', 'type'],
             width: 50,
+            fixed: 'right',
             render: (text, record) => {
                 return (
                     <div className='px-auto'>
@@ -72,10 +70,10 @@ export default function Products() {
                             link2={`${record.id}`}
                             deleteConfig={{
                                 link3: `${Labels?.API_URL}${record.id}`,
-                                message: `${record?.product_name?.substr(0, 12)}${record?.product_name?.length > 12 ? '\u2026' : ""}`,
+                                message: <RenderText text={record?.company_name} maxLength={15} />,
                                 notAllowed: false,
                                 api_url: Labels.API_URL,
-                                setData: (data) => setData(data)
+                                setData: (data) => { }
                             }}
                         />
                     </div>
@@ -83,39 +81,29 @@ export default function Products() {
             }
         },
     ]
-    const { loading, response: data, setResponse: setData, error, axiosFetch: dataFetch } = useAxiosFunction();
-    useEffect(() => {
-        const configObj = {
-            url: `${Labels.API_URL}`,
-            method: `get`,
-        }
-        dataFetch(configObj);
-    }, [])
+
     const config = {
-        Labels,
         dataTableColumn,
+        Labels,
         data,
-        loading,
-        error,
-        setData
+        isLoading,
     }
 
     return (
         <>
             <DataTablePageHeader Labels={Labels} />
             {
-                loading ?
+                isLoading ?
                     (
                         <Spinner />
                     ) : (
-                        error ?
+                        isError ?
                             (
                                 <NoServerResponse error={error} />
                             ) : (
                                 data?.length == 0 ? (
                                     <GetStartedTemplate entity={'Products'} nextStep={"Inventory"} />
                                 ) : (
-                                    // <ProductsDataTable config={config} />
                                     <CompanyDataTable config={config} />
                                 )
                             )

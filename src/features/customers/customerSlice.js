@@ -38,10 +38,10 @@ const customerSlice = createSlice({
     }
 })
 
-export const getAllCustomers = (state) => state.customer.customers
-export const getCustomerLoading = (state) => state.customer.loading
-export const getCustomerError = (state) => state.customer.error
+// export const getAllCustomers = (state) => state.customer.customers
+// export const getCustomerLoading = (state) => state.customer.loading
+// export const getCustomerError = (state) => state.customer.error
 
-export const getCustomerState = (state) => state.customer
+// export const getCustomerState = (state) => state.customer
 
 export default customerSlice.reducer

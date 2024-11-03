@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo } from 'react';
 import useAxiosFunction from '../../hooks/useAxiosFunction';
 import Spinner from '../../components/Fallback/Spinner';
 import NoServerResponse from '../../components/Errors/NoServerResponse';
@@ -14,7 +14,7 @@ import { useSelector } from 'react-redux';
 import { selectDrawerPlatform } from '../../features/drawer/drawerSlice';
 import { Tooltip } from 'antd';
 
-export default function Inventory() {
+const Inventory = () => {
     const { isMobile } = useSelector(selectDrawerPlatform);
     const { loading, response: data, error, axiosFetch } = useAxiosFunction();
     const [newDataColumn, setNewDataColumn] = useState([]);
@@ -154,7 +154,7 @@ export default function Inventory() {
                                     <span>{dayjs(record.last_ordered_date).format("MMM DD, YYYY")}</span>
                                 </div>
                                 <div className="text-start mt-1" style={{ fontSize: '13px' }}>
-                                    <span className='fw-semibold'>Update: </span>
+                                    <span className='fw-semibold'>Updated: </span>
                                     <span>{dayjs(record.order_update).format("MMM DD, YYYY")}</span>
                                 </div>
                             </>
@@ -240,3 +240,5 @@ export default function Inventory() {
 
     )
 }
+
+export default memo(Inventory)
