@@ -62,7 +62,7 @@ export default function CSVExportByMonth({ title, body, foot, endFoot, dateFilte
             csvExport.push(cummRow);
             setCSVDATA(csvExport);
         }
-        console.log("export rendered")
+
     }, [title, body, foot, endFoot]);
 
     useEffect(() => {

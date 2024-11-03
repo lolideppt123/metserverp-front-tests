@@ -10,8 +10,8 @@ import { selectUser } from '../features/auth/authSlice';
 
 export default function FspOs() {
     // Check here if user is logged in
-    // const USER = useSelector(selectUser);
-    const { user, token } = useAuth();
+    const user = useSelector(selectUser);
+    // const { user, token } = useAuth();
 
     if (user) {
         return <MainApp />

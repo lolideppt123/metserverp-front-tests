@@ -1,13 +1,25 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 import { jwtDecode } from "jwt-decode";
 
-// initialize userToken from local storage
-const userToken = localStorage.getItem('authTokens')
-    ? JSON.parse(localStorage.getItem('authTokens'))
-    : null
+const isTokenValid = (token) => {
+    if (!token) return false;
+    try {
+        const decoded = jwtDecode(token.access);
+        return decoded.exp * 1000 > Date.now();
+    } catch (error) {
+        console.error('Token decoding failed:', error);
+        return false; // Return false if decoding fails
+    }
+};
 
-const user = localStorage.getItem('authTokens')
-    ? jwtDecode(JSON.parse(localStorage.getItem('authTokens')).access).email : null
+// Initialize userToken from local storage
+const storedToken = localStorage.getItem('authTokens');
+const userToken = storedToken ? JSON.parse(storedToken) : null;
+
+
+const user = userToken && isTokenValid(userToken)
+    ? jwtDecode(userToken.access).email
+    : null;
 
 // console.log(jwtDecode(JSON.parse(localStorage.getItem('authTokens')).access).email)
 
@@ -21,14 +33,16 @@ const authSlice = createSlice({
     initialState: initialState,
     reducers: {
         setCredentials: (state, action) => {
-            console.log(action.payload)
             const { token, user } = action.payload
-            state.user = user
-            state.token = token
+            state.user = user;
+            state.token = token;
+            localStorage.setItem('authTokens', JSON.stringify(token)); // Store token in local storage
         },
         logOut: (state, action) => {
-            state.user = null
-            state.token = null
+            state.user = null;
+            state.token = null;
+            localStorage.removeItem('authTokens'); // Clear from local storage
+
         }
     },
 })

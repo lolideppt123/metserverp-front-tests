@@ -14,7 +14,7 @@ const SalesDraft = () => {
     const currentYear = dayjs().year();
     const currentMonth = dayjs().month() + 1;
     const initialDateFilter = `${currentYear}-${currentMonth}`;
-    // const [dateFilter, setDateFilter] = useState(initialDateFilter);
+
     const [filters, setFilters] = useState({
         customer: null,
         productName: null,
