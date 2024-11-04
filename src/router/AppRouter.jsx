@@ -1,5 +1,6 @@
 import { lazy, memo } from 'react'
 import { useRoutes, Navigate } from 'react-router-dom';
+import ProtectedRoute from './ProtectedRoute';
 
 const Dashboard = lazy(() => import('../pages/Dashboard'))
 const NotFound = lazy(() => import('../pages/NotFound'))
@@ -51,127 +52,243 @@ const AppRouter = () => {
         },
         {
             path: '/',
-            element: <Dashboard />
+            element: (
+                <ProtectedRoute>
+                    <Dashboard />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/products',
-            element: <Products />
+            element: (
+                <ProtectedRoute>
+                    <Products />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/products/:id',
-            element: <EditProduct />
+            element: (
+                <ProtectedRoute>
+                    <EditProduct />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/products/add',
-            element: <AddProduct />
+            element: (
+                <ProtectedRoute>
+                    <AddProduct />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/inventory/materials',
-            element: <MaterialInventory />
+            element: (
+                <ProtectedRoute>
+                    <MaterialInventory />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/inventory/products',
-            element: <Inventory />
+            element: (
+                <ProtectedRoute>
+                    <Inventory />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/inventory/materials/add',
-            element: <AddMaterialInventory />
+            element: (
+                <ProtectedRoute>
+                    <AddMaterialInventory />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/inventory/product/add',
-            element: <AddInventory />
+            element: (
+                <ProtectedRoute>
+                    <AddInventory />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/inventory/materials/transaction/:id/edit',
-            element: <EditMaterialInventory />
+            element: (
+                <ProtectedRoute>
+                    <EditMaterialInventory />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/inventory/products/transaction/:id/edit',
-            element: <EditInventory />
+            element: (
+                <ProtectedRoute>
+                    <EditInventory />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/inventory/products/transaction/:product_pk/:product_name',
-            element: <InventoryHistory />
+            element: (
+                <ProtectedRoute>
+                    <InventoryHistory />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/inventory/inventory-summary',
-            element: <InventorySummary />
+            element: (
+                <ProtectedRoute>
+                    <InventorySummary />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/materials',
-            element: <Materials />
+            element: (
+                <ProtectedRoute>
+                    <Materials />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/materials/:id',
-            element: <EditMaterial />
+            element: (
+                <ProtectedRoute>
+                    <EditMaterial />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/materials/add',
-            element: <AddMaterials />
+            element: (
+                <ProtectedRoute>
+                    <AddMaterials />
+                </ProtectedRoute>
+            )
         },
         {
             path: 'inventory/materials/transaction/:material_name',
-            element: <MaterialHistory />
+            element: (
+                <ProtectedRoute>
+                    <MaterialHistory />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/sales',
-            element: <Sales />
+            element: (
+                <ProtectedRoute>
+                    <Sales />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/sales-draft',
-            element: <SalesDraft />
+            element: (
+                <ProtectedRoute>
+                    <SalesDraft />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/salesorders',
-            element: <SalesOrder />
+            element: (
+                <ProtectedRoute>
+                    <SalesOrder />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/sales/add',
-            element: <AddSales />
+            element: (
+                <ProtectedRoute>
+                    <AddSales />
+                </ProtectedRoute>
+            )
         },
-        // {
-        //     path: '/sales/transaction/:id/show',
-        //     element: <ViewSales />
-        // },
         {
             path: '/sales/transaction/:id/edit',
-            element: <EditSales />
+            element: (
+                <ProtectedRoute>
+                    <EditSales />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/sales/sales-summary',
-            element: <SalesSummary />
+            element: (
+                <ProtectedRoute>
+                    <SalesSummary />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/customers',
-            element: <Customer />
+            element: (
+                <ProtectedRoute>
+                    <Customer />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/customers/add',
-            element: <AddCustomer />
+            element: (
+                <ProtectedRoute>
+                    <AddCustomer />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/customers/:id',
-            element: <EditCustomer />
+            element: (
+                <ProtectedRoute>
+                    <EditCustomer />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/customers/customer-summary',
-            element: <CustomerSummary />
+            element: (
+                <ProtectedRoute>
+                    <CustomerSummary />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/suppliers',
-            element: <Supplier />
+            element: (
+                <ProtectedRoute>
+                    <Supplier />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/suppliers/add',
-            element: <AddSupplier />
+            element: (
+                <ProtectedRoute>
+                    <AddSupplier />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/suppliers/:id',
-            element: <EditSupplier />
+            element: (
+                <ProtectedRoute>
+                    <EditSupplier />
+                </ProtectedRoute>
+            )
         },
         {
             path: '/modal',
-            element: <Modal />
+            element: (
+                <ProtectedRoute>
+                    <Modal />
+                </ProtectedRoute>
+            )
         },
         {
             path: '*',
