@@ -7,20 +7,24 @@ import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 
 import { FiPlus } from 'react-icons/fi';
+import { useUpdateInventoryProductItemMutation } from '../../features/inventory/inventoryApiSlice';
+import { useSnackbar } from 'notistack';
 
 export default function InventoryEditForm({ config }) {
     const { loading, response, success, error, axiosFetch } = useAxiosFunction();
+
+    // Redux
+    const [updateInventory] = useUpdateInventoryProductItemMutation();
+    const navigate = useNavigate();
+    const {enqueueSnackbar} = useSnackbar();
+
     const {
         Labels,
         id,
-        supplier,
-        products,
-        item,
-        supplierLoad,
-        productsLoad,
-        itemLoad,
+        data = {},
+        isLoading
     } = config
-    const navigate = useNavigate();
+
     const {
         register,
         handleSubmit,
@@ -41,50 +45,56 @@ export default function InventoryEditForm({ config }) {
     const [FormLoading, setFormLoading] = useState(false);
 
     useEffect(() => {
-        if (item == null) {
+        if (data == null) {
             console.log("item does not exists")
         }
         else {
             // console.log(item);
             [
-                { name: 'inventory_product_name', value: item.product_name },
-                { name: 'supplier', value: item.supplier },
-                { name: 'inventory_quantity', value: parseFloat(item.quantity) },
-                { name: 'inventory_stock_left', value: parseFloat(item.product_stock_left) },
-                { name: 'price_per_unit', value: parseFloat(item.product_cost) },
-                { name: 'total_cost', value: parseFloat(item.product_total_cost) },
-                { name: 'ordered_date', value: item.ordered_date },
-                { name: 'inventory_note', value: item.inventory_note },
+                { name: 'pk', value: data.pk },
+                
+                { name: 'inventory_product_name', value: data.product_name },
+                { name: 'supplier', value: data.supplier },
+                { name: 'inventory_quantity', value: parseFloat(data.quantity) },
+                { name: 'inventory_stock_left', value: parseFloat(data.product_stock_left) },
+                { name: 'price_per_unit', value: parseFloat(data.product_cost) },
+                { name: 'total_cost', value: parseFloat(data.product_total_cost) },
+                { name: 'ordered_date', value: data.ordered_date },
+                { name: 'inventory_note', value: data.inventory_note },
             ].forEach(({ name, value }) => setValue(name, value))
 
         }
-    }, [item])
+    }, [data])
 
     const onSubmit = async (data) => {
         setFormLoading(true);
-        const configObj = {
-            url: `${Labels.API_URL}`,
-            method: `${Labels.METHOD}`,
-            data: data,
-            formSetError: formSetError
-        }
-        setTimeout(async () => {
-            axiosFetch(configObj);
-        }, 1500);
-    }
 
-    useEffect(() => {
-        if (success) {
-            setFormLoading(false);
-            reset();
-            formClearError();
-            history.back();
+        let message = "";
+        let variant = "";
+
+        try {
+            const response = await updateInventory(data).unwrap();
+            message = response?.message;
+            variant = "success";
         }
-    }, [success])
+        catch (err) {
+            console.log(`Updating inventory error: `, err);
+            message = err?.data?.message || "An error occurred while updating. Try again later";
+            variant = "error";
+        }
+        finally {
+            // Close modal
+            setTimeout(() => {
+                enqueueSnackbar(message, {variant: variant, autoHideDuration: 5000});
+                setFormLoading(false);
+                navigate(-1);
+            }, 1500);
+        }
+    }
 
     return (
         <div className="container">
-            {supplierLoad || productsLoad || itemLoad ? (
+        {isLoading ? (
                 <Spinner />
             ) : (
                 <>
@@ -110,10 +120,7 @@ export default function InventoryEditForm({ config }) {
                                     <label htmlFor="supplier" className="text-md text-gray-500">Supplier</label>
                                     <div className="input-group">
                                         <select className="form-select form-select-sm" autoComplete='off' id='supplier' {...register("supplier", { required: "Supplier is required" })} disabled>
-                                            <option value="">Choose...</option>
-                                            {supplier?.map((item, index) => (
-                                                <option key={index} value={item.company_name}>{item.company_name}</option>
-                                            ))}
+                                            <option key={0} value={data.supplier}>{data.supplier}</option>
                                         </select>
                                     </div>
                                     {errors.supplier && (<p className='text-danger px-1 mt-1 mb-2' style={{ fontWeight: "600", fontSize: "13px" }}>{errors.supplier.message}</p>)}

@@ -1,6 +1,6 @@
 import { apiSlice } from "../../app/api/apiSlice";
 
-export const materialApiSlice = apiSlice.enhanceEndpoints({ addTagTypes: ['Materials'] })
+export const materialApiSlice = apiSlice.enhanceEndpoints({ addTagTypes: ['Materials', 'Dictionary'] })
     .injectEndpoints({
         endpoints: (builder) => ({
             getAllMaterial: builder.query({
@@ -23,7 +23,7 @@ export const materialApiSlice = apiSlice.enhanceEndpoints({ addTagTypes: ['Mater
                     method: 'POST',
                     body: material,
                 }),
-                invalidatesTags: ['Materials']
+                invalidatesTags: ['Materials', 'Dictionary']
             }),
             updateMaterial: builder.mutation({
                 query: (material) => ({

@@ -1,6 +1,4 @@
 import { useParams } from 'react-router-dom';
-import { useEffect } from 'react';
-import useAxiosFunction from '../../hooks/useAxiosFunction';
 import Spinner from '../../components/Fallback/Spinner';
 import NoServerResponse from '../../components/Errors/NoServerResponse';
 
@@ -11,10 +9,13 @@ import DropDown from '../../components/DropDown/DropDown';
 import dayjs from 'dayjs';
 import MoneyFormatter, { NumberFormatter } from '../../settings/MoneyFormatter';
 import CompanyDataTable from '../../modules/FspPanelModule/CompanyDataTable';
-import { Tooltip } from 'antd';
+import { useGetInventoryMaterialHistoryQuery } from '../../features/inventory/materialInventoryApiSlice';
+import RenderText from '../../components/Tooltip/RenderText';
+import { DeleteMessage as MaterialMessage } from './utils/DeleteMessage';
+import { DeleteMessage as InventoryMessage } from '../Inventory/utils/DeleteMessage';
 
 export default function MaterialHistory() {
-    const { material_name } = useParams();
+    const { material_pk, material_name } = useParams();
     const Labels = {
         PAGE_ENTITY: 'Material Inventory',
         PAGE_ENTITY_URL: 'inventory/materials',
@@ -23,13 +24,21 @@ export default function MaterialHistory() {
         API_URL: `inventory/materials/transaction/${material_name}`
     }
 
+    // Redux
+    const { data, isError, error, isLoading, isSuccess} = useGetInventoryMaterialHistoryQuery(material_pk);
+    console.log(material_pk);
+
     const dataTableColumn = [
         {
-            title: <div className='fs-md fw-bold text-center'>No.</div>,
+            title: <div className='fs-md fw-bold text-center'>Id</div>,
             key: 'no',
             dataIndex: 'id',
             width: 50,
-            render: (text, record, index) => <div className='fs-md fw-semibold text-center'>{index + 1}</div>
+            render: (text, record, index) => (
+                <div className='fs-md fw-semibold text-center'>
+                    { record.transaction_type === 'restock' ? (record.id) : ("--")}
+                </div>
+            )
         },
         {
             title: <div className='fs-md fw-bold text-center'>Date</div>,
@@ -46,15 +55,11 @@ export default function MaterialHistory() {
             dataIndex: 'supplier',
             width: 200,
             render: (text, record) => {
-                return <div className='fs-md fw-semibold text-uppercase'>
-                    {text.length > 17 ? (
-                        <Tooltip className='pointer' title={text}>
-                            {text.substr(0, 17)}{text.length > 17 && '\u2026'}
-                        </Tooltip>
-                    ) : (
-                        <>{text}</>
-                    )}
-                </div>
+                return (
+                    <div className='fs-md fw-semibold text-uppercase'>
+                        <RenderText text={record.supplier} maxLength={17} />
+                    </div>
+                )
             }
         },
         {
@@ -64,28 +69,28 @@ export default function MaterialHistory() {
             width: 200,
             render: (text, record) => {
                 return (
-                    <div className={`fs-md fw-semibold text-uppercase ${record.type == 'prod' && 'text-danger'}`}>
-                        {record.type == 'prod' ? (
-                            <>
-                                {record?.product > 17 ? (
-                                    <Tooltip className='pointer' title={record?.product}>
-                                        {record?.product?.substr(0, 17)}{record?.product?.length > 17 && '\u2026'}
-                                    </Tooltip>
-                                ) : (
-                                    <>{record?.product}</>
-                                )}
-                            </>
+                    <div className={`fs-md fw-semibold text-uppercase ${record.transaction_type == 'production' && 'text-success'}`}>
+                        {record.transaction_type == 'production' ? (
+                            <RenderText text={record?.product?.product_name} maxLength={17} />
                         ) : (
-                            <>
-                                {record?.material > 17 ? (
-                                    <Tooltip className='pointer' title={record?.material}>
-                                        {record?.material.substr(0, 17)}{record?.material?.length > 17 && '\u2026'}
-                                    </Tooltip>
-                                ) : (
-                                    <>{record?.material}</>
-                                )}
-                            </>
+                            <div className="text-center">
+                                ---
+                            </div>
                         )}
+                    </div>
+                )
+            }
+        },
+                {
+            title: <div className='fs-md fw-bold text-center'>Material Id Used</div>,
+            key: 'materialUsed',
+            dataIndex: 'materialUsed',
+            render: (text, record) => {
+                return (
+                    <div className={`fs-md fw-semibold text-center text-uppercase ${record.transaction_type == 'production' && 'text-danger'}`}>
+                        {record.transaction_type == 'production' ? (
+                            record?.material?.pk
+                        ) : ("--")}
                     </div>
                 )
             }
@@ -96,7 +101,13 @@ export default function MaterialHistory() {
             dataIndex: 'quantity',
             // width: 125,
             render: (text, record) => {
-                return <div className={`fs-md fw-semibold text-center ${record.type == 'prod' && 'text-danger'}`}><NumberFormatter amount={text} /></div>
+                return (
+                    <div 
+                        className={`fs-md fw-semibold text-center ${record.transaction_type == 'production' && 'text-danger'}`}
+                        >
+                        <NumberFormatter amount={record.quantity} />
+                    </div>
+                )
             }
         },
         {
@@ -105,19 +116,31 @@ export default function MaterialHistory() {
             dataIndex: 'stock',
             render: (text, record) => (
                 <>
-                    {record.type == "prod" ? (<div className="fw-semibold text-center">---</div>) : (
-                        <div className="fw-semibold text-center"><NumberFormatter amount={record.stock} /></div>
+                    {record.transaction_type == "production" ? (
+                            <div className="fw-semibold text-center text-success">
+                                {record?.product?.product_stock_left || 0}
+                            </div>
+                        ) : (
+                            <div className="fw-semibold text-center"><NumberFormatter amount={record.stock} /></div>
                     )}
                 </>
             )
         },
         {
-            title: <div className='fs-md fw-bold text-center'>U/Cost</div>,
+            title: <div className='fs-md fw-bold text-center'>Cost</div>,
             key: 'uCost',
             dataIndex: 'uprice',
             // width: 125,
             render: (text, record) => {
-                return <div className={`fs-md fw-semibold text-center ${record.type == 'prod' && 'text-danger'}`}><MoneyFormatter amount={text} /></div>
+                return (
+                    <div className={`fs-md fw-semibold text-center ${record.transaction_type == 'production' && 'text-danger'}`}>
+                        {record.transaction_type === 'production' ? (
+                            <MoneyFormatter amount={record?.product?.product_cost} />
+                        ) : (
+                            <MoneyFormatter amount={record.unit_cost} />
+                        )}
+                    </div>
+                )
             }
         },
         {
@@ -134,55 +157,72 @@ export default function MaterialHistory() {
             key: 'actions',
             dataIndex: ['pk', 'type'],
             width: 50,
+            fixed: 'right',
             render: (text, record, index) => {
                 return (
-                    <>
-                        {record.type == 'mat' && (
-                            <div className='px-auto'>
-                                <DropDown
-                                    link2={`/inventory/materials/transaction/${record.inv_id}/edit`}
-                                    deleteConfig={{
-                                        link3: `inventory/materials/${record.inv_id}`,
-                                        message: `${record?.material?.substr(0, 12)}${record?.material?.length > 12 ? '\u2026' : ""} : Record ${index + 1}`,
-                                        notAllowed: false,
-                                        api_url: Labels.API_URL,
-                                        setData: (data) => setData(data)
-                                    }}
-                                />
-                            </div>
+                    <div className='px-auto'>
+                        {record.transaction_type === 'restock' ? (
+                            
+                            <DropDown
+                                showConfig={{
+                                    disabled: true
+                                }}
+                                editConfig={{
+                                    // this path goes to react page url
+                                    editLink: `/inventory/materials/transaction/${record.id}/edit`,
+                                    disabled: false
+                                }}
+                                deleteConfig={{
+                                    disabled: false,
+                                    component: "material-inventory",
+                                    message: <MaterialMessage record={record} />,
+                                    recordID: record.id, // material_inv id
+                                }}
+                            />
+
+                        ): (
+                            <DropDown
+                                showConfig={{
+                                    disabled: true
+                                }}
+                                editConfig={{
+                                    // this path goes to react page url
+                                    editLink: `/inventory/products/transaction/${record?.id}/edit`,
+                                    disabled: false
+                                }}
+                                deleteConfig={{
+                                    disabled: false,
+                                    component: "inventory",
+                                    message: <InventoryMessage record={record} />,
+                                    recordID: record.id, // material_inv id
+                                }}
+                            />
                         )}
-                    </>
+                    </div>
                 )
             }
         },
-    ]
-    const { loading, response: data, setResponse: setData, error, axiosFetch: dataFetch } = useAxiosFunction();
-    useEffect(() => {
-        const configObj = {
-            url: `${Labels.API_URL}`,
-            method: `get`,
-        }
-        dataFetch(configObj);
-    }, [])
+    ];
 
     const config = {
         Labels,
         dataTableColumn,
         data,
-        loading,
+        isLoading,
         error,
-        setData
     }
+
+    console.log(data);
 
     return (
         <>
             <AddFormPageHeader config={config} />
             {
-                loading ?
+                isLoading ?
                     (
                         <Spinner />
                     ) : (
-                        error ?
+                        isError && !isSuccess ?
                             (
                                 <NoServerResponse error={error} />
                             ) : (

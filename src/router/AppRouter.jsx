@@ -171,7 +171,7 @@ const AppRouter = () => {
             )
         },
         {
-            path: 'inventory/materials/transaction/:material_name',
+            path: 'inventory/materials/transaction/:material_pk/:material_name',
             element: (
                 <ProtectedRoute>
                     <MaterialHistory />

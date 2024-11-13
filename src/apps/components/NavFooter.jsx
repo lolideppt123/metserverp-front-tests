@@ -1,21 +1,30 @@
 import CapitalizeFirstLetter from '../../settings/CapitalizeFirstLetter';
-import useAuth from '../../hooks/useAuth';
 import { Spin } from 'antd';
 import { FiMoreVertical } from 'react-icons/fi';
-import DropDownMenu from '../../components/DropDown/DropDownMenu';
 import { Dropdown, Button } from 'antd';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectUser, logout } from '../../features/auth/authSlice';
 
 export default function NavFooter({ expanded }) {
-    const { user, logoutUser } = useAuth();
+    const user = useSelector(selectUser);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        dispatch(logout());
+        navigate('/');
+    }
+
     const items = [
         {
             key: '1',
             label: (
-                <NavLink type='button' onClick={logoutUser} className="nav-link">Logout</NavLink>
+                <NavLink type='button' onClick={handleLogout} className="nav-link">Logout</NavLink>
             ),
         },
-    ]
+    ];
+
     return (
         <div className="nav-footer d-flex justify-content-center align-items-center border-top p-2 mb-1 transition-all">
             {

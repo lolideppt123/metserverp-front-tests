@@ -25,6 +25,12 @@ export default function CSVExportByMonth({ title, body, foot, endFoot, dateFilte
     ];
 
     useEffect(() => {
+        // Reset CSV data whenever the selected month changes
+        setCSVDATA([]);
+    }, [dateFilter]);
+
+    useEffect(() => {
+        setCSVDATA([]);
         if (body && body.length) {
             const csvExport = [];
             csvExport.push(title['data_title'] ? [title['data_title']] : [""]);
@@ -63,12 +69,7 @@ export default function CSVExportByMonth({ title, body, foot, endFoot, dateFilte
             setCSVDATA(csvExport);
         }
 
-    }, [title, body, foot, endFoot]);
-
-    useEffect(() => {
-        // Reset CSV data whenever the selected month changes
-        setCSVDATA([]);
-    }, [dateFilter]);
+    }, [title, body, foot, endFoot, dateFilter]);
 
 
     return (

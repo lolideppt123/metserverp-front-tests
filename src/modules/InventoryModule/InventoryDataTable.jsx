@@ -1,8 +1,9 @@
+import TableToggleButton from '../../components/CustomFields/TableToggleButton';
 import Spinner from '../../components/Fallback/Spinner';
 import { Table } from "antd";
 
 export default function InventoryDataTable({ config }) {
-    const { newDataColumn, data, loading, tableWidth } = config;
+    const { newDataColumn, data, loading, tableWidth, tableSize, setTableSize } = config;
     return (
         <div className="container-fluid app-table-container">
             {loading ? (
@@ -21,13 +22,10 @@ export default function InventoryDataTable({ config }) {
                                 columns={newDataColumn}
                                 rowKey={(data) => data.product_pk}
                                 scroll={{
-                                    x: tableWidth ? tableWidth : 900,
-                                    y: null
+                                    x: tableWidth ? tableWidth : 'max-content',
+                                    // y: tableSize ? 500 : 'none'
                                 }}
-                            // pagination={{
-                            //     pageSize: 10,
-                            //     showSizeChanger: true
-                            // }}
+                                // pagination={false}
                             />
                         </div>
                     )}

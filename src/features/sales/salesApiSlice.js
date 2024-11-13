@@ -1,23 +1,16 @@
 import { apiSlice } from "../../app/api/apiSlice";
 
-export const salesApiSlice = apiSlice.enhanceEndpoints({ addTagTypes: ['Sales'] })
+export const salesApiSlice = apiSlice.enhanceEndpoints({ addTagTypes: ['Sales', 'Inventory'] })
     .injectEndpoints({
         endpoints: (builder) => ({
-            getAllSales: builder.query({
+            getAllSales: builder.query({ // returns all sales without any filter
                 query: () => ({
                     url: 'sales/',
                     method: 'GET',
                 }),
                 providesTags: ['Sales']
             }),
-            getAllSalesYear: builder.query({
-                query: (year) => ({
-                    url: `sales/${year}`,
-                    method: 'GET',
-                }),
-                providesTags: ['Sales']
-            }),
-            getSalesFilteredDraft: builder.query({
+            getSalesFilteredData: builder.query({
                 query: (filters) => {
                     const queryParams = new URLSearchParams();
 
@@ -35,59 +28,67 @@ export const salesApiSlice = apiSlice.enhanceEndpoints({ addTagTypes: ['Sales'] 
                         queryParams.append('dateFilter', filters.dateFilter);
                     }
 
-
-                    return `draft-sales/?${queryParams.toString()}`;
+                    return `sales/?${queryParams.toString()}`;
                 },
                 providesTags: (result, error, filters) => [{ type: 'Sales', id: 'LIST' }],
             }),
-            getSales: builder.query({
-                query: (id) => ({
-                    url: `sales/transaction/${id}/edit`,
+            getSalesItem: builder.query({
+                query: (sales_pk) => ({
+                    url: `sales/transaction/${sales_pk}/edit`,
                     method: 'GET',
                 }),
-                providesTags: ['Sales']
-            }),
-            getSalesFilteredByData: builder.query({
-                query: (payload) => ({
-                    url: `sales-data-filter/`,
-                    method: 'POST',
-                    body: payload,
-                }),
+                providesTags: (result, error, sales_pk) => [{ type: 'Sales', id: sales_pk }]
             }),
             addSales: builder.mutation({
-                query: (supplier) => ({
+                query: (sales) => ({
                     url: `sales/`,
                     method: 'POST',
-                    body: supplier,
+                    body: sales,
                 }),
-                invalidatesTags: ['Sales']
+                invalidatesTags: ['Sales', 'Inventory']
             }),
-            updateSales: builder.mutation({
-                query: (supplier) => ({
-                    url: `sales/transaction/${id}/edit`,
-                    method: 'PUT', //change later
-                    body: supplier,
+            updateSalesItem: builder.mutation({
+                query: (sales) => ({
+                    url: `sales/transaction/${sales.pk}/edit`,
+                    method: 'PATCH',
+                    body: sales,
                 }),
-                invalidatesTags: ['Sales']
+                invalidatesTags: (result, error, sales) => {
+                    // Invalidate getInventoryProductHistory 
+                    const product_pk = sales?.sales_transaction[0].product_name?.id;
+                    const invalidateTag = { type: 'Inventory', id: product_pk };
+
+                    return [{ type: 'Sales', id: 'LIST' }, { type: 'Sales', id: sales.pk }, invalidateTag]
+                }
             }),
             deleteSales: builder.mutation({
-                query: ({ id }) => ({
+                query: (id) => ({
                     url: `sales/transaction/${id}/edit`,
-                    method: 'GET',
+                    method: 'DELETE',
                 }),
-                invalidatesTags: ['Sales']
+                // Invalidates the cache of sales and related inventory
+                invalidatesTags: (result, error, id) => {
+
+                    // Extract product_pk from the deleted sale's transaction data
+                    const product_pk = result?.product_pk;
+
+                    // If product_pk is available, invalidate the corresponding inventory tag
+                    // this invalidates "getInventoryHistory"
+                    return [
+                        { type: 'Sales', id: 'LIST' },
+                        ...(product_pk ? [{ type: 'Inventory', id: product_pk }] : [])
+                    ];
+                }
             }),
         })
     })
 
 export const {
     useGetAllSalesQuery,
-    useGetAllSalesYearQuery,
-    useGetSalesQuery,
-    useGetSalesFilteredByDataQuery,
+    useGetSalesItemQuery,
     useAddSalesMutation,
-    useUpdateSalesMutation,
+    useUpdateSalesItemMutation,
     useDeleteSalesMutation,
 
-    useGetSalesFilteredDraftQuery
+    useGetSalesFilteredDataQuery
 } = salesApiSlice;

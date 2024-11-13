@@ -6,8 +6,13 @@ import CardModal from "../Modal/CardModal";
 
 import { memo, useEffect, useState } from "react";
 
-const DropDown = ({ link1, link2, ShowCard, cardWidth, cardHeader, deleteConfig }) => {
+const DropDown = ({ showConfig, link2, editConfig, ShowCard, deleteConfig }) => {
     const [Destroy, setDestroy] = useState(false);
+
+    const {showLink, disabled: showDisabled, cardHeader, cardWidth, cardBody } = showConfig || {};
+
+    const {editLink, disabled: editDisabled} = editConfig || {};
+
     useEffect(() => {
         // console.log(Destroy)
         setDestroy(false)
@@ -18,26 +23,32 @@ const DropDown = ({ link1, link2, ShowCard, cardWidth, cardHeader, deleteConfig 
             key: '1',
             label: (
                 <CardModal
-                    notAllowed={!link1 ? true : false}
-                    classList={`${`DD-link ${!link1 && "not-allowed text-muted"}`} DD-item-text`}
+                    // notAllowed={!link1 ? true : false}
+                    classList={`DD-link DD-item-text`}
+                    // classList={`${`DD-link ${!link1 && "not-allowed text-muted"}`} DD-item-text`}
                     buttonText={'Show'}
-                    titleProp={cardHeader ? cardHeader : <></>}
-                    modalWidth={cardWidth ? cardWidth : 600}
+                    titleProp={cardHeader}
+                    modalWidth={cardWidth || 600}
                     setDestroy={setDestroy}
                 >
-                    {ShowCard}
+                    {/* {ShowCard} */}
+                    {cardBody}
                 </CardModal>
             ),
-            icon: <FiEye className={`DD-icon ${!link1 && "text-muted not-allowed"}`} />
+            icon: <FiEye className={`DD-icon`} />,
+            disabled: showDisabled
         },
         {
             key: '2',
             label: (
-                <NavLink className={`DD-link ${!link2 && "not-allowed"}`} to={link2 ? link2 : ""}>
-                    <div className={`DD-item-text ${!link2 && "text-muted"}`}>Edit</div>
+                // <NavLink className={`DD-link ${!link2 && "not-allowed"}`} to={link2 ? link2 : ""}>
+                <NavLink className={`DD-link`} to={editLink}>
+                    {/* <div className={`DD-item-text ${!link2 && "text-muted"}`}>Edit</div> */}
+                    <div className={`DD-item-text`}>Edit</div>
                 </NavLink>
             ),
-            icon: <FiEdit className={`DD-icon ${!link2 && "text-muted"}`} />
+            icon: <FiEdit className={`DD-icon ${!link2 && "text-muted"}`} />,
+            disabled: editDisabled
         },
         {
             key: '3',
@@ -50,17 +61,18 @@ const DropDown = ({ link1, link2, ShowCard, cardWidth, cardHeader, deleteConfig 
                             buttonText: deleteConfig?.buttonText ? deleteConfig.buttonText : 'Delete',
                             setDestroy
                         }
-
                     }
                 />
             ),
-            icon: <FiTrash2 className={`DD-icon ${deleteConfig?.notAllowed && "text-muted not-allowed"}`} />
+            icon: <FiTrash2 className={`DD-icon ${deleteConfig?.notAllowed && "text-muted not-allowed"}`} />,
+            danger: true,
+            disabled: deleteConfig.disabled
         },
     ]
     return (
         <Dropdown
             menu={{ items }}
-            placement="bottomLeft"
+            placement="bottom"
             arrow={{ pointAtCenter: true }}
             trigger={["click"]}
             destroyPopupOnHide={Destroy}

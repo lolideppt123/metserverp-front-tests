@@ -13,10 +13,12 @@ export default function CardModal({ notAllowed, classList, buttonText, children,
 
     return (
         <>
-            <NavLink className={`DD-link ${notAllowed && 'not-allowed'}`} onClick={() => {
-                if (notAllowed) return
-                setopen(true)
-            }
+            <NavLink 
+                className={`DD-link ${notAllowed && 'not-allowed'}`} 
+                onClick={() => {
+                    if (notAllowed) return
+                    setopen(true)
+                }
             }>
                 <div className={classList}>
                     {buttonText}

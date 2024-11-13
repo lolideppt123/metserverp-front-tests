@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import useAxiosFunction from '../../hooks/useAxiosFunction';
 import axiosInstance from '../../helpers/axios';
 import { Spin, Flex, Tooltip } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
@@ -7,27 +6,29 @@ import { useForm, Controller } from 'react-hook-form';
 import CreatableSelect from 'react-select/creatable';
 
 import { FiPlus, FiInfo } from 'react-icons/fi';
+import { useUpdateSalesItemMutation } from '../../features/sales/salesApiSlice';
+import { useSnackbar } from 'notistack';
+import { useNavigate } from 'react-router-dom';
+import Spinner from '../../components/Fallback/Spinner';
 
 export default function SalesEditForm({ config }) {
-    const { loading, response, success, error, axiosFetch } = useAxiosFunction();
     const {
         Labels,
-        sale,
+        sale = {},
         customer,
-        product,
-        id,
-        productLoad,
-        customerLoad,
-        saleLoad,
+        isLoading
     } = config;
 
     const [FormLoading, setFormLoading] = useState(false);
     const [validated, setValidated] = useState(false);
 
+    const [updateSales, {}] = useUpdateSalesItemMutation();
+    const {enqueueSnackbar} = useSnackbar();
+    const navigate = useNavigate();
+
     const {
         register,
         handleSubmit,
-        reset,
         setError: formSetError,
         clearErrors: formClearError,
         setValue,
@@ -42,16 +43,28 @@ export default function SalesEditForm({ config }) {
         data['quantity_diff'] = data.sales_quantity - sale.sales_quantity;
 
         setFormLoading(true);
-        const configObj = {
-            url: `${Labels.API_URL}`,
-            method: `${Labels.METHOD}`,
-            data: data,
-            formSetError: formSetError
+
+        let message = "";
+        let variant = "";
+
+        try {
+            const response = await updateSales(data).unwrap();
+            message = response?.message;
+            variant = "success";
         }
-        setTimeout(async () => {
-            axiosFetch(configObj);
-            // setFormLoading(false);
-        }, 1500);
+        catch (err) {
+            console.log(`Updating sales error: `, err);
+            message = err?.data?.message || "An error occurred while updating. Try again or contact Master Joseph";
+            variant = "error";
+        }
+        finally {
+            // Close modal
+            setTimeout(() => {
+                enqueueSnackbar(message, {variant: variant, autoHideDuration: 5000});
+                setFormLoading(false);
+                navigate(-1);
+            }, 1500);
+        }
     }
 
     const onQuantityChange = () => {
@@ -106,21 +119,9 @@ export default function SalesEditForm({ config }) {
     }, [salesQuantity, unitPrice, taxRate, validated])
 
     useEffect(() => {
-        if (success) {
-            setFormLoading(false);
-            reset();
-            formClearError();
-            history.back();
-        }
-    }, [success])
-
-    useEffect(() => {
-        // console.log(sale == null)
         if (sale == null) {
-            // console.log("sale does not exists")
         }
         else {
-            // console.log(sale);
             [
                 { name: 'sales_dr', value: sale.sales_dr },
                 { name: 'sales_invoice', value: sale.sales_invoice },
@@ -151,11 +152,9 @@ export default function SalesEditForm({ config }) {
 
     return (
         <div className="container pt-3">
-            {productLoad || customerLoad || saleLoad ? (
+        {isLoading ? (
                 <div className="py-5">
-                    <Flex vertical>
-                        <Spin />
-                    </Flex>
+                    <Spinner />
                 </div>
             ) : (
                 <>
@@ -218,12 +217,6 @@ export default function SalesEditForm({ config }) {
                                 </div>
 
                                 <div className="d-flex gap-3">
-                                    {/* Disabled sales_quantity field */}
-                                    {/* <div className="flex-fill mb-2">
-                                        <label htmlFor="sales_quantity" className="text-md text-gray-500">Quantity</label>
-                                        <span className="form-control form-control-sm bg-secondary">{sale?.sales_quantity}</span>
-                                    </div> */}
-
                                     <div className="flex-fill mb-2">
                                         <label htmlFor="sales_quantity" className="text-md text-gray-500">Quantity</label>
                                         <input type="number" className={`form-control form-control-sm`} autoComplete='off' min={0.01} step={0.01} required
@@ -355,13 +348,6 @@ export default function SalesEditForm({ config }) {
 
                                 {/*  */}
 
-                                {/* {getValues('sales_status') == 'PAID' &&
-                                    <div className='flex-fill mb-2'>
-                                        <label htmlFor="sales_paid_date">Date Paid</label>
-                                        <input type="date" className="form-control form-control-sm" id='sales_paid_date' {...register("sales_paid_date", { required: (getValues('sales_status') == 'PAID' ? "If status is PAID, date paid is required" : false) })} />
-                                        {errors.sales_paid_date && (<p className='text-danger px-1 mt-1 mb-2' style={{ fontWeight: "600", fontSize: "13px" }}>{errors.sales_paid_date.message}</p>)}
-                                    </div>
-                                } */}
                                 <div className="form-group mb-2">
                                     <label htmlFor="sales_note">Note</label>
                                     <textarea className="form-control form-control-sm" rows="5" cols="50" style={{ resize: 'none' }} id='sales_note'

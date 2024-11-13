@@ -4,9 +4,15 @@ import { Button, Modal } from "antd";
 import { FiAlertTriangle, FiX } from "react-icons/fi";
 import useAxiosFunction from "../../hooks/useAxiosFunction";
 
+import { useSnackbar } from "notistack";
+
 // redux
 import { useSelector, useDispatch } from "react-redux";
 import { selectModalDelete, modalDelete } from "../../features/modal/modalSlice";
+import { useDeleteSalesMutation } from "../../features/sales/salesApiSlice";
+import { useDeleteInventoryProductMutation } from "../../features/inventory/inventoryApiSlice";
+import { useDeleteSalesOrderMutation } from "../../features/sales/salesOrderApiSlice";
+import { useDeleteInventoryMaterialMutation } from "../../features/inventory/materialInventoryApiSlice";
 
 export default function DeleteModal({ deleteConfig }) {
     const {
@@ -17,49 +23,73 @@ export default function DeleteModal({ deleteConfig }) {
         notAllowed,
         api_url,
         setData,
-        setDestroy
+        setDestroy,
+        component = "",
+        recordID = ""
     } = deleteConfig;
+
     const myModal = useSelector(selectModalDelete);
     const dispatch = useDispatch();
+    const [deleteSales, {isLoading, isError, error}] = useDeleteSalesMutation();
+    const [deleteInventory] = useDeleteInventoryProductMutation();
+    const [deleteInvoice] = useDeleteSalesOrderMutation();
+    const [deleteMaterialInventory] = useDeleteInventoryMaterialMutation();
 
     const { axiosFetch: dataFetch } = useAxiosFunction();
     const { success, setSuccess, response: customer, axiosFetch: customerFetch } = useAxiosFunction();
     const [loading, setLoading] = useState(false);
+    const {enqueueSnackbar} = useSnackbar();
 
     const showModal = () => {
         if (notAllowed) return
         dispatch(modalDelete(true));
     };
 
-    const handleOk = async () => {
+    const handleDelete = async () => {
+
+        if(!recordID) return;
+
         setLoading(true);
-        const configObj = {
-            url: `${link3}${linkExt ? linkExt : ""}`,
-            method: `delete`,
-        }
+
+        let message = "";
+        let variant = "";
 
         setTimeout(async () => {
-            await dataFetch(configObj);
-            await customerFetch({
-                url: `${api_url}`,
-                method: 'get'
-            });
+            try {
+                if (component === "sales") {   
+                    const response = await deleteSales(recordID).unwrap();
+                    message = response?.message;
+                } else if (component === 'inventory') {
+                    const response = await deleteInventory(recordID).unwrap();
+                    message = response?.message;
+                } else if (component === 'invoice') {
+                    const response = await deleteInvoice(recordID).unwrap();
+                    message = response?.message;
+                } else if (component === 'material-inventory') {
+                    const response = await deleteMaterialInventory(recordID).unwrap();
+                    message = response?.message;
+                }
+                variant = "success";
+            }
+            catch (err) {
+                console.log(`Deleting ${component} error: `, err);
+                message = err?.data?.message || err || "An error occurred";
 
+                variant = "error";
+            }
+            finally {
+
+                enqueueSnackbar(message, {variant: variant, autoHideDuration: 5000});
+                setLoading(false);
+                // Close modal
+                dispatch(modalDelete(false));
+            }
         }, 1500);
     };
+
     const handleCancel = () => {
         dispatch(modalDelete(false));
-        setLoading(false);
     };
-
-    useEffect(() => {
-        if (success) {
-            setData(customer);
-            dispatch(modalDelete(false));
-            setLoading(false);
-            setSuccess(false);
-        }
-    }, [success])
 
     return (
         <>
@@ -77,13 +107,13 @@ export default function DeleteModal({ deleteConfig }) {
                 }
                 closeIcon={<FiX style={{ height: '24px', width: '24px', color: 'var(--bs-link-color)' }} />}
                 open={myModal}
-                onOk={handleOk}
+                onOk={handleDelete}
                 onCancel={handleCancel}
                 footer={[
                     <Button key="back" onClick={handleCancel}>
                         Cancel
                     </Button>,
-                    <Button key="submit" type="primary" loading={loading} onClick={handleOk} className="btn-danger">
+                    <Button key="submit" type="primary" loading={loading} onClick={handleDelete} className="btn-danger">
                         Delete
                     </Button>,
                 ]}
@@ -91,11 +121,7 @@ export default function DeleteModal({ deleteConfig }) {
                 maskClosable={false}
                 destroyOnClose
             >
-                <div className="d-flex flex-wrap align-items-center m-0">
-                    <span className="h6">Are you sure you want to delete&nbsp;</span>
-                    <span className="text-danger h6"> {message} </span>
-                    <span className="h6"> ?</span>
-                </div>
+                {message}
             </Modal>
         </>
     )

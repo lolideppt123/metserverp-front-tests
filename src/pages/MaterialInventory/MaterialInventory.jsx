@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import useAxiosFunction from '../../hooks/useAxiosFunction';
 import Spinner from '../../components/Fallback/Spinner';
 import NoServerResponse from '../../components/Errors/NoServerResponse';
 import GetStartedTemplate from '../../components/Fallback/GetStartedTemplate';
@@ -15,13 +14,16 @@ import RenderText from '../../components/Tooltip/RenderText';
 import { useSelector } from 'react-redux';
 import { selectDrawerPlatform } from '../../features/drawer/drawerSlice';
 import { Tooltip } from 'antd';
+import { useGetAllInventoryMaterialsQuery } from '../../features/inventory/materialInventoryApiSlice';
 
 
 export default function MaterialInventory() {
     const { isMobile } = useSelector(selectDrawerPlatform);
-    const { loading, response: data, error, axiosFetch } = useAxiosFunction();
     const [newDataColumn, setNewDataColumn] = useState([]);
     const [tableWidth, setTableWidth] = useState(null);
+
+    // Redux
+    const {data, isError, error, isLoading, isSuccess} = useGetAllInventoryMaterialsQuery();
 
     const Labels = {
         BASE_ENTITY: 'Inventory',
@@ -52,7 +54,7 @@ export default function MaterialInventory() {
             render: (text, record) => {
                 return (
                     <div className={`fs-md fw-semibold text-uppercase text-center`}>
-                        <NavLink to={`transaction/${encodeURIComponent(text)}`}>
+                        <NavLink to={`transaction/${record.pk}/${encodeURIComponent(record.material_name)}`}>
                             {<RenderText text={text} maxLength={20} />}
                         </NavLink>
                     </div>
@@ -62,7 +64,7 @@ export default function MaterialInventory() {
         {
             title: <div className="fs-md fw-semibold text-center">Current Stock</div>,
             key: 'currentStock',
-            dataIndex: "stock_left",
+            dataIndex: "total_inventory",
             width: 175,
             render: (text, record) => {
                 return (
@@ -87,23 +89,6 @@ export default function MaterialInventory() {
                 );
             },
         },
-        // {
-        //     title: <div className="fs-md fw-semibold text-center">Unit</div>,
-        //     key: 'materialUnit',
-        //     dataIndex: "material_unit",
-        //     render: (text, record) => {
-        //         return (
-        //             <div className={`fs-md fw-semibold text-uppercase text-center`}>
-        //                 {text}
-        //             </div>
-        //         );
-        //     },
-
-        // },
-        // {
-        //     title: 'Last Order',
-        //     key: 'orderedDate'
-        // },
         {
             title: <div className="fs-md fw-semibold text-center">Updated</div>,
             key: 'orderUpdate',
@@ -120,25 +105,12 @@ export default function MaterialInventory() {
     ]
 
     useEffect(() => {
-        // Needs to wait for first request so refresh token won't double send
-        const getData = async () => {
-            await axiosFetch({
-                url: 'inventory/materials/',
-                method: 'get'
-            });
-        }
-        getData();
-    }, [])
-
-    useEffect(() => {
         if (isMobile) {
             setNewDataColumn([
                 {
                     title: <div className={`fs-md fw-semibold text-start`}>Material Name</div>,
                     key: "materialName",
                     dataIndex: "material_name",
-                    // fixed: "left",
-                    // width: 250,
                     render: (text, record) => {
                         return (
                             <>
@@ -204,20 +176,21 @@ export default function MaterialInventory() {
         newDataColumn,
         Labels,
         data,
-        loading,
+        isLoading,
         error,
         tableWidth
     }
+
     return (
         <>
             <DataTablePageHeader Labels={Labels} />
 
             {
-                loading ?
+                isLoading ?
                     (
                         <Spinner />
                     ) : (
-                        error ?
+                        isError && !isSuccess ?
                             (
                                 <NoServerResponse error={error} />
                             ) : (

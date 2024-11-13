@@ -6,11 +6,12 @@ import NoServerResponse from '../../components/Errors/NoServerResponse';
 
 import AddFormPageHeader from '../../modules/FspPanelModule/AddFormPageHeader';
 import InventoryEditForm from '../../modules/InventoryModule/InventoryEditForm';
+import { useGetInventoryProductItemQuery } from '../../features/inventory/inventoryApiSlice';
 
 export default function EditInventory() {
-    const { loading: supplierLoad, response: supplier, error: supplierErr, axiosFetch: supplierFetch } = useAxiosFunction();
-    const { loading: productsLoad, response: products, error: productsErr, axiosFetch: productsFetch } = useAxiosFunction();
-    const { loading: itemLoad, response: item, error: itemErr, axiosFetch: itemFetch } = useAxiosFunction();
+    // const { loading: supplierLoad, response: supplier, error: supplierErr, axiosFetch: supplierFetch } = useAxiosFunction();
+    // const { loading: productsLoad, response: products, error: productsErr, axiosFetch: productsFetch } = useAxiosFunction();
+    // const { loading: itemLoad, response: item, error: itemErr, axiosFetch: itemFetch } = useAxiosFunction();
 
     const { id } = useParams();
     const Labels = {
@@ -21,49 +22,29 @@ export default function EditInventory() {
         API_URL: `inventory/transaction/${id}/edit`
     }
 
-    useEffect(() => {
-        // Needs to wait for first request so refresh token won't double send
-        const getData = async () => {
-            await supplierFetch({
-                url: 'suppliers/',
-                method: 'get'
-            });
-            await productsFetch({
-                url: 'products/',
-                method: 'get'
-            });
-            await itemFetch({
-                url: `inventory/transaction/${id}/edit`,
-                method: 'get'
-            });
-        }
-        getData();
-    }, [])
+    const {data, isError, isLoading, error} = useGetInventoryProductItemQuery(id);
 
     const config = {
         Labels,
-        supplier,
-        products,
-        item,
-        supplierLoad,
-        productsLoad,
-        itemLoad,
+        data,
         id,
+        isLoading
     }
+
+    console.log(data);
 
     return (
         <>
             <AddFormPageHeader config={config} />
             {
-                supplierLoad || productsLoad || itemLoad ?
+                isLoading ?
                     (
                         <Spinner />
                     ) : (
-                        supplierErr || productsErr || itemErr ?
+                        isError ?
                             (
-                                <NoServerResponse error={itemErr} />
+                                <NoServerResponse error={error} />
                             ) : (
-
                                 <InventoryEditForm config={config} />
                             )
                     )

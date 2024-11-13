@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import useAxiosFunction from '../../hooks/useAxiosFunction';
+import { useState} from 'react';
 import dayjs from 'dayjs';
 import Spinner from '../../components/Fallback/Spinner';
 import MoneyFormatter from '../../settings/MoneyFormatter';
@@ -11,11 +10,14 @@ import SalesInvoiceCard from '../../components/Cards/SalesInvoiceCard';
 import DropDown from '../../components/DropDown/DropDown';
 import InvoiceCardModalTitle from '../../components/ModalTitle/InvoiceCardModalTitle';
 import { Tooltip } from 'antd';
+import DeleteMessage from './utils/SalesOrder/DeleteMessage';
+import { useGetAllSalesOrderQuery } from '../../features/sales/salesOrderApiSlice';
+import NoServerResponse from '../../components/Errors/NoServerResponse';
 
 
 export default function SalesOrder() {
     const [Destroy, setDestroy] = useState(false);
-    const { loading, response: data, setResponse: setData, error, axiosFetch } = useAxiosFunction();
+
     const Labels = {
         PAGE_ENTITY: 'Sales Orders',
         PAGE_ENTITY_URL: "salesorders/",
@@ -26,6 +28,9 @@ export default function SalesOrder() {
         API_URL: 'sales-invoice/'
     }
 
+    // Redux
+    const {data, isLoading, isError, error, isSuccess} = useGetAllSalesOrderQuery();
+
     const dataTableColumn = [
         {
             title: <div className='fs-md fw-bold text-center'>Invoice #</div>,
@@ -34,18 +39,10 @@ export default function SalesOrder() {
             fixed: 'left',
             width: 100,
             render: (text, record) => {
-                // console.log(record)
                 return (
                     <CardModal
                         titleProp={
-                            <InvoiceCardModalTitle
-                                config={{
-                                    api_url: Labels.API_URL,
-                                    cardData: record,
-                                    setData,
-                                }}
-                                cardData={record}
-                            />
+                            <InvoiceCardModalTitle cardData={record} />
                         }
                         buttonText={
                             <Tooltip className='pointer' title={record?.invoice_num}>
@@ -99,7 +96,6 @@ export default function SalesOrder() {
                     <div className={`text-center`}>
                         <span style={{ fontSize: '12px' }} className={`badge  ${record.invoice_status == "PAID" ? "paid-status" : "unpaid-status"}`}>{text}</span>
                     </div>
-                    // <span style={{ fontSize: '12px' }} className={`badge px-2 py-2 ${record.sales_status == "PAID" ? "paid-status" : "unpaid-status"}`}>{text}</span>
                 )
 
 
@@ -133,28 +129,22 @@ export default function SalesOrder() {
                 return (
                     <div className='px-auto'>
                         <DropDown
-                            link1={`default`}
-                            cardHeader={
-                                <InvoiceCardModalTitle
-                                    config={{
-                                        api_url: Labels.API_URL,
-                                        cardData: record,
-                                        setData,
-                                    }}
-                                    cardData={record}
-                                />
-                            }
-                            ShowCard={<SalesInvoiceCard data={record} />}
-                            cardWidth={720}
-                            deleteConfig={
-                                {
-                                    link3: `sales-invoice/${record.id}`,
-                                    message: `Invoice # ${record?.invoice_num?.substr(0, 7)}${record?.invoice_num?.length > 7 ? '\u2026' : ""}`,
-                                    notAllowed: false,
-                                    api_url: Labels.API_URL,
-                                    setData: (data) => setData(data)
-                                }
-                            }
+                            showConfig={{
+                                disabled: false,
+                                cardHeader: <InvoiceCardModalTitle cardData={record} />,
+                                cardBody: <SalesInvoiceCard data={record} />,
+                                cardWidth: 720
+                            }}
+                            editConfig={{
+                                editLink: ``,
+                                disabled: true
+                            }}
+                            deleteConfig={{
+                                message:    <DeleteMessage record={record} />,
+                                disabled: false,
+                                component: "invoice",
+                                recordID: record.id,
+                            }}
                         />
                     </div>
                 )
@@ -162,34 +152,21 @@ export default function SalesOrder() {
         },
     ]
 
-    useEffect(() => {
-        // Needs to wait for first request so refresh token won't double send
-        const getData = async () => {
-            await axiosFetch({
-                url: Labels.API_URL,
-                method: 'get'
-            });
-        }
-        getData();
-    }, [])
-
     const config = {
         dataTableColumn,
         data,
         Labels,
-        setData,
     }
 
-    // console.log(data)
     return (
         <>
             <DataTablePageHeader Labels={Labels} />
             {
-                loading ? (
+                isLoading ? (
                     <Spinner />
                 ) : (
-                    error ? (
-                        <>Nothing to show yet</>
+                    error && !isSuccess ? (
+                        <NoServerResponse error={error} />
                     ) : (
                         <CompanyDataTable config={config} />
                     )

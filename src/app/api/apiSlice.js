@@ -1,5 +1,5 @@
 import { fetchBaseQuery, createApi } from '@reduxjs/toolkit/query/react';
-import { setCredentials, logOut } from '../../features/auth/authSlice';
+import { setCredentials, logout } from '../../features/auth/authSlice';
 
 const baseURL = import.meta.env.VITE_API_BASE_URL
 
@@ -7,7 +7,7 @@ const baseQuery = fetchBaseQuery({
     baseUrl: baseURL,
     credentials: 'include',
     prepareHeaders: (headers, { getState }) => {
-        console.log(getState());
+        // console.log(getState());
         const token = getState().auth.token;
         if (token) {
             headers.set('Authorization', `Bearer ${token?.access}`)
@@ -24,7 +24,7 @@ const baseQueryWithReAuth = async (args, api, extraOptions) => {
 
     let result = await baseQuery(args, api, extraOptions)
 
-    if (result?.error?.status === 401 || result?.error?.status === 403) {
+    if (result?.error?.status === 401) {
 
         // Get refresh token from state
         const token = api.getState().auth.token
@@ -51,10 +51,14 @@ const baseQueryWithReAuth = async (args, api, extraOptions) => {
             result = await baseQuery(args, api, extraOptions)
         }
         else {
-            api.dispatch(logOut())
+            api.dispatch(logout())
         }
     }
-    // localStorage.setItem('authTokens', JSON.stringify(result.data))
+    else if (result?.error) {
+        console.log(`Login Failed.\nError Code:\n${result.error?.status}`, result);
+        return result;
+    }
+
     return result;
 }
 

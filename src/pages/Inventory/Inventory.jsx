@@ -1,5 +1,4 @@
 import { useEffect, useState, memo } from 'react';
-import useAxiosFunction from '../../hooks/useAxiosFunction';
 import Spinner from '../../components/Fallback/Spinner';
 import NoServerResponse from '../../components/Errors/NoServerResponse';
 import GetStartedTemplate from '../../components/Fallback/GetStartedTemplate';
@@ -13,12 +12,18 @@ import { NavLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { selectDrawerPlatform } from '../../features/drawer/drawerSlice';
 import { Tooltip } from 'antd';
+import { useGetAllInventoryProductsQuery } from '../../features/inventory/inventoryApiSlice';
 
 const Inventory = () => {
     const { isMobile } = useSelector(selectDrawerPlatform);
-    const { loading, response: data, error, axiosFetch } = useAxiosFunction();
+
+    const {data, isLoading, error, isError} = useGetAllInventoryProductsQuery();
+
     const [newDataColumn, setNewDataColumn] = useState([]);
+
     const [tableWidth, setTableWidth] = useState(null);
+    const [tableSize, setTableSize] = useState(true);
+
     const Labels = {
         BASE_ENTITY: 'Inventory',
         TABLE_TITLE: 'Product Inventory',
@@ -84,23 +89,6 @@ const Inventory = () => {
                 );
             },
         },
-        // {
-        //     title: <div className="fs-md fw-semibold text-center">Unit</div>,
-        //     key: 'productUnit',
-        //     dataIndex: "product_unit",
-        //     render: (text, record) => {
-        //         return (
-        //             <div className={`fs-md fw-semibold text-uppercase text-center`}>
-        //                 {text}
-        //             </div>
-        //         );
-        //     },
-
-        // },
-        // {
-        //     title: 'Last Order',
-        //     key: 'orderedDate'
-        // },
         {
             title: <div className="fs-md fw-semibold text-center">Updated</div>,
             key: 'orderUpdate',
@@ -114,19 +102,9 @@ const Inventory = () => {
                 );
             },
         },
-    ]
+    ];
 
-    useEffect(() => {
-        // Needs to wait for first request so refresh token won't double send
-        const getData = async () => {
-            await axiosFetch({
-                url: 'inventory/products/',
-                method: 'get'
-            });
-        }
-        getData();
-    }, [])
-
+    // Change style when view changes
     useEffect(() => {
 
         if (isMobile) {
@@ -197,25 +175,26 @@ const Inventory = () => {
 
     }, [isMobile])
 
-    console.log(data);
-
     const config = {
         newDataColumn,
         Labels,
         data,
-        loading,
+        isLoading,
         error,
         tableWidth,
+        tableSize,
+        setTableSize
     }
+    
     return (
         <>
             <DataTablePageHeader Labels={Labels} />
             {
-                loading ?
+                isLoading ?
                     (
                         <Spinner />
                     ) : (
-                        error ?
+                        isError ?
                             (
                                 <NoServerResponse error={error} />
                             ) : (

@@ -5,7 +5,7 @@ import MoneyFormatter from '../../settings/MoneyFormatter';
 export default function SalesInvoiceCard({ data }) {
     return (
         <>
-            <div className="card card-header pb-3">
+            <div className="card card-body pb-3">
                 <div className="row px-3">
                     <div className="col-md-5 m-0 p-1">
                         <span className="h6 fw-bold m-0">Product</span>
@@ -21,28 +21,30 @@ export default function SalesInvoiceCard({ data }) {
                     </div>
                 </div>
                 <Divider className='mb-2' type="horizontal" style={{ borderColor: "rgba(0,0,0,0.175)", marginTop: '0' }} />
-                {data['sales_data']?.map((item, index) => (
-                    <div className="row px-3" key={index}>
-                        <div className="col-md-5 m-0 p-1" style={{ border: '1px solid rgba(0,0,0,0.175)' }}>
-                            <span className="h6 m-0 fw-semibold ms-2">
-                                {item?.product?.substr(0, 25)}{item?.product?.length > 25 ? (
-                                    <Tooltip className="pointer" title={item.product}>{'\u2026'}</Tooltip>
-                                ) : (
-                                    <></>
-                                )}
-                            </span>
-                        </div>
-                        <div className="col-md-2 m-0 p-1 text-center" style={{ border: '1px solid rgba(0,0,0,0.175)' }}>
-                            <span className="h6 m-0 fw-semibold ms-2">{item.quantity}</span>
-                        </div>
-                        <div className="col-md-2 m-0 p-1 text-end" style={{ border: '1px solid rgba(0,0,0,0.175)' }}>
-                            <span className="h6 m-0 fw-semibold ms-2"><MoneyFormatter amount={item.gross_uprice} /></span>
-                        </div>
-                        <div className="col-md-3 m-0 p-1 text-end" style={{ border: '1px solid rgba(0,0,0,0.175)' }}>
-                            <span className="h6 m-0 fw-semibold ms-2"><MoneyFormatter amount={item.gross_tprice} /></span>
-                        </div>
-                    </div>
-                ))}
+                <div className="sales-orders sales-orders-products">
+                    {data['sales_data']?.map((item, index) => (
+                            <div className="row px-3" key={index}>
+                                <div className="col-md-5 m-0 p-1" style={{ border: '1px solid rgba(0,0,0,0.175)' }}>
+                                    <span className="h6 m-0 fw-semibold ms-2">
+                                        {item?.product?.substr(0, 25)}{item?.product?.length > 25 ? (
+                                            <Tooltip className="pointer" title={item.product}>{'\u2026'}</Tooltip>
+                                        ) : (
+                                            <></>
+                                        )}
+                                    </span>
+                                </div>
+                                <div className="col-md-2 m-0 p-1 text-center" style={{ border: '1px solid rgba(0,0,0,0.175)' }}>
+                                    <span className="h6 m-0 fw-semibold ms-2">{item.quantity}</span>
+                                </div>
+                                <div className="col-md-2 m-0 p-1 text-end" style={{ border: '1px solid rgba(0,0,0,0.175)' }}>
+                                    <span className="h6 m-0 fw-semibold ms-2"><MoneyFormatter amount={item.gross_uprice} /></span>
+                                </div>
+                                <div className="col-md-3 m-0 p-1 text-end" style={{ border: '1px solid rgba(0,0,0,0.175)' }}>
+                                    <span className="h6 m-0 fw-semibold ms-2"><MoneyFormatter amount={item.gross_tprice} /></span>
+                                </div>
+                            </div>
+                    ))}
+                </div>
             </div>
             <div className="d-flex flex-column mt-2">
                 <div className="row gap-2 px-2">
@@ -65,14 +67,6 @@ export default function SalesInvoiceCard({ data }) {
                             <span className="h6 fw-semibold m-0 float-start">Total Selling Price:</span>
                             <span className="h6 fw-bold ms-2"><MoneyFormatter amount={data.invoice_total} /></span>
                         </div>
-                        {/* <div className="w-100 text-end mb-1">
-                            <span className="h6 fw-semibold m-0 float-start">Profit:</span>
-                            <span className="fw-semibold ms-2"><MoneyFormatter amount={data.invoice_profit} /></span>
-                        </div>
-                        <div className="w-100 text-end mb-1">
-                            <span className="h6 fw-semibold m-0 float-start">Margin%:</span>
-                            <span className="fw-semibold ms-2">{data.invoice_margin}%</span>
-                        </div> */}
                     </div>
                 </div>
             </div>

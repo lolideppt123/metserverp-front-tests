@@ -21,10 +21,20 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectSalesFormState, salesFormReset } from '../../features/sales/salesSlice';
 import _ from 'lodash';
 import ConfirmationModal from '../../components/Modal/ConfirmationModal';
+import { useAddSalesMutation } from '../../features/sales/salesApiSlice';
+import { useSnackbar } from 'notistack';
+import { useNavigate } from "react-router-dom";
 
 export default function DraftForm({ config }) {
     const { saveFormAsDraft } = useAutoSaveForm();
     const dispatch = useDispatch();
+
+    // Redux
+    const [adddSales] = useAddSalesMutation();
+    const {enqueueSnackbar} = useSnackbar();
+    const navigate = useNavigate();
+
+
 
     const formState = useSelector(selectSalesFormState);
     const { success, axiosFetch } = useAxiosFunction();
@@ -32,8 +42,7 @@ export default function DraftForm({ config }) {
         Labels,
         customer,
         product,
-        customerLoad,
-        productLoad,
+        isLoading
     } = config;
 
     // choices you already picked
@@ -183,17 +192,27 @@ export default function DraftForm({ config }) {
 
     const onSubmit = async (data) => {
         setFormLoading(true);
-        const configObj = {
-            url: `${Labels.API_URL}`,
-            method: `${Labels.METHOD}`,
-            data: data,
-            formSetError: formSetError
+
+        let message = "";
+        let variant = "";
+
+        try {
+            const response = await adddSales(data).unwrap();
+            message = response?.message;
+            variant = "success";
         }
-        setTimeout(async () => {
-            dispatch(salesFormReset());
-            axiosFetch(configObj);
-            setFormLoading(false);
-        }, 1500);
+        catch (err) {
+            console.log("Adding sales error: ", err);
+            message = err?.data?.message || `${err?.status} Code: ${err?.originalStatus || "Call Master Joseph"}` || "An error occurred";
+            variant = "error";
+        }
+        finally {
+            setTimeout(() => {
+                enqueueSnackbar(message, {variant: variant, autoHideDuration: 5000});
+                setFormLoading(false);
+                navigate(-1);
+            }, 1500); 
+        }
     }
 
     const saveAsDraft = () => {
@@ -260,11 +279,9 @@ export default function DraftForm({ config }) {
         }
     }, [])
 
-    console.log(LoadDraft)
-
     return (
         <div className="container pt-3">
-            {customerLoad || productLoad ? (
+            {isLoading ? (
                 <Spinner />
             ) : (
                 <>
@@ -411,7 +428,6 @@ export default function DraftForm({ config }) {
                                                 {errors.products?.[index] &&
                                                     (
                                                         <>
-                                                            {/* {console.log(errors.products?.[index])} */}
                                                             <span className='text-danger text-center fw-semibold'>{errors.products?.[index]?.product?.message}</span>
                                                             <span className='text-danger text-center fw-semibold'>{errors.products?.[index]?.sales_quantity?.message}</span>
                                                             <span className='text-danger text-center fw-semibold'>{errors.products?.[index]?.unit_price?.message}</span>

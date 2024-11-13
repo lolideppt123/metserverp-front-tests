@@ -1,14 +1,12 @@
-import { useEffect } from 'react';
-import useAxiosFunction from '../../hooks/useAxiosFunction';
 import Spinner from '../../components/Fallback/Spinner';
 import NoServerResponse from '../../components/Errors/NoServerResponse';
 
 import AddFormPageHeader from '../../modules/FspPanelModule/AddFormPageHeader';
 import MaterialInventoryForm from '../../modules/MaterialInventoryModule/MaterialInventoryForm';
+import { useGetDictionaryQuery } from '../../features/utils/dictionaryApiSlice';
 
 export default function AddMaterialInventory() {
-    const { loading: supplierLoad, response: supplier, error: supplierErr, axiosFetch: supplierFetch } = useAxiosFunction();
-    const { loading: materialLoad, response: material, setResponse: setMaterial, error: materialErr, axiosFetch: materialFetch } = useAxiosFunction();
+
     const Labels = {
         PAGE_ENTITY: 'Material Inventory',
         PAGE_ENTITY_URL: 'inventory/materials',
@@ -17,41 +15,29 @@ export default function AddMaterialInventory() {
         API_URL: 'inventory/materials/'
     }
 
-    useEffect(() => {
-        // Needs to wait for first request so refresh token won't double send
-        const getData = async () => {
-            await supplierFetch({
-                url: 'suppliers/',
-                method: 'get'
-            });
-            await materialFetch({
-                url: 'materials/',
-                method: 'get'
-            });
-        }
-        getData();
-    }, [])
+    const { data: {
+        suppliers: supplier,
+        materials: material,
+    } = {}, isSuccess, isError, error, isLoading } = useGetDictionaryQuery();
 
     const config = {
         Labels,
         supplier,
         material,
-        supplierLoad,
-        materialLoad,
-        setMaterial,
+        isLoading
     }
 
     return (
         <>
             <AddFormPageHeader config={config} />
             {
-                supplierLoad || materialLoad ?
+                isLoading?
                     (
                         <Spinner />
                     ) : (
-                        supplierErr || materialErr ?
+                        isError && !isSuccess?
                             (
-                                <NoServerResponse error={materialErr} />
+                                <NoServerResponse error={error} />
                             ) : (
                                 <MaterialInventoryForm config={config} />
                             )

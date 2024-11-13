@@ -1,85 +1,64 @@
 import { useState, useEffect, memo } from "react";
-import useAxiosFunction from "../../hooks/useAxiosFunction";
-import Spinner from "../../components/Fallback/Spinner";
-import NoServerResponse from "../../components/Errors/NoServerResponse";
-import GetStartedTemplate from "../../components/Fallback/GetStartedTemplate";
+
+import { useGetSalesFilteredDataQuery } from "../../features/sales/salesApiSlice";
+
+import DataTablePageHeader from '../../modules/FspPanelModule/DataTablePageHeader';
 import dayjs from "dayjs";
-
-import DataTablePageHeader from "../../modules/FspPanelModule/DataTablePageHeader";
-import SalesDataTable from "../../modules/SalesModule/SalesDataTable";
-
-import MoneyFormatter, { NumberFormatter } from "../../settings/MoneyFormatter";
+import MoneyFormatter, {NumberFormatter} from "../../settings/MoneyFormatter";
 import RenderText from "../../components/Tooltip/RenderText";
+import { transformData } from "./utils/transformData";
 
-import salesFilterFunc from "../../helpers/salesFilterFunc";
+// Components
+import Spinner from "../../components/Fallback/Spinner";
+import SalesTable from "./SalesTable";
 
-import { useGetAllCustomerQuery } from "../../features/customers/customerApiSlice";
-import { useGetAllProductQuery } from "../../features/products/productApiSlice";
-import { useGetAllSupplierQuery } from "../../features/suppliers/supplierApiSlice";
+import DropDown from "../../components/DropDown/DropDown";
+import SalesCardModalTitle from "../../components/ModalTitle/SalesCardModalTitle";
+import SalesCard from "../../components/Cards/SalesCard";
+import { DeleteMessage } from "./utils/DeleteMessage";
+import NoServerResponse from "../../components/Errors/NoServerResponse";
 
-const YEAR = dayjs().year();
-const MONTH = dayjs().month() + 1;
 
 const Sales = () => {
-    // const [SalesFilter, setSalesFilter] = useState(`${YEAR}-${MONTH}`);
-    const [SalesFilter, setSalesFilter] = useState(`${YEAR}`);
-    const [invoiceFilter, setInvoiceFilter] = useState([]);
-    const [customerFilter, setCustomerFilter] = useState([]);
-    const [productFilter, setProductFilter] = useState([]);
-    const [supplierFilter, setSupplierFilter] = useState([]);
-    const [filteredInfo, setFilteredInfo] = useState({});
+    const currentYear = dayjs().year();
+    const currentMonth = dayjs().month() + 1;
+    const initialDateFilter = `${currentYear}-${currentMonth}`;
 
-    const { data: customer, isLoading: customerLoading, error: customerErr, isSuccess: customerIsSucc } = useGetAllCustomerQuery();
-    const { data: product, isLoading: productLoading, error: productErr, isSuccess: productIsSucc } = useGetAllProductQuery();
-    const { data: supplier, isLoading: supplierLoading, error: supplierErr, isSuccess: supplierIsSucc } = useGetAllSupplierQuery();
+    const [tableSize, setTableSize] = useState(true);
+    const [filters, setFilters] = useState({
+        customer: null,
+        productName: null,
+        salesInvoice: null,
+        dateFilter: initialDateFilter
+    });
 
-    const {
-        loading,
-        setLoading: setDataLoading,
-        response: data,
-        setResponse: setData,
-        error,
-        axiosFetch: salesFetch,
-    } = useAxiosFunction();
+    // Grabs initial data only once
+    const { data: {
+        sales,
+        products,
+        customer,
+        supplier,
+        data_title
+    } = {}, isLoading, isError, error, isSuccess } = useGetSalesFilteredDataQuery(filters);
 
-    const {
-        loading: filteredDataLoading,
-        response: filteredData,
-        setResponse: setFilteredData,
-        error: filteredDataError,
-        axiosFetch: fetchFilteredData,
-    } = useAxiosFunction();
+    useEffect(() => {
+        console.log('Current Filters:', filters);
+    }, [filters]);
 
-    // const {
-    //     loading: customerLoading,
-    //     response: customers,
-    //     axiosFetch: fetchCustomers,
-    // } = useAxiosFunction();
+    const invoiceOptions = [{ text: "With Invoice", value: "With Invoice" }, { text: "Without Invoice", value: "Without Invoice" }, { text: "Sample", value: "Sample" }];
+    const productOptions = transformData(products, { text: 'product_name', value: 'product_name' });
+    const customerOptions = transformData(customer, { text: 'company_name', value: 'company_name' });
+    const supplierOptions = transformData(supplier, { text: 'company_name', value: 'id' });
 
-    // const {
-    //     loading: productLoading,
-    //     response: products,
-    //     axiosFetch: fetchProducts,
-    // } = useAxiosFunction();
-
-    // const {
-    //     loading: supplierLoading,
-    //     response: suppliers,
-    //     axiosFetch: fetchSupplier,
-    // } = useAxiosFunction();
-
-    const {
-        GenerateCSVData,
-        CSVData
-    } = salesFilterFunc();
-
-    const Labels = {
-        BASE_ENTITY: "Sales",
-        TABLE_TITLE: "Sales",
-        ADD_NEW_ENTITY: "Add New Sales",
-        NEW_ENTITY_URL: "sales/add",
-        API_URL: "sales/",
-    };
+    // Append suppliers in product filter
+    if (productOptions.length > 0) {
+        const supplierGroup = {
+            text: <span className="fw-semibold">Suppliers</span>,
+            value: 'Suppliers',
+            children: supplierOptions
+        };
+        productOptions.unshift(supplierGroup);
+    }
 
     const dataTableColumn = [
         {
@@ -88,17 +67,23 @@ const Sales = () => {
             dataIndex: "sales_invoice",
             fixed: "left",
             width: 100,
-            filters: invoiceFilter,
-            filteredValue: filteredInfo.salesInvoice || null,
+            filters: invoiceOptions,
+            // filteredValue: filteredInfo.salesInvoice || null,
             onFilter: (value, record) => {
                 const regex = /[a-zA-Z]/i;
                 if (value === "Without Invoice" && regex.test(record.sales_invoice)) {
-                    return true
+                    console.log("filter: without invoice")
+                    return true;
                 }
-                if (value === "With Invoice" && !regex.test(record.sales_invoice)) {
-                    return true
+                else if (value === "With Invoice" && !regex.test(record.sales_invoice)) {
+                    console.log("filter: with invoice")
+                    return true;
                 }
-                return false
+                else if (value === "Sample" && regex.test(record.sales_invoice)) {
+                    console.log("filter: with sample")
+                    return true;
+                }
+                return false;
             },
             filterSearch: true,
             render: (text, record) => {
@@ -129,9 +114,7 @@ const Sales = () => {
             },
         },
         {
-            title: (
-                <div className="fs-md fw-semibold text-center">Sale Date</div>
-            ),
+            title: <div className="fs-md fw-semibold text-center">Sale Date</div>,
             key: "salesDate",
             dataIndex: "sales_date",
             width: 125,
@@ -147,24 +130,14 @@ const Sales = () => {
             },
         },
         {
-            title: (
-                <div className={`fs-md fw-semibold text-center`}>
-                    Product Name
-                </div>
-            ),
+            title: <div className={`fs-md fw-semibold text-center`}>Product Name</div>,
             key: "productName",
             dataIndex: "product_name",
             fixed: "left",
             width: 200,
-            filters: productFilter,
-            filteredValue: filteredInfo.productName || null,
+            filters: productOptions,
+            // filteredValue: filteredInfo.productName || null,
             onFilter: (value, record) => {
-                // if (typeof (value) === 'number') {
-                //     return record.sales_transaction[0].supplier.id === value
-                // }
-                // if (typeof (value) === 'string') {
-                //     return record.product_name === value
-                // }
                 if (typeof (value) === 'number') {
                     return record.sales_transaction[0].supplier.id === value
                 }
@@ -185,14 +158,12 @@ const Sales = () => {
             },
         },
         {
-            title: (
-                <div className="fs-md fw-semibold text-center">Customer</div>
-            ),
+            title: <div className="fs-md fw-semibold text-center">Customer</div>,
             key: "customer",
             dataIndex: "customer",
             width: 200,
-            filters: customerFilter,
-            filteredValue: filteredInfo.customer || null,
+            filters: customerOptions,
+            // filteredValue: filteredInfo.customer || null,
             onFilter: (value, record) => record.customer.includes(value),
             filterSearch: true,
             render: (text, record) => {
@@ -207,10 +178,7 @@ const Sales = () => {
             },
         },
         {
-            // title: 'Quantity',
-            title: (
-                <div className="fs-md fw-semibold text-center">Quantity</div>
-            ),
+            title: <div className="fs-md fw-semibold text-center">Quantity</div>,
             key: "salesQuantity",
             dataIndex: "sales_quantity",
             width: 150,
@@ -225,15 +193,8 @@ const Sales = () => {
                 );
             },
         },
-        // {
-        //     title: 'U/Cost',
-        //     key: 'unitCost'
-        // },
         {
-            // title: 'Total Cost',
-            title: (
-                <div className="fs-md fw-semibold text-center">Total Cost</div>
-            ),
+            title: <div className="fs-md fw-semibold text-center">Total Cost</div>,
             key: "totalCost",
             dataIndex: "sales_total_cost",
             width: 200,
@@ -248,15 +209,8 @@ const Sales = () => {
                 );
             },
         },
-        // {
-        //     title: 'U/Price',
-        //     key: 'unitPrice'
-        // },
         {
-            // title: 'Gross Price',
-            title: (
-                <div className="fs-md fw-semibold text-center">Gross Price</div>
-            ),
+            title: <div className="fs-md fw-semibold text-center">Gross Price</div>,
             key: "grossPrice",
             dataIndex: "sales_gross_price",
             width: 200,
@@ -272,7 +226,6 @@ const Sales = () => {
             },
         },
         {
-            // title: 'Margin',
             title: <div className="fs-md fw-semibold text-center">Margin</div>,
             key: "salesMargin",
             dataIndex: "sales_margin",
@@ -289,7 +242,6 @@ const Sales = () => {
             },
         },
         {
-            // title: 'VAT',
             title: <div className="fs-md fw-semibold text-center">VAT</div>,
             key: "vat",
             dataIndex: "sales_VAT",
@@ -306,7 +258,6 @@ const Sales = () => {
             },
         },
         {
-            // title: 'Status',
             title: <div className="fs-md fw-semibold text-center">Status</div>,
             key: "salesStatus",
             dataIndex: "sales_status",
@@ -328,10 +279,7 @@ const Sales = () => {
             },
         },
         {
-            // title: 'Date Paid',
-            title: (
-                <div className="fs-md fw-semibold text-center">Date Paid</div>
-            ),
+            title: <div className="fs-md fw-semibold text-center">Date Paid</div>,
             key: "datePaid",
             dataIndex: "sales_paid_date",
             width: 125,
@@ -351,109 +299,69 @@ const Sales = () => {
                 );
             },
         },
+        {
+            title: "",
+            key: "action",
+            dataIndex: ["id", "type"],
+            width: 50,
+            fixed: "right",
+            render: (text, record) => {
+                return (
+                    <div className="px-auto">
+                        <DropDown
+                            showConfig={{
+                                disabled: false,
+                                cardHeader: <SalesCardModalTitle cardData={record} />,
+                                cardWidth: null,
+                                cardBody: <SalesCard data={record} />
+                            }}
+                            editConfig={{
+                                editLink: `/sales/transaction/${record.pk}/edit`, // this path goes to react page url
+                                disabled: false
+                            }}
+                            deleteConfig={{
+                                message: <DeleteMessage record={record} />,
+                                disabled: false,
+                                component: "sales",
+                                recordID: record.pk
+                            }}
+                        />
+                    </div>
+                );
+            },
+        },
     ];
-
-    const handleOnFilter = async (pagination, filters, sorter, extra) => {
-        console.log("filter called")
-        await fetchFilteredData({
-            url: `sales-data-filter/`,
-            method: "POST",
-            data: { ...filters, SalesFilter }
-        })
-        console.log(filters);
-        setFilteredInfo(filters);
-    };
-
-    const customMapper = (data, { text, value }, setter) => {
-        const mappedData = data.map((item) => ({ text: item[text], value: item[value] }));
-        setter(mappedData)
-    }
-
-    useEffect(() => {
-        if (SalesFilter !== "") {
-            salesFetch({ url: `sales/${SalesFilter}`, method: "get" });
-        }
-    }, [SalesFilter]);
-
-    useEffect(() => {
-        if (filteredData) {
-            GenerateCSVData(filteredData);
-        }
-        if (data && !filteredData) {
-            GenerateCSVData(data);
-        }
-    }, [data, filteredData])
-
-    useEffect(() => {
-        if (customerIsSucc && supplierIsSucc && productIsSucc) {
-            // Save filters
-            const invoiceFilterList = [{ invoiceFilter: "With Invoice" }, { invoiceFilter: "Without Invoice" }];
-            customMapper(invoiceFilterList, { text: 'invoiceFilter', value: 'invoiceFilter' }, setInvoiceFilter);
-            customMapper(customer, { text: 'company_name', value: 'company_name' }, setCustomerFilter);
-            customMapper(product, { text: 'product_name', value: 'product_name' }, setProductFilter);
-            customMapper(supplier, { text: 'company_name', value: 'id' }, setSupplierFilter);
-        }
-    }, [customer, product, supplier]);
-
-    useEffect(() => {
-        if (supplierFilter.length > 0) {
-            setProductFilter(prev => [{
-                text: <span className="fw-semibold">Suppliers</span>,
-                value: 'Suppliers',
-                children: supplierFilter
-            }, ...prev])
-        }
-    }, [supplierFilter])
-
-    const config = {
-        dataTableColumn,
-        Labels,
-        data,
-        CSVData,
-        loading,
-        error,
-        setData,
-        handleOnFilter,
-    };
-
-    console.log("Sales rendered");
-    console.log(productFilter)
-
-    // const isLoading = loading || customerLoading || productLoading || supplierLoading || filteredDataLoading;
-    // if (isLoading) return <Spinner />
 
     return (
         <>
             <DataTablePageHeader
-                Labels={Labels}
-                salesFilter={SalesFilter}
-                setSalesFilter={setSalesFilter}
+                Labels={{
+                    BASE_ENTITY: "Sales",
+                    TABLE_TITLE: "Sales",
+                    ADD_NEW_ENTITY: "Add New Sales",
+                    NEW_ENTITY_URL: "sales/add",
+                    API_URL: "sales/",
+                }}
+                salesFilter={filters.dateFilter}
+                setSalesFilter={setFilters}
                 type={"sales"}
-            // data={data}
             />
-            {loading || customerLoading || productLoading || supplierLoading || filteredDataLoading ? (
+            {isLoading ? (
                 <Spinner />
-            ) : error ? (
-                <NoServerResponse error={error} />
-            ) : data?.length == 0 ? (
-                <GetStartedTemplate
-                    customizedHeader={
-                        <h2 className="fw-bold">
-                            Get started by adding your first Sales!
-                        </h2>
-                    }
-                    customizedStatement={
-                        <>
-                            <p>You are at the last step of MetservERP.</p>
-                            <p>
-                                You can view your performance at the Summary
-                                section
-                            </p>
-                        </>
-                    }
-                />
             ) : (
-                <SalesDataTable config={config} />
+                isError && !isSuccess ? (
+                    <NoServerResponse error={error} />
+                ) : (
+                    <SalesTable
+                        salesData={sales}
+                        data_title={data_title}
+                        filters={filters}
+                        setFilters={setFilters}
+                        tableSize={tableSize}
+                        setTableSize={setTableSize}
+                        column={dataTableColumn}
+                    />
+                )
             )}
         </>
     );

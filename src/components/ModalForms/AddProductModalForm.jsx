@@ -1,20 +1,31 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { Spin } from 'antd';
 import Spinner from '../Fallback/Spinner';
 import { LoadingOutlined } from '@ant-design/icons';
 import { FiPlus, FiX } from 'react-icons/fi';
 
-import useAxiosFunction from '../../hooks/useAxiosFunction';
+import { useGetDictionaryQuery } from '../../features/utils/dictionaryApiSlice';
+import { useAddProductMutation } from '../../features/products/productApiSlice';
+import { useSnackbar } from 'notistack';
+import { useDispatch } from 'react-redux';
+import { modalForm } from '../../features/modal/modalSlice';
 
-export default function AddProductModalForm({ config, loading, setLoading, OpenModal, setOpenModal, setData }) {
-    const { FORM_ENTITY, METHOD, MAIN_URL, SECOND_URL } = config;
+export default function AddProductModalForm({ config }) {
+    const { FORM_ENTITY } = config;
+    const [FormLoading, setFormLoading] = useState(false);
 
-    const { loading: categoryLoad, response: category, error: categoryErr, axiosFetch: categoryFetch } = useAxiosFunction();
-    const { loading: unitLoad, response: unit, error: unitErr, axiosFetch: unitFetch } = useAxiosFunction();
-    const { loading: materialLoad, response: material, error: materialErr, axiosFetch: materialFetch } = useAxiosFunction();
-    const { loading: productLoad, response: product, success: productSuccess, error: productErr, axiosFetch: productFetch } = useAxiosFunction();
-    const { response: data, success, setSuccess, error, axiosFetch } = useAxiosFunction();
+    
+    // Redux
+    const {data: {
+        categories: category,
+        units: unit,
+        materials: material,
+    } = {}, isLoading, isError, error, isSuccess} = useGetDictionaryQuery();
+    const [addProduct] = useAddProductMutation();
+    const {enqueueSnackbar} = useSnackbar();
+    const dispatch = useDispatch();
+
 
     // choices you already picked
     const [chosenMaterials, setChosenMaterials] = useState([])
@@ -24,12 +35,12 @@ export default function AddProductModalForm({ config, loading, setLoading, OpenM
     const {
         register: registerProduct,
         handleSubmit: handleSubmitProduct,
-        reset: resetProduct,
+        reset,
         getValues: getProductValues,
         setValue: setProductValue,
         watch: watchProduct,
         setError: formProductSetError,
-        clearErrors: formProductClearError,
+        clearErrors,
         control,
         formState: { errors: errorsProduct, isSubmitting: isSubmittingProduct },
     } = useForm({
@@ -49,21 +60,35 @@ export default function AddProductModalForm({ config, loading, setLoading, OpenM
         }
     })
 
+    const handleCloseModal = () => {
+        dispatch(modalForm(false));
+    }
+
     const onSubmitProduct = async (data) => {
-        setLoading(true);
-        const configObj = {
-            url: `${MAIN_URL}`,
-            method: `${METHOD}`,
-            data: data,
-            formSetError: formProductSetError
-        }
-        setTimeout(async () => {
-            await productFetch(configObj);
-            await axiosFetch({
-                url: `${SECOND_URL}`,
-                method: 'get'
-            });
+        setFormLoading(true);
+
+        let message = "";
+        let variant = "";
+
+        setTimeout( async () => {
+            try {
+                const response = await addProduct(data).unwrap();
+                message = response?.message;
+                variant = "success";
+                reset();
+                clearErrors();
+            } catch (err) {
+                console.log(`Adding material error: `, err);
+                message = err?.data?.message || err || "An error occurred";
+
+                variant = "error";
+            } finally {
+                enqueueSnackbar(message, {variant: variant, autoHideDuration: 5000})
+                setFormLoading(false);
+                handleCloseModal();
+            }
         }, 1500);
+
     }
 
     const handleRemoveItem = (index) => {
@@ -84,44 +109,10 @@ export default function AddProductModalForm({ config, loading, setLoading, OpenM
     const item = watchProduct('materials') // Needed
     const getUnit = watchProduct("product_unit"); //Needed
 
-    useEffect(() => {
-        // Needs to wait for first request so refresh token won't double send
-        const getData = async () => {
-            await categoryFetch({
-                url: 'products/unitcategory',
-                method: 'get'
-            });
-            await unitFetch({
-                url: 'products/unit',
-                method: 'get'
-            });
-            await materialFetch({
-                url: 'materials/',
-                method: 'get'
-            });
-        }
-        getData();
-    }, [])
-
-    useEffect(() => {
-        // Check if there's errors and setSuccess to false
-        if (Object.values(errorsProduct).length) {
-            setLoading(false);
-            setSuccess(false);
-        }
-        if (success && !Object.values(errorsProduct).length) {
-            setData(data);
-            resetProduct();
-            formProductClearError();
-            setOpenModal(false);
-            setLoading(false);
-            setSuccess(false);
-        }
-    }, [success])
 
     return (
         <div className="container pt-3">
-            {unitLoad || categoryLoad || materialLoad ? (
+            {isLoading ? (
                 <Spinner />
             ) : (
                 <>
@@ -282,7 +273,7 @@ export default function AddProductModalForm({ config, loading, setLoading, OpenM
                     </form>
                     <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mt-4">
                         <button className='btn btn-primary' form={`add${FORM_ENTITY}Form`}>
-                            {loading ? (
+                            {FormLoading ? (
                                 <Spin
                                     indicator={
                                         <LoadingOutlined
@@ -300,7 +291,7 @@ export default function AddProductModalForm({ config, loading, setLoading, OpenM
                             )}
                             Submit
                         </button>
-                        <button className='btn btn btn-outline-secondary' onClick={() => setOpenModal(false)}>
+                        <button className='btn btn btn-outline-secondary' onClick={ handleCloseModal}>
                             Cancel
                         </button>
                     </div>

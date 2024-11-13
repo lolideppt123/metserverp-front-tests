@@ -1,0 +1,4 @@
+.sales-orders-products {
+    max-height: 180px !important;
+    overflow-y: auto;
+}

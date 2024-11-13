@@ -1,6 +1,6 @@
 import { apiSlice } from "../../app/api/apiSlice";
 
-export const productApiSlice = apiSlice.enhanceEndpoints({ addTagTypes: ['Products'] })
+export const productApiSlice = apiSlice.enhanceEndpoints({ addTagTypes: ['Products', 'Dictionary'] })
     .injectEndpoints({
         endpoints: (builder) => ({
             getAllProduct: builder.query({
@@ -23,7 +23,7 @@ export const productApiSlice = apiSlice.enhanceEndpoints({ addTagTypes: ['Produc
                     method: 'POST',
                     body: product,
                 }),
-                invalidatesTags: ['Products']
+                invalidatesTags: ['Products', 'Dictionary']
             }),
             updateProduct: builder.mutation({
                 query: (product) => ({

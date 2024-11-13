@@ -1,18 +1,10 @@
-import React from 'react';
 import { useForm } from 'react-hook-form';
-import useAuth from '../../../hooks/useAuth';
 import InputField from '../../../components/CustomFields/InputField';
 import { FiMail, FiLock } from "react-icons/fi";
 import { useLoginMutation } from '../../../features/auth/authApiSlice';
-import { setCredentials } from '../../../features/auth/authSlice';
-import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 
 const LoginForm = () => {
-    const { loginUser, errMsg } = useAuth();
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
-    const [login, { isLoading }] = useLoginMutation();
+    const [login, { isLoading, isError, error }] = useLoginMutation();
 
     const {
         register,
@@ -22,16 +14,11 @@ const LoginForm = () => {
     } = useForm();
 
     const onSubmit = async (data) => {
-        // await loginUser(data);
-        // reset();
-        const { email } = data;
         try {
             const userToken = await login(data).unwrap();
-            dispatch(setCredentials({ token: userToken, user: email }));
             reset();
-            navigate('/');
         } catch (err) {
-            console.error(err);
+            console.log("Login failed: ", err);
         }
     }
 
@@ -42,9 +29,9 @@ const LoginForm = () => {
                 Please enter your credentials
             </p>
 
-            {errMsg && (
-                <div className="alert alert-danger" role="alert">
-                    <span className="h6">{errMsg}</span>
+            {isError && (
+                <div className="alert alert-danger p-2" role="alert">
+                    <span className="h6 text-danger">{error?.data?.detail}</span>
                 </div>
             )}
 

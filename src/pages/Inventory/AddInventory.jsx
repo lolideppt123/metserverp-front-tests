@@ -1,14 +1,11 @@
-import { useEffect } from 'react';
-import useAxiosFunction from '../../hooks/useAxiosFunction';
 import Spinner from '../../components/Fallback/Spinner';
 import NoServerResponse from '../../components/Errors/NoServerResponse';
 
 import AddFormPageHeader from '../../modules/FspPanelModule/AddFormPageHeader';
 import InventoryForm from '../../modules/InventoryModule/InventoryForm';
+import { useGetDictionaryQuery } from '../../features/utils/dictionaryApiSlice';
 
 export default function AddInventory() {
-    const { setResponse: setSupplier, loading: supplierLoad, response: supplier, error: supplierErr, axiosFetch: supplierFetch } = useAxiosFunction();
-    const { setResponse: setProduct, loading: productLoad, response: product, error: productErr, axiosFetch: productFetch } = useAxiosFunction();
     const Labels = {
         PAGE_ENTITY: 'Product Inventory',
         PAGE_ENTITY_URL: 'inventory/products',
@@ -17,44 +14,31 @@ export default function AddInventory() {
         API_URL: 'inventory/products/'
     }
 
-    useEffect(() => {
-        // Needs to wait for first request so refresh token won't double send
-        const getData = async () => {
-            await supplierFetch({
-                url: 'suppliers/',
-                method: 'get'
-            });
-            await productFetch({
-                url: 'products/',
-                method: 'get'
-            });
-        }
-        getData();
-    }, [])
+    // Redux
+    const {data: {
+        products: product,
+        suppliers: supplier,
+    } = {}, isLoading, isError, error, isSuccess} = useGetDictionaryQuery();
 
     const config = {
         Labels,
         supplier,
         product,
-        supplierLoad,
-        productLoad,
-        setSupplier,
-        setProduct
+        isLoading
     }
 
     return (
         <>
             <AddFormPageHeader config={config} />
             {
-                productLoad || supplierLoad ?
+                isLoading ?
                     (
                         <Spinner />
                     ) : (
-                        productErr ?
+                        isError && !isSuccess ?
                             (
-                                <NoServerResponse error={productErr} />
+                                <NoServerResponse error={error} />
                             ) : (
-
                                 <InventoryForm config={config} />
                             )
                     )

@@ -58,6 +58,11 @@ kbd {
     cursor: pointer;
 }
 
+.h6-text-danger {
+    --bs-text-opacity: 1;
+    color: rgba(var(--bs-danger-rgb), var(--bs-text-opacity)) !important
+}
+
 @media only screen and (max-width: 1220px) {
 
     /* at 1200px side bar is fixed with 200px space sidebar to main content 1.66% */

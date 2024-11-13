@@ -5,7 +5,6 @@ import DropDownItem from '../../components/DropDown/DropDownItem';
 import CSVExport from '../../components/Exports/CSVExport';
 
 import SalesYearMonthFilter from '../../components/Filter/SalesYearMonthFilter';
-import SalesYearFilter from '../../components/Filter/SalesYearFilter';
 
 export default function DataTablePageHeader({ Labels, type = null, salesFilter = null, setSalesFilter, data = [] }) {
     const navigate = useNavigate();
@@ -34,7 +33,6 @@ export default function DataTablePageHeader({ Labels, type = null, salesFilter =
                     type == 'sales' ? (
                         <div className="col-md-4">
                             <SalesYearMonthFilter setSalesFilter={setSalesFilter} />
-                            {/* <SalesYearFilter setSalesFilter={setSalesFilter} /> */}
                         </div>
                     ) : (
                         <div className="col-md-8 ms-2 page-header-title-wrapper">

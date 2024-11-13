@@ -2,16 +2,28 @@ import React from 'react'
 import CapitalizeFirstLetter from '../../../settings/CapitalizeFirstLetter';
 import useAuth from '../../../hooks/useAuth';
 import { FiMoreVertical } from 'react-icons/fi';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { Dropdown, Button } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout, selectUser } from '../../../features/auth/authSlice';
 
 export default function MobileNavFooter() {
-    const { user, logoutUser } = useAuth();
+    // const { user, logoutUser } = useAuth();
+
+    const user = useSelector(selectUser);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        dispatch(logout());
+        navigate('/');
+    };
+
     const items = [
         {
             key: '1',
             label: (
-                <NavLink type='button' onClick={logoutUser} className="nav-link">Logout</NavLink>
+                <NavLink type='button' onClick={handleLogout} className="nav-link">Logout</NavLink>
             ),
         },
     ]
@@ -19,7 +31,7 @@ export default function MobileNavFooter() {
         <div className="nav-footer d-flex justify-content-center align-items-center border-top p-2 mb-2 transition-all">
             <img
                 className={`overflow-hidden transition-all`}
-                src={`https://ui-avatars.com/api/?name=${user?.first_name}+${user?.last_name}&background=e0cffc&color=3730a3&bold=true`}
+                src={`https://ui-avatars.com/api/?name=${user?.first_name || "John"}+${user?.last_name || "Doe"}&background=e0cffc&color=3730a3&bold=true`}
                 style={{ maxWidth: '2.5rem', maxHeight: '100%', minWidth: '30px', minHeight: '30px', borderRadius: '0.375rem', marginRight: '5px' }}
             />
             <div className={`d-flex justify-content-between align-items-center overflow-hidden transition-all`}>

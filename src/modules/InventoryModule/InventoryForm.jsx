@@ -1,8 +1,7 @@
-import useAxiosFunction from '../../hooks/useAxiosFunction';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import Spinner from '../../components/Fallback/Spinner';
-import { Spin, Tooltip, Divider } from 'antd';
+import { Spin, Tooltip } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { FiPlus, FiPlusCircle, FiInfo } from 'react-icons/fi';
 import { useForm, Controller } from 'react-hook-form';
@@ -16,24 +15,28 @@ import InventoryFormAside from './components/InventoryFormAside';
 import CardModal from '../../components/Modal/CardModal';
 
 import { useDispatch } from "react-redux";
-import { modalShow } from '../../features/modal/modalSlice';
+import { modalForm } from '../../features/modal/modalSlice';
 import { HiOutlineDocumentMagnifyingGlass } from "react-icons/hi2";
 import ProdInventoryCardModalTitle from '../../components/ModalTitle/ProdInventoryCardModalTitle';
 import InventoryFormModalBody from './components/InventoryFormModalBody';
+import { useAddInventoryProductMutation } from '../../features/inventory/inventoryApiSlice';
+import { useSnackbar } from 'notistack';
 
 
 
 export default function InventoryForm({ config }) {
+
+    // Redux
+    const [addInventory] = useAddInventoryProductMutation();
+    const {enqueueSnackbar} = useSnackbar();
+    const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { success, axiosFetch } = useAxiosFunction();
+
     const {
         Labels,
-        supplier = "",
-        product = "",
-        supplierLoad,
-        productLoad,
-        setSupplier,
-        setProduct
+        supplier = [],
+        product = [],
+        isLoading
     } = config
 
     const productConfig = {
@@ -43,14 +46,11 @@ export default function InventoryForm({ config }) {
         SECOND_URL: `products/`,
     }
 
-    const [OpenModal, setOpenModal] = useState(false);
-    const [ModalLoading, setModalLoading] = useState(false);
     const [ResponseData, setResponseData] = useState([]);
     const [UnitCostData, setUnitCostData] = useState([]);
     const [TotalCost, setTotalCost] = useState(0);
     const [FormLoading, setFormLoading] = useState(false);
 
-    const navigate = useNavigate();
     const {
         register,
         handleSubmit,
@@ -71,6 +71,10 @@ export default function InventoryForm({ config }) {
     });
 
 
+    const handleOpenFormModal = () => {
+        dispatch(modalForm(true));
+    }
+
 
     const onQuantityChange = () => {
         let inventory_quantity = isNaN(getValues('inventory_quantity')) ? 0 : getValues('inventory_quantity');
@@ -80,15 +84,28 @@ export default function InventoryForm({ config }) {
 
     const onSubmit = async (data) => {
         setFormLoading(true);
-        const configObj = {
-            url: `${Labels.API_URL}`,
-            method: `${Labels.METHOD}`,
-            data: data,
-            formSetError: formSetError
+
+        let message = "";
+        let variant = "";
+
+        try {
+            const response = await addInventory(data).unwrap();
+            message = response?.message;
+            variant = "success";
         }
-        setTimeout(async () => {
-            axiosFetch(configObj);
-        }, 1500);
+        catch (err) {
+            console.log("Adding sales error: ", err);
+            message = err?.data?.message || `${err?.status} Code: ${err?.originalStatus || "Call Master Joseph"}` || "An error occurred";
+            variant = "error";
+        }
+        finally {
+            setTimeout(() => {
+                enqueueSnackbar(message, {variant: variant, autoHideDuration: 5000});
+                setFormLoading(false);
+                reset();
+                navigate(-1);
+            }, 1500); 
+        }
     }
 
     const onProductNameChange = async () => {
@@ -139,24 +156,11 @@ export default function InventoryForm({ config }) {
         setValue('total_cost', (getValues('price_per_unit') * inventory_quantity).toFixed(2))
     }
 
-    // console.log(TotalCost)
-    // console.log(ResponseData)
-    // console.log(UnitCostData)
-
     watch('price_per_unit');
-
-    useEffect(() => {
-        if (success) {
-            setFormLoading(false);
-            reset();
-            formClearError();
-            history.back();
-        }
-    }, [success])
 
     return (
         <div className="container">
-            {supplierLoad || productLoad ? (
+            {isLoading ? (
                 <Spinner />
             ) : (
                 <>
@@ -193,7 +197,7 @@ export default function InventoryForm({ config }) {
                                             ) : (
                                                 <>
                                                     <option value="">Choose...</option>
-                                                    {product.map((item, index) => (
+                                                    {product?.map((item, index) => (
                                                         <option key={index} value={item.product_name}>{item.product_name}</option>
                                                     ))}
                                                 </>
@@ -204,7 +208,7 @@ export default function InventoryForm({ config }) {
                                             type="button"
                                             style={{ backgroundColor: "rgb(115, 219, 125)" }}
                                             tabIndex={-1}
-                                            onClick={() => setOpenModal(true)}
+                                            onClick={handleOpenFormModal}
                                         >
                                             <FiPlusCircle className='input-group' style={{ height: '20px', width: '20px' }} />
                                         </button>
@@ -339,16 +343,9 @@ export default function InventoryForm({ config }) {
                     </div>
                     <FormModal
                         config={productConfig}
-                        OpenModal={OpenModal}
-                        setOpenModal={setOpenModal}
                     >
                         <AddProductModalForm
                             config={productConfig}
-                            OpenModal={OpenModal}
-                            setOpenModal={setOpenModal}
-                            loading={ModalLoading}
-                            setLoading={setModalLoading}
-                            setData={(data) => setProduct(data)}
                         />
                     </FormModal>
                 </>

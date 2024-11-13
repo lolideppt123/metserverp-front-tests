@@ -2,10 +2,10 @@ import { Table } from 'antd';
 import Spinner from '../../components/Fallback/Spinner';
 
 export default function MaterialInventoryDataTable({ config }) {
-    const { newDataColumn, data, loading, tableWidth } = config;
+    const { newDataColumn, data, isLoading, tableWidth } = config;
     return (
         <div className="contianer-fluid app-table-container">
-            {loading ? (
+            {isLoading ? (
                 <Spinner />
             ) : (
                 <>

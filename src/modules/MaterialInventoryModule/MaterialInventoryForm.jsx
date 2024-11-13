@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import useAxiosFunction from '../../hooks/useAxiosFunction';
 import { useForm, Controller } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import Spinner from '../../components/Fallback/Spinner';
@@ -11,18 +10,19 @@ import CreatableSelect from 'react-select/creatable';
 
 import FormModal from '../../components/Modal/FormModal';
 import AddMaterialModalForm from '../../components/ModalForms/AddMaterialModalForm';
+import { useAddInventoryMaterialMutation, useUpdateInventoryMaterialItemMutation } from '../../features/inventory/materialInventoryApiSlice';
+import { useSnackbar } from 'notistack';
+import { useDispatch } from 'react-redux';
+import { modalForm } from '../../features/modal/modalSlice';
 
 export default function MaterialInventoryEditForm({ config }) {
-    const { loading, response, success, error, axiosFetch } = useAxiosFunction();
+
     const {
         Labels,
         item,
-        supplier,
-        material,
-        itemLoad,
-        supplierLoad,
-        materialLoad,
-        setMaterial
+        supplier = [],
+        material = [],
+        isLoading = true,
     } = config;
 
     const materialConfig = {
@@ -32,18 +32,24 @@ export default function MaterialInventoryEditForm({ config }) {
         SECOND_URL: `materials/`,
     }
 
-    const [OpenModal, setOpenModal] = useState(false);
-    const [ModalLoading, setModalLoading] = useState(false);
+    // Redux
+    const [updateMaterialInventory] = useUpdateInventoryMaterialItemMutation();
+    const [addMaterialInventory] = useAddInventoryMaterialMutation();
+    const { enqueueSnackbar } = useSnackbar();
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const handleOpenFormModal = () => {
+        dispatch(modalForm(true));
+    }
+
     const [FormLoading, setFormLoading] = useState(false);
 
 
-    const navigate = useNavigate();
     const {
         register,
         handleSubmit,
         reset,
-        setError: formSetError,
-        clearErrors: formClearError,
         setValue,
         getValues,
         control,
@@ -67,6 +73,8 @@ export default function MaterialInventoryEditForm({ config }) {
             if (Labels.METHOD === 'put') {
                 console.log(item);
                 [
+                    { name: 'pk', value: item.pk},
+
                     { name: 'inventory_material_name', value: item.material_name },
                     { name: 'supplier', value: item.supplier },
                     { name: 'material_quantity', value: parseFloat(item.quantity) },
@@ -83,35 +91,37 @@ export default function MaterialInventoryEditForm({ config }) {
 
     const onSubmit = async (data) => {
         setFormLoading(true);
-        const configObj = {
-            url: `${Labels.API_URL}`,
-            method: `${Labels.METHOD}`,
-            data: data,
-            formSetError: formSetError
+        let message = "";
+        let variant = "";
+
+        try {
+            if(Labels.METHOD === 'put') {
+                console.log("update");
+                const response = await updateMaterialInventory(data).unwrap();
+                message = response?.message;
+            } else if (Labels.METHOD === 'post') {
+                console.log("add");
+                const response = await addMaterialInventory(data).unwrap();
+                message = response?.message;
+            }
+            variant = "success";
+        } catch (err) {
+            console.log("Adding sales error: ", err);
+            message = err?.data?.message || `${err?.status} Code: ${err?.originalStatus || "Call Master Joseph"}` || "An error occurred";
+            variant = "error";
+        } finally {
+            setTimeout(() => {
+                enqueueSnackbar(message, {variant: variant, autoHideDuration: 5000});
+                setFormLoading(false);
+                reset();
+                navigate(-1);
+            }, 1500); 
         }
-        setTimeout(async () => {
-            axiosFetch(configObj);
-        }, 1500);
     }
-
-    useEffect(() => {
-        if (success) {
-            setFormLoading(false);
-            reset();
-            formClearError();
-            history.back();
-        }
-    }, [success])
-
-    const onAdd = (event, param) => {
-        event.preventDefault();
-        navigate(`/${param}/add`);
-    }
-
 
     return (
         <div className="container">
-            {supplierLoad || materialLoad || itemLoad ? (
+            {isLoading ? (
                 <Spinner />
             ) : (
                 <>
@@ -122,27 +132,24 @@ export default function MaterialInventoryEditForm({ config }) {
                                     <label htmlFor="inventory_material_name" className="text-md text-gray-500">Material Name</label>
                                     <div className="input-group">
                                         <select className="form-select form-select-sm" autoComplete='off' id='inventory_material_name' {...register("inventory_material_name", { required: "Product Name is required" })} disabled={Labels.METHOD == 'put' && true} >
-                                            {!material?.length ? (
-                                                <option value="">Choose...</option>
+                                            {material?.length === 0 ? (
+                                                <option value={item?.material_name}>{item?.material_name}</option>
                                             ) : (
                                                 <>
                                                     <option value="">Choose...</option>
-                                                    {material.map((item, index) => (
+                                                    {material?.map((item, index) => (
                                                         <option key={index} value={item.material_name}>{item.material_name}</option>
                                                     ))}
                                                 </>
                                             )}
                                         </select>
                                         {Labels.METHOD == 'post' &&
-                                            // <button className='btn' onClick={(event) => onAdd(event, 'materials')} style={{ backgroundColor: "rgb(115, 219, 125)" }}>
-                                            //     <FiPlusCircle className='input-group' style={{ height: '20px', width: '20px' }} />
-                                            // </button>
                                             <button
                                                 className="btn"
                                                 type="button"
                                                 style={{ backgroundColor: "rgb(115, 219, 125)" }}
                                                 tabIndex={-1}
-                                                onClick={() => setOpenModal(true)}
+                                                onClick={handleOpenFormModal}
                                             >
                                                 <FiPlusCircle className='input-group' style={{ height: '20px', width: '20px' }} />
                                             </button>
@@ -171,7 +178,7 @@ export default function MaterialInventoryEditForm({ config }) {
                                                     })
                                                 }
                                                 maxMenuHeight={300}
-                                                isDisabled={Labels.METHOD == 'put' && true}
+                                                isDisabled={supplier?.length === 0 && true}
                                             />
                                         )}
                                         control={control}
@@ -258,20 +265,13 @@ export default function MaterialInventoryEditForm({ config }) {
                             )}
                             Save
                         </button>
-                        <button type='button' onClick={() => history.back()} className='btn btn btn-outline-secondary'>Cancel</button>
+                        <button type='button' onClick={() => navigate(-1)} className='btn btn btn-outline-secondary'>Cancel</button>
                     </div>
                     <FormModal
                         config={materialConfig}
-                        OpenModal={OpenModal}
-                        setOpenModal={setOpenModal}
                     >
                         <AddMaterialModalForm
                             config={materialConfig}
-                            OpenModal={OpenModal}
-                            setOpenModal={setOpenModal}
-                            loading={ModalLoading}
-                            setLoading={setModalLoading}
-                            setData={(data) => setMaterial(data)}
                         />
                     </FormModal>
                 </>

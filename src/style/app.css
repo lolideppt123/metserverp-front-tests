@@ -6,6 +6,7 @@
 @import './pages/Dashboard.css';
 @import './pages/Dictionary/main.css';
 @import './pages/Dictionary/Products.css';
+@import './pages/SalesOrders.css';
 /* Pages Style */
 @import './datatable/Datatable.css';
 @import './dropdown/datatableaction.css';

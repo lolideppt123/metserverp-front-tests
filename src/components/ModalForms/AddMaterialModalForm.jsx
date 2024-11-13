@@ -1,30 +1,33 @@
 import { useState, useEffect } from 'react';
-import useAxiosFunction from '../../hooks/useAxiosFunction';
 import { useForm } from 'react-hook-form';
 import Spinner from '../Fallback/Spinner';
 import { FiPlus } from 'react-icons/fi';
 import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
+import { useGetDictionaryQuery } from '../../features/utils/dictionaryApiSlice';
+import { useAddMaterialMutation } from '../../features/materials/materialApiSlice';
+import { useSnackbar } from 'notistack';
+import { useDispatch } from 'react-redux';
+import { modalForm } from '../../features/modal/modalSlice';
 
-export default function AddMaterialModalForm({ config, loading, setLoading, OpenModal, setOpenModal, setData }) {
-    const { FORM_ENTITY, METHOD, MAIN_URL, SECOND_URL } = config;
-    // For loads
-    const { loading: categoryLoad, response: category, error: categoryErr, axiosFetch: categoryFetch } = useAxiosFunction();
-    const { loading: unitLoad, response: unit, error: unitErr, axiosFetch: unitFetch } = useAxiosFunction();
-    // For post
-    const { loading: materialLoad, response: material, success: materialSuccess, error: materialErr, axiosFetch: materialFetch } = useAxiosFunction();
-    const { response: data, success, setSuccess, error, axiosFetch } = useAxiosFunction();
+export default function AddMaterialModalForm({ config }) {
+    const { FORM_ENTITY } = config;
+    const [FormLoading, setFormLoading] = useState(false);
+
+    // Redux
+    const {data: {
+        categories: category = [],
+        units: unit = [],
+    } = {}, isLoading, isError, error, isSuccess} = useGetDictionaryQuery();
+    const [addMaterial] = useAddMaterialMutation();
+    const {enqueueSnackbar} = useSnackbar();
+    const dispatch = useDispatch();
 
     const {
+        reset,
+        clearErrors,
         register: registerMaterial,
         handleSubmit: handleSubmitMaterial,
-        reset: resetMaterial,
-        // getValues: getMaterialValues,
-        // setValue: setMaterialValue,
-        // watch: watchMaterial,
-        setError: formMaterialSetError,
-        clearErrors: formMaterialClearError,
-        // control,
         formState: { errors: errorsMaterial, isSubmitting: isSubmittingMaterial },
     } = useForm({
         defaultValues: {
@@ -35,56 +38,39 @@ export default function AddMaterialModalForm({ config, loading, setLoading, Open
         }
     });
 
-    useEffect(() => {
-        // Needs to wait for first request so refresh token won't double send
-        const getData = async () => {
-            await categoryFetch({
-                url: 'products/unitcategory',
-                method: 'get'
-            });
-            await unitFetch({
-                url: 'products/unit',
-                method: 'get'
-            });
-        }
-        getData();
-    }, [])
+    const handleCloseModal = () => {
+        dispatch(modalForm(false));
+    }
 
     const onSubmitMaterial = async (data) => {
-        setLoading(true);
-        const configObj = {
-            url: `${MAIN_URL}`,
-            method: `${METHOD}`,
-            data: data,
-            formSetError: formMaterialSetError
-        }
-        setTimeout(async () => {
-            await materialFetch(configObj);
-            await axiosFetch({
-                url: `${SECOND_URL}`,
-                method: 'get'
-            });
+        setFormLoading(true);
+
+        let message = "";
+        let variant = "";
+
+        setTimeout( async () => {
+            try {
+                const response = await addMaterial(data).unwrap();
+                message = response?.message;
+                variant = "success";
+                reset();
+                clearErrors();
+            } catch (err) {
+                console.log(`Adding material error: `, err);
+                message = err?.data?.message || err || "An error occurred";
+
+                variant = "error";
+            } finally {
+                enqueueSnackbar(message, {variant: variant, autoHideDuration: 5000})
+                setFormLoading(false);
+                handleCloseModal();
+            }
         }, 1500);
     }
 
-    useEffect(() => {
-        // Check if there's errors and setSuccess to false
-        if (Object.values(errorsMaterial).length) {
-            setSuccess(false);
-        }
-        if (success && !Object.values(errorsMaterial).length) {
-            setData(data);
-            resetMaterial();
-            formMaterialClearError();
-            setOpenModal(false);
-            setLoading(false);
-            setSuccess(false);
-        }
-    }, [success])
-
     return (
         <div className="container">
-            {unitLoad || categoryLoad ? (
+            {isLoading && isSuccess ? (
                 <Spinner />
             ) : (
                 <>
@@ -155,11 +141,8 @@ export default function AddMaterialModalForm({ config, loading, setLoading, Open
                         </div>
                     </form>
                     <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mt-4">
-                        <button className='btn btn btn-outline-secondary' onClick={() => setOpenModal(false)}>
-                            Cancel
-                        </button>
                         <button className='btn btn-primary' form={`add${FORM_ENTITY}Form`}>
-                            {loading ? (
+                            {FormLoading ? (
                                 <Spin
                                     indicator={
                                         <LoadingOutlined
@@ -176,6 +159,9 @@ export default function AddMaterialModalForm({ config, loading, setLoading, Open
                                 <FiPlus style={{ height: '18px', width: '18px', margin: '0 6px 3px 0' }} />
                             )}
                             Submit
+                        </button>
+                        <button className='btn btn btn-outline-secondary' onClick={handleCloseModal}>
+                            Cancel
                         </button>
                     </div>
                 </>

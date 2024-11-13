@@ -1,19 +1,17 @@
-import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import useAxiosFunction from '../../hooks/useAxiosFunction';
 
 import Spinner from '../../components/Fallback/Spinner';
 import NoServerResponse from '../../components/Errors/NoServerResponse';
 
 import AddFormPageHeader from '../../modules/FspPanelModule/AddFormPageHeader';
 import SalesEditForm from '../../modules/SalesModule/SalesEditForm';
-import SalesForm from '../../modules/SalesModule/SalesForm';
+
+// Redux
+import { useGetSalesItemQuery } from '../../features/sales/salesApiSlice';
 
 export default function EditSales() {
     const { id } = useParams();
-    const { loading: customerLoad, response: customer, error: customerErr, axiosFetch: customerFetch } = useAxiosFunction();
-    const { loading: productLoad, response: product, error: productErr, axiosFetch: productFetch } = useAxiosFunction();
-    const { loading: saleLoad, response: sale, error: saleErr, axiosFetch: saleFetch } = useAxiosFunction();
+
     const Labels = {
         PAGE_ENTITY: 'Sales',
         PAGE_ENTITY_URL: 'sales',
@@ -22,25 +20,15 @@ export default function EditSales() {
         API_URL: `sales/transaction/${id}/edit`
     }
 
-    useEffect(() => {
-        // Needs to wait for first request so refresh token won't double send
-        const getData = async () => {
-            await saleFetch({
-                url: `sales/transaction/${id}/edit`,
-                method: 'get'
-            });
-            await customerFetch({
-                url: 'customers/',
-                method: 'get'
-            });
-            await productFetch({
-                url: 'products/',
-                method: 'get'
-            });
-        }
-        getData();
-    }, [])
+    // Redux
+    const {data: {
+        sale,
+        customer,
+        product,
+        suppluer,
+    } = {}, isLoading, isError, error} = useGetSalesItemQuery(id);
 
+    console.log(sale);
 
     const config = {
         Labels,
@@ -48,22 +36,20 @@ export default function EditSales() {
         product,
         sale,
         id,
-        productLoad,
-        customerLoad,
-        saleLoad,
-    }
+        isLoading
+    };
+
     return (
         <>
             <AddFormPageHeader config={config} />
             {
-                customerLoad || productLoad ? (
+                isLoading ? (
                     <Spinner />
                 ) : (
-                    productErr || customerErr || saleErr ? (
-                        <NoServerResponse error={saleErr} />
+                    isError ? (
+                        <NoServerResponse error={error} />
                     ) : (
                         <SalesEditForm config={config} />
-                        // <SalesForm config={config} />
                     )
                 )
             }

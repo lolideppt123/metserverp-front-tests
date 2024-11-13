@@ -16,12 +16,10 @@ const isTokenValid = (token) => {
 const storedToken = localStorage.getItem('authTokens');
 const userToken = storedToken ? JSON.parse(storedToken) : null;
 
-
 const user = userToken && isTokenValid(userToken)
-    ? jwtDecode(userToken.access).email
+    ? jwtDecode(userToken.access)
     : null;
 
-// console.log(jwtDecode(JSON.parse(localStorage.getItem('authTokens')).access).email)
 
 const initialState = {
     user: user,
@@ -38,11 +36,10 @@ const authSlice = createSlice({
             state.token = token;
             localStorage.setItem('authTokens', JSON.stringify(token)); // Store token in local storage
         },
-        logOut: (state, action) => {
+        logout: (state, action) => {
             state.user = null;
             state.token = null;
             localStorage.removeItem('authTokens'); // Clear from local storage
-
         }
     },
 })
@@ -51,5 +48,5 @@ const authSlice = createSlice({
 export const selectUser = (state) => state.auth.user;
 export const selectToken = (state) => state.auth.token;
 
-export const { setCredentials, logOut } = authSlice.actions;
+export const { setCredentials, logout } = authSlice.actions;
 export default authSlice.reducer;

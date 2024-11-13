@@ -1,22 +1,26 @@
 import dayjs from 'dayjs';
-import { useEffect } from 'react';
-import useAxiosFunction from '../../hooks/useAxiosFunction';
 import { useParams } from 'react-router-dom';
 import Spinner from '../../components/Fallback/Spinner';
 import NoServerResponse from '../../components/Errors/NoServerResponse';
 
 import AddFormPageHeader from '../../modules/FspPanelModule/AddFormPageHeader';
-import { Tooltip } from 'antd';
+import InventoryHistoryDataTable from '../../modules/InventoryModule/InventoryHistoryDataTable';
 import { PiPlusMinusBold } from "react-icons/pi";
 
 import MoneyFormatter, { NumberFormatter } from '../../settings/MoneyFormatter';
-import CompanyDataTable from '../../modules/FspPanelModule/CompanyDataTable';
 import DropDown from '../../components/DropDown/DropDown';
+import SalesCardModalTitle from '../../components/ModalTitle/SalesCardModalTitle';
+import SalesCard from '../../components/Cards/SalesCard';
+import { DeleteMessage as SalesMessage } from '../Sales/utils/DeleteMessage';
+import { DeleteMessage as InventoryMessage } from './utils/DeleteMessage'
+import RenderText from '../../components/Tooltip/RenderText';
+import { useGetInventoryProductHistoryQuery } from '../../features/inventory/inventoryApiSlice';
 
 
 export default function InventoryHistory() {
-    const { loading, response: data, setResponse: setData, error, axiosFetch: dataFetch } = useAxiosFunction();
     const { product_pk, product_name } = useParams();
+    const {data, isError, error, isLoading, isSuccess} = useGetInventoryProductHistoryQuery(product_pk);
+
     const Labels = {
         PAGE_ENTITY: 'Product Inventory',
         PAGE_ENTITY_URL: 'inventory/products',
@@ -26,11 +30,17 @@ export default function InventoryHistory() {
     }
     const dataTableColumn = [
         {
-            title: <div className='fs-md fw-bold text-center'>No.</div>,
+            title: <div className='fs-md fw-bold text-center'>Id</div>,
             key: 'no',
             dataIndex: 'id',
             width: 50,
-            render: (text, record, index) => <div className='fs-md fw-semibold text-center'>{index + 1}</div>
+            render: (text, record, index) => (
+                <div 
+                    className={`fs-md fw-semibold text-center ${record.transaction_type === "sales" && 'text-danger'}`}
+                >
+                    {record?.id || "--" }
+                </div>
+            )
         },
         {
             title: <div className='fs-md fw-bold text-center'>Date</div>,
@@ -48,13 +58,11 @@ export default function InventoryHistory() {
             width: 200,
             render: (text, record) => {
                 return (
-                    <div className={`fs-md fw-semibold text-uppercase text-wrap text-truncate ${record.type == 'sales' && 'text-danger'}`}>
-                        {text.length > 17 ? (
-                            <Tooltip className='pointer' title={text}>
-                                {text.substr(0, 17)}{text.length > 17 && '\u2026'}
-                            </Tooltip>
+                    <div className={`fs-md fw-semibold text-uppercase text-wrap text-truncate ${record.transaction_type === 'sales' && 'text-danger'}`}>
+                        {record?.transaction_type === "sales" ? (
+                            <RenderText text={record?.product?.customer} maxLength={18} />
                         ) : (
-                            <>{text}</>
+                            <RenderText text={record?.product?.supplier} maxLength={18} />
                         )}
                     </div>
                 )
@@ -67,14 +75,8 @@ export default function InventoryHistory() {
             width: 200,
             render: (text, record) => {
                 return (
-                    <div className={`fs-md fw-semibold text-uppercase text-truncate ${record.type == 'sales' && 'text-danger'}`}>
-                        {text.length > 17 ? (
-                            <Tooltip className='pointer' title={text}>
-                                {text.substr(0, 17)}{text.length > 17 && '\u2026'}
-                            </Tooltip>
-                        ) : (
-                            <>{text}</>
-                        )}
+                    <div className={`fs-md fw-semibold text-uppercase text-truncate ${record.transaction_type === 'sales' && 'text-danger'}`}>
+                        <RenderText text={record?.product?.product_name} maxLength={22} />
                     </div>
                 )
             }
@@ -85,8 +87,8 @@ export default function InventoryHistory() {
             dataIndex: 'quantity',
             render: (text, record) => {
                 return (
-                    <div className={`fs-md fw-semibold text-center ${record.type == 'sales' && 'text-danger'}`}>
-                        {text}
+                    <div className={`fs-md fw-semibold text-center ${record.transaction_type == 'sales' && 'text-danger'}`}>
+                        {record.transaction_type === 'sales' ? record.quantity_sold : record.quantity}
                     </div>
                 )
             }
@@ -95,10 +97,22 @@ export default function InventoryHistory() {
             title: <div className='fs-md fw-bold text-center'>Stock</div>,
             key: 'stock',
             dataIndex: 'stock',
-            render: (stock) => {
+            render: (text, record) => {
                 return (
                     <div className="fw-semibold text-center">
-                        {stock ? <NumberFormatter amount={stock} /> : '---'}
+                        {record.inventory_stock_left ? <NumberFormatter amount={record.inventory_stock_left} /> : '---'}
+                    </div>
+                )
+            }
+        },
+        {
+            title: <div className='fs-md fw-bold text-wrap'>Inventory Id Used</div>,
+            key: 'stockUsed',
+            dataIndex: 'stockUsed',
+            render: (text, record) => {
+                return (
+                    <div className={`fw-semibold text-center ${record.transaction_type === 'sales' && 'text-danger'}`}>
+                        {record?.inventory_id ? record.inventory_id : '---'}
                     </div>
                 )
             }
@@ -106,31 +120,54 @@ export default function InventoryHistory() {
         {
             title: <div className='fs-md fw-bold text-center'>U/Cost</div>,
             key: 'uCost',
-            dataIndex: 'u_cost',
-            render: (cost, record) => {
+            dataIndex: 'unit_cost',
+            render: (text, record) => {
                 return (
-                    <div className={`fw-semibold text-center ${record.type == "sales" && 'text-danger'}`}>
-                        <MoneyFormatter amount={cost} />
+                    <div className={`fw-semibold text-center ${record.transaction_type == "sales" && 'text-danger'}`}>
+                        <MoneyFormatter amount={text} />
                     </div>
                 )
             }
         },
         {
-            title: <div className='fs-md fw-bold text-center'>U/Prce</div>,
-            key: 'uPrice',
-            dataIndex: 'u_price',
+            title: <div className='fs-md fw-bold text-center'>Gross Price</div>,
+            key: 'gross_price',
+            dataIndex: 'gross_price',
             render: (price, record) => {
                 return (
                     <>
-                        {record.type !== "sales" ? (
+                        {record.transaction_type !== "sales" ? (
                             <div className="fw-semibold text-center">
                                 ---
                             </div>
                         ) : (
                             <div className="fw-semibold text-center text-success">
-                                {record.u_price > record.u_cost ?
-                                    <MoneyFormatter amount={record.u_price} /> :
+                                {record.unit_price > record.unit_cost ?
+                                    <MoneyFormatter amount={record.unit_price} /> :
                                     <>(<MoneyFormatter amount={record.u_price} />)</>
+                                }
+                            </div>
+                        )}
+                    </>
+                )
+            }
+        },
+        {
+            title: <div className='fs-md fw-bold text-center'>Sold Price</div>,
+            key: 'sold_price',
+            dataIndex: 'sold_price',
+            render: (price, record) => {
+                return (
+                    <>
+                        {record.transaction_type !== "sales" ? (
+                            <div className="fw-semibold text-center">
+                                ---
+                            </div>
+                        ) : (
+                            <div className="fw-semibold text-center text-success">
+                                {record.product.sales_unit_price > record.unit_cost ?
+                                    <MoneyFormatter amount={record.product.sales_unit_price} /> :
+                                    <>(<MoneyFormatter amount={record.product.sales_unit_price} />)</>
                                 }
                             </div>
                         )}
@@ -151,19 +188,48 @@ export default function InventoryHistory() {
             key: 'actions',
             dataIndex: ['pk', 'type'],
             width: 50,
+            fixed: "right",
             render: (text, record, index) => {
                 return (
                     <>
-                        {record.type == 'inv' && (
+                        {record.transaction_type == 'restock' ? (
                             <div className='px-auto'>
                                 <DropDown
-                                    link2={`/inventory/products/transaction/${record.id}/edit`}
+                                    showConfig={{
+                                        disabled: true  
+                                    }}
+                                    editConfig={{
+                                        editLink: `/inventory/products/transaction/${record?.id}/edit`, // this path goes to react page url
+                                        disabled: false
+                                    }}
+                                    link2={`/inventory/products/transaction/${record.id}/edit`} 
                                     deleteConfig={{
-                                        link3: `inventory/transaction/${record.id}/edit`,
-                                        message: `${record?.product_name?.substr(0, 12)}${record?.product_name?.length > 12 ? '\u2026' : ""} : Record ${index + 1}`,
-                                        notAllowed: false,
-                                        api_url: Labels.API_URL,
-                                        setData: (data) => setData(data)
+                                        message: <InventoryMessage record={record.product} />,
+                                        disabled: false,
+                                        component: "inventory",
+                                        recordID: record.id
+                                    }}
+                                />
+                            </div>
+                        ) : (
+                            <div className='px-auto'>
+                                <DropDown
+                                    showConfig={{
+                                        showLink: "",
+                                        disabled: false,
+                                        cardHeader: <SalesCardModalTitle cardData={record.product} />,
+                                        cardWidth: null,
+                                        cardBody: <SalesCard data={record.product} />
+                                    }}
+                                    editConfig={{
+                                        editLink: `/sales/transaction/${record?.product?.pk}/edit`, // this path goes to react page url
+                                        disabled: false
+                                    }}
+                                    deleteConfig={{
+                                        message: <SalesMessage record={record?.product} />,
+                                        disabled: false,
+                                        component: "sales",
+                                        recordID: record?.product?.pk
                                     }}
                                 />
                             </div>
@@ -172,45 +238,37 @@ export default function InventoryHistory() {
                 )
             }
         },
-    ]
-
-    useEffect(() => {
-        const configObj = {
-            url: `${Labels.API_URL}`,
-            method: `get`,
-        }
-        dataFetch(configObj);
-    }, [])
+    ];
 
     const config = {
         Labels,
         dataTableColumn,
         data,
-        loading,
+        isLoading,
         error,
-        setData
-    }
+    };
+
+    console.log(data)
 
     return (
         <>
             <AddFormPageHeader config={config} />
             {
-                loading ?
+                isLoading ?
                     (
                         <Spinner />
                     ) : (
-                        error ?
+                        isError && !isSuccess ?
                             (
                                 <NoServerResponse error={error} />
                             ) : (
                                 data?.length == 0 ? (
-                                    // <Spinner />
+                                    // Template here for no results found
                                     <div className="py-4">
                                         <h6 className="text-center px-3 mt-4 mb-1"><i>No Results Found</i></h6>
                                     </div>
                                 ) : (
-                                    // <InventoryHistoryDataTable config={config} />
-                                    <CompanyDataTable config={config} />
+                                    <InventoryHistoryDataTable config={config} />
                                 )
                             )
                     )

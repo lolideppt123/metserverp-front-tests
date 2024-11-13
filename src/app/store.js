@@ -13,6 +13,7 @@ import { customerApiSlice } from "../features/customers/customerApiSlice";
 
 import salesReducer from '../features/sales/salesSlice';
 import denominationReducer from "../features/utils/denominationSlice";
+import snackbarReducer from '../features/utils/snackbarSlice';
 
 // For persisting state
 import storage from "redux-persist/lib/storage";
@@ -25,6 +26,7 @@ import {
     PURGE,
     REGISTER,
 } from "redux-persist";
+import { apiMiddleware } from "./api/apiMiddleware";
 
 // For persisting state
 // https://redux-toolkit.js.org/usage/usage-guide#use-with-redux-persist
@@ -53,6 +55,7 @@ export const store = configureStore({
         auth: authReducer,
         modal: modalReducer,
         drawer: drawerReducer,
+        snackbar: snackbarReducer,
         [apiSlice.reducerPath]: apiSlice.reducer,
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware({
@@ -60,6 +63,7 @@ export const store = configureStore({
             ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER]
         }
     }).concat(apiSlice.middleware),
+    // }).concat(apiSlice.middleware, apiMiddleware),
     devTools: true
 })
 
