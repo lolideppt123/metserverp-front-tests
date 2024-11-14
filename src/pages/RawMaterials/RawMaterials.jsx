@@ -1,14 +1,12 @@
-import { useEffect } from 'react';
-import useAxiosFunction from '../../hooks/useAxiosFunction';
 import Spinner from '../../components/Fallback/Spinner';
 import NoServerResponse from '../../components/Errors/NoServerResponse';
 import GetStartedTemplate from '../../components/Fallback/GetStartedTemplate';
 
 import DataTablePageHeader from '../../modules/FspPanelModule/DataTablePageHeader';
-import RawMaterialDataTable from '../../modules/RawMaterialModule/RawMaterialDataTable';
 import CompanyDataTable from '../../modules/FspPanelModule/CompanyDataTable';
 
 import DropDown from '../../components/DropDown/DropDown';
+import { useGetAllMaterialQuery } from '../../features/materials/materialApiSlice';
 
 export default function RawMaterials() {
     const Labels = {
@@ -18,6 +16,8 @@ export default function RawMaterials() {
         NEW_ENTITY_URL: 'materials/add',
         API_URL: 'materials/'
     }
+
+    const {data, isLoading, isError, error, isSuccess, isFetching} = useGetAllMaterialQuery();
 
     const dataTableColumn = [
         {
@@ -71,47 +71,42 @@ export default function RawMaterials() {
                 return (
                     <div className='px-auto'>
                         <DropDown
-                            link2={`${record.id}`}
+                            showConfig={{
+                                disabled: true
+                            }}
+                            editConfig={{
+                                editLink: `${record.id}`,
+                                disabled: false
+                            }}
                             deleteConfig={{
-                                link3: `${Labels?.API_URL}${record.id}`,
+                                disabled: false,
+                                component: 'raw-materials',
+                                recordID: record.id,
                                 message: `${record?.material_name?.substr(0, 12)}${record?.material_name?.length > 12 ? '\u2026' : ""}`,
-                                notAllowed: false,
-                                api_url: Labels.API_URL,
-                                setData: (data) => setData(data)
                             }}
                         />
                     </div>
                 )
             }
         },
-    ]
+    ];
 
-    const { loading, response: data, setResponse: setData, error, axiosFetch: dataFetch } = useAxiosFunction();
-    useEffect(() => {
-        const configObj = {
-            url: `${Labels.API_URL}`,
-            method: `get`,
-        }
-        dataFetch(configObj);
-    }, [])
     const config = {
         Labels,
         dataTableColumn,
         data,
-        loading,
-        error,
-        setData
+        isLoading,
     }
 
     return (
         <>
             <DataTablePageHeader Labels={Labels} />
             {
-                loading ?
+                isLoading || isFetching ?
                     (
                         <Spinner />
                     ) : (
-                        error ?
+                        isError && !isSuccess ?
                             (
                                 <NoServerResponse error={error} />
                             ) : (
@@ -124,7 +119,6 @@ export default function RawMaterials() {
                                         nextStepOptionURL={'/products'}
                                     />
                                 ) : (
-                                    // <RawMaterialDataTable config={config} />
                                     <CompanyDataTable config={config} />
                                 )
                             )

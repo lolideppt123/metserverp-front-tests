@@ -39,10 +39,10 @@ const Sales = () => {
         customer,
         supplier,
         data_title
-    } = {}, isLoading, isError, error, isSuccess } = useGetSalesFilteredDataQuery(filters);
+    } = {}, isLoading, isError, error, isSuccess, isFetching } = useGetSalesFilteredDataQuery(filters);
 
     useEffect(() => {
-        console.log('Current Filters:', filters);
+        // console.log('Current Filters:', filters);
     }, [filters]);
 
     const invoiceOptions = [{ text: "With Invoice", value: "With Invoice" }, { text: "Without Invoice", value: "Without Invoice" }, { text: "Sample", value: "Sample" }];
@@ -346,7 +346,7 @@ const Sales = () => {
                 setSalesFilter={setFilters}
                 type={"sales"}
             />
-            {isLoading ? (
+            {isLoading || isFetching ? (
                 <Spinner />
             ) : (
                 isError && !isSuccess ? (

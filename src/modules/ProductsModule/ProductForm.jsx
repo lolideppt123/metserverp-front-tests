@@ -4,19 +4,25 @@ import { LoadingOutlined } from '@ant-design/icons';
 import useAxiosFunction from '../../hooks/useAxiosFunction';
 import { FiPlus, FiX } from 'react-icons/fi';
 import { useForm, useFieldArray } from 'react-hook-form';
+import Spinner from '../../components/Fallback/Spinner';
+import { useAddProductMutation } from '../../features/products/productApiSlice';
+import { useNavigate } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
 
 
 export default function ProductForm({ config }) {
-    const { loading, response, success, error, axiosFetch } = useAxiosFunction();
     const {
         Labels,
         category,
         unit,
         material,
-        unitLoad,
-        categoryLoad,
-        materialLoad,
+        isLoading
     } = config;
+
+    // Redux
+    const [addProduct] = useAddProductMutation();
+    const navigate = useNavigate();
+    const {enqueueSnackbar} = useSnackbar();
 
     // choices you already picked
     const [picked, setPicked] = useState([])
@@ -66,38 +72,38 @@ export default function ProductForm({ config }) {
 
     const onSubmit = async (data) => {
         setFormLoading(true);
-        const configObj = {
-            url: `${Labels.API_URL}`,
-            method: `${Labels.METHOD}`,
-            data: data,
-            formSetError: formSetError
-        }
-        setTimeout(async () => {
-            axiosFetch(configObj);
-            // setFormLoading(false);
-        }, 1500);
-    }
 
-    useEffect(() => {
-        if (success) {
-            setFormLoading(false);
-            reset();
-            formClearError();
-            history.back();
+        let message = "";
+        let variant = "";
+
+        try {
+            const response = await addProduct(data).unwrap();
+            message = response?.message;
+            variant = "success";
         }
-    }, [success])
+        catch (err) {
+            console.log("Adding Product error :", err);
+            message = err?.data?.message || `${err?.status} Code: ${err?.originalStatus || "Call Master Joseph"}` || "An error occurred";
+            variant = "error";
+        }
+        finally {
+            setTimeout(() => {
+                enqueueSnackbar(message, {variant: variant, autoHideDuration: 5000});
+                setFormLoading(false);
+                reset();
+                navigate(-1);
+            }, 1500);
+        }
+
+    }
 
     const item = watch('materials') // Needed
     const getUnit = watch("product_unit"); //Needed
 
     return (
         <div className="container-fluid addProduct-container">
-            {unitLoad || categoryLoad || materialLoad ? (
-                <div className="py-5">
-                    <Flex vertical>
-                        <Spin />
-                    </Flex>
-                </div>
+            {isLoading ? (
+                <Spinner />
             ) : (
                 <>
                     <form id='addProductForm' onSubmit={handleSubmit(onSubmit)}>
@@ -222,7 +228,11 @@ export default function ProductForm({ config }) {
                                                 </div>
                                             )
                                         })}
-                                        <p className='text-center'><code>{errors.materials?.root?.message}</code></p>
+                                        {
+                                            errors?.materials?.root?.message && (
+                                                <p className='text-center'><code>{errors.materials?.root?.message}</code></p>
+                                            )
+                                        }
                                         <div className="d-flex justify-content-center flex-wrap flex-md-nowrap align-items-center pt-2 mt-2 border-top">
                                             <button className='btn btn-primary' type='button'
                                                 onClick={() => {
@@ -241,7 +251,10 @@ export default function ProductForm({ config }) {
                         </div>
                     </form>
                     <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 mt-4 border-top">
-                        <button className='btn btn-primary col-2 submit-form-btn' form='addProductForm' disabled={isSubmitting || !isDirty}>
+                        <button className='btn btn-primary col-2 submit-form-btn' 
+                            form='addProductForm' 
+                            disabled={isSubmitting || !isDirty}
+                        >
                             {FormLoading ? (
                                 <Spin
                                     indicator={
@@ -260,7 +273,7 @@ export default function ProductForm({ config }) {
                             )}
                             Save
                         </button>
-                        <button className='btn btn btn-outline-secondary cancel-form-btn' onClick={() => history.back()}>Cancel</button>
+                        <button className='btn btn btn-outline-secondary cancel-form-btn' onClick={() => navigate(-1)}>Cancel</button>
 
                     </div >
                 </>

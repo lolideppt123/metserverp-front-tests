@@ -34,7 +34,7 @@ export const productApiSlice = apiSlice.enhanceEndpoints({ addTagTypes: ['Produc
                 invalidatesTags: ['Products']
             }),
             deleteProduct: builder.mutation({
-                query: ({ id }) => ({
+                query: (id) => ({
                     url: `products/${id}`,
                     method: 'DELETE',
                 }),

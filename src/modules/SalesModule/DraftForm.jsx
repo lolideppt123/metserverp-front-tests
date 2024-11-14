@@ -626,7 +626,7 @@ export default function DraftForm({ config }) {
                             )}
                             Save as draft
                         </button>
-                        <button type='button' onClick={() => history.back()} className='btn btn btn-outline-secondary'>Cancel</button>
+                        <button type='button' onClick={() => navigate(-1)} className='btn btn btn-outline-secondary'>Cancel</button>
                     </div>
                 </>
 

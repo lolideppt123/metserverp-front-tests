@@ -339,7 +339,7 @@ export default function InventoryForm({ config }) {
                             Save
                         </button>
 
-                        <button type='button' onClick={() => history.back()} className='btn btn btn-outline-secondary'>Cancel</button>
+                        <button type='button' onClick={() => navigate(-1)} className='btn btn btn-outline-secondary'>Cancel</button>
                     </div>
                     <FormModal
                         config={productConfig}

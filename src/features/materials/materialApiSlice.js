@@ -34,9 +34,9 @@ export const materialApiSlice = apiSlice.enhanceEndpoints({ addTagTypes: ['Mater
                 invalidatesTags: ['Materials']
             }),
             deleteMaterial: builder.mutation({
-                query: ({ id }) => ({
+                query: (id) => ({
                     url: `materials/${id}`,
-                    method: 'GET',
+                    method: 'DELETE',
                 }),
                 invalidatesTags: ['Materials']
             }),

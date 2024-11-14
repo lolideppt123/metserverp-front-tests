@@ -1,17 +1,19 @@
-import { useEffect } from 'react';
-import useAxiosFunction from '../../hooks/useAxiosFunction';
 import Spinner from '../../components/Fallback/Spinner';
 import NoServerResponse from '../../components/Errors/NoServerResponse';
 
 
 import AddFormPageHeader from '../../modules/FspPanelModule/AddFormPageHeader';
 import ProductForm from '../../modules/ProductsModule/ProductForm';
-import FOrm from '../../modules/ProductsModule/FOrm';
+import { useGetDictionaryQuery } from '../../features/utils/dictionaryApiSlice';
 
 export default function AddProduct() {
-    const { loading: categoryLoad, response: category, error: categoryErr, axiosFetch: categoryFetch } = useAxiosFunction();
-    const { loading: unitLoad, response: unit, error: unitErr, axiosFetch: unitFetch } = useAxiosFunction();
-    const { loading: materialLoad, response: material, error: materialErr, axiosFetch: materialFetch } = useAxiosFunction();
+
+    const {data: {
+        categories: category,
+        units: unit,
+        materials: material,
+    } = {}, isError, error, isFetching, isLoading, isSuccess} = useGetDictionaryQuery();
+
     const Labels = {
         PAGE_ENTITY: 'Products',
         PAGE_ENTITY_URL: 'products',
@@ -20,49 +22,26 @@ export default function AddProduct() {
         API_URL: `products/`
     }
 
-    useEffect(() => {
-        // Needs to wait for first request so refresh token won't double send
-        const getData = async () => {
-            await categoryFetch({
-                url: 'products/unitcategory',
-                method: 'get'
-            });
-            await unitFetch({
-                url: 'products/unit',
-                method: 'get'
-            });
-            await materialFetch({
-                url: 'materials/',
-                method: 'get'
-            });
-        }
-        getData();
-    }, [])
-
     const config = {
         Labels,
         unit,
         category,
         material,
-        unitLoad,
-        categoryLoad,
-        materialLoad,
+        isLoading
     }
 
     return (
         <>
             <AddFormPageHeader config={config} onBack />
             {
-                unitLoad || categoryLoad || materialLoad ?
+                isLoading || isFetching ?
                     (
                         <Spinner />
                     ) : (
-                        materialErr ?
+                        isError && !isSuccess ?
                             (
-                                <NoServerResponse error={materialErr} />
+                                <NoServerResponse error={error} />
                             ) : (
-
-                                // <FOrm config={config} />
                                 <ProductForm config={config} />
                             )
                     )

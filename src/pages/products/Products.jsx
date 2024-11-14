@@ -1,10 +1,6 @@
-import { useEffect } from 'react';
-import useAxiosFunction from '../../hooks/useAxiosFunction';
 import Spinner from '../../components/Fallback/Spinner';
 import NoServerResponse from '../../components/Errors/NoServerResponse';
 import GetStartedTemplate from '../../components/Fallback/GetStartedTemplate';
-
-import ProductsDataTable from '../../modules/ProductsModule/ProductsDataTable';
 import DataTablePageHeader from '../../modules/FspPanelModule/DataTablePageHeader';
 import CompanyDataTable from '../../modules/FspPanelModule/CompanyDataTable';
 
@@ -13,7 +9,7 @@ import RenderText from '../../components/Tooltip/RenderText';
 import { useGetAllProductQuery } from '../../features/products/productApiSlice';
 
 export default function Products() {
-    const { data, isLoading, isError, error } = useGetAllProductQuery();
+    const { data, isLoading, isError, error, isSuccess, isFetching } = useGetAllProductQuery();
     const Labels = {
         BASE_ENTITY: 'Products',
         TABLE_TITLE: 'Product',
@@ -67,13 +63,18 @@ export default function Products() {
                 return (
                     <div className='px-auto'>
                         <DropDown
-                            link2={`${record.id}`}
+                            showConfig={{
+                                disabled: true
+                            }}
+                            editConfig={{
+                                editLink: `${record.id}`,
+                                disabled: false
+                            }}
                             deleteConfig={{
-                                link3: `${Labels?.API_URL}${record.id}`,
-                                message: <RenderText text={record?.company_name} maxLength={15} />,
-                                notAllowed: false,
-                                api_url: Labels.API_URL,
-                                setData: (data) => { }
+                                message: <RenderText text={record?.product_name} maxLength={15} />,
+                                disabled: false,
+                                component: 'products',
+                                recordID: record.id,
                             }}
                         />
                     </div>
@@ -93,11 +94,11 @@ export default function Products() {
         <>
             <DataTablePageHeader Labels={Labels} />
             {
-                isLoading ?
+                isLoading  || isFetching ?
                     (
                         <Spinner />
                     ) : (
-                        isError ?
+                        isError && !isSuccess ?
                             (
                                 <NoServerResponse error={error} />
                             ) : (

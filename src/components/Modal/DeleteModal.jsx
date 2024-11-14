@@ -13,6 +13,8 @@ import { useDeleteSalesMutation } from "../../features/sales/salesApiSlice";
 import { useDeleteInventoryProductMutation } from "../../features/inventory/inventoryApiSlice";
 import { useDeleteSalesOrderMutation } from "../../features/sales/salesOrderApiSlice";
 import { useDeleteInventoryMaterialMutation } from "../../features/inventory/materialInventoryApiSlice";
+import { useDeleteMaterialMutation } from "../../features/materials/materialApiSlice";
+import { useDeleteProductMutation } from "../../features/products/productApiSlice";
 
 export default function DeleteModal({ deleteConfig }) {
     const {
@@ -34,6 +36,8 @@ export default function DeleteModal({ deleteConfig }) {
     const [deleteInventory] = useDeleteInventoryProductMutation();
     const [deleteInvoice] = useDeleteSalesOrderMutation();
     const [deleteMaterialInventory] = useDeleteInventoryMaterialMutation();
+    const [deleteRawMaterial] = useDeleteMaterialMutation();
+    const [deleteProduct] = useDeleteProductMutation();
 
     const { axiosFetch: dataFetch } = useAxiosFunction();
     const { success, setSuccess, response: customer, axiosFetch: customerFetch } = useAxiosFunction();
@@ -67,6 +71,12 @@ export default function DeleteModal({ deleteConfig }) {
                     message = response?.message;
                 } else if (component === 'material-inventory') {
                     const response = await deleteMaterialInventory(recordID).unwrap();
+                    message = response?.message;
+                } else if (component === 'raw-materials') {
+                    const response = await deleteRawMaterial(recordID).unwrap();
+                    message = response?.message;
+                } else if (component === 'products') {
+                    const response = await deleteProduct(recordID).unwrap();
                     message = response?.message;
                 }
                 variant = "success";
