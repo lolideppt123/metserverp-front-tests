@@ -39,8 +39,6 @@ export default function AddSales() {
                     isError && !isSuccess ? (
                         <NoServerResponse error={error} />
                     ) : (
-
-                        // <SalesForm config={config} />
                         <DraftForm config={config} />
                     )
                 )
