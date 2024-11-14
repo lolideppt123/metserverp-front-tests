@@ -6,11 +6,11 @@ import NoServerResponse from '../../components/Errors/NoServerResponse';
 
 import AddFormPageHeader from "../../modules/FspPanelModule/AddFormPageHeader"
 import MaterialForm from '../../modules/RawMaterialModule/MaterialForm';
+import { useGetDictionaryQuery } from '../../features/utils/dictionaryApiSlice';
+import { useGetMaterialQuery } from '../../features/materials/materialApiSlice';
 
 export default function EditRawMaterials() {
-    const { loading: categoryLoad, response: category, error: categoryErr, axiosFetch: categoryFetch } = useAxiosFunction();
-    const { loading: unitLoad, response: unit, error: unitErr, axiosFetch: unitFetch } = useAxiosFunction();
-    const { loading: materialLoad, response: material, error: materialErr, axiosFetch: materialFetch } = useAxiosFunction();
+
     const { id } = useParams();
     const Labels = {
         PAGE_ENTITY: 'Materials',
@@ -20,24 +20,12 @@ export default function EditRawMaterials() {
         API_URL: `materials/${id}`
     }
 
-    useEffect(() => {
-        // Needs to wait for first request so refresh token won't double send
-        const getData = async () => {
-            await categoryFetch({
-                url: 'products/unitcategory',
-                method: 'get'
-            });
-            await unitFetch({
-                url: 'products/unit',
-                method: 'get'
-            });
-            await materialFetch({
-                url: `materials/${id}`,
-                method: 'get'
-            });
-        }
-        getData();
-    }, [])
+    const {data: {
+        categories: category,
+        units: unit,
+    } = {}} = useGetDictionaryQuery();
+
+    const {data: material, isLoading, isError, isSuccess, isFetching, error} = useGetMaterialQuery(id);
 
     const config = {
         id,
@@ -45,25 +33,20 @@ export default function EditRawMaterials() {
         material,
         unit,
         category,
-        materialLoad,
-        unitLoad,
-        categoryLoad,
-        materialErr,
-        unitErr,
-        categoryErr,
+        isLoading
     }
 
     return (
         <>
             <AddFormPageHeader config={config} onBack />
             {
-                unitLoad || categoryLoad || materialLoad ?
+                isLoading || isFetching ?
                     (
                         <Spinner />
                     ) : (
-                        unitErr || categoryErr || materialErr ?
+                        isError && !isSuccess ?
                             (
-                                <NoServerResponse error={materialErr} />
+                                <NoServerResponse error={error} />
                             ) : (
                                 <MaterialForm config={config} />
                             )

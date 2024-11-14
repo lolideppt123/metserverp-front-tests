@@ -1,25 +1,29 @@
 import { useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
-import useAxiosFunction from '../../hooks/useAxiosFunction';
 import Spinner from '../../components/Fallback/Spinner';
 import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 
 import { FiPlus } from 'react-icons/fi';
+import { useAddMaterialMutation, useUpdateMaterialMutation } from '../../features/materials/materialApiSlice';
+import { useNavigate } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
 
 export default function MaterialForm({ config }) {
-    const { loading, response, success, error, axiosFetch } = useAxiosFunction();
     const {
-        id,
+        id = null,
         Labels,
         material = "",
-        materialLoad = false,
         unit,
         category,
-        unitLoad,
-        categoryLoad
+        isLoading
     } = config;
 
+    // Redux
+    const [addMaterial] = useAddMaterialMutation();
+    const [updateMaterial] = useUpdateMaterialMutation();
+    const navigate = useNavigate();
+    const {enqueueSnackbar} = useSnackbar();
     const [FormLoading, setFormLoading] = useState(false);
 
     const {
@@ -46,7 +50,8 @@ export default function MaterialForm({ config }) {
                 console.log('Silence is golden');
             }
             if (Labels.METHOD === 'put') {
-                [
+                [   
+                    {name: 'id', value: id},
                     { name: 'material_name', value: material.material_name },
                     { name: 'material_min_stock', value: parseFloat(material.material_min_stock) },
                     { name: 'material_unit', value: material.material_unit_name },
@@ -59,31 +64,38 @@ export default function MaterialForm({ config }) {
 
     const onSubmit = async (data) => {
         setFormLoading(true);
-        const configObj = {
-            url: `${Labels.API_URL}`,
-            method: `${Labels.METHOD}`,
-            data: data,
-            formSetError: formSetError
-        }
-        setTimeout(async () => {
-            axiosFetch(configObj);
-            // setFormLoading(false);
+
+        let message = "";
+        let variant = "";
+
+        setTimeout( async () => {
+            try {
+                if(Labels.METHOD === 'post') {
+                    const response = await addMaterial(data).unwrap();
+                    message = response?.message;
+                } else if (Labels.METHOD === 'put') {
+                    const response = await updateMaterial(data).unwrap();
+                    message = response?.message;
+                }
+                variant = "success";
+            }
+            catch (err) {
+                console.log(`${Labels.METHOD === 'put' ? "Adding" : "Updating"} material error: `, err);
+                message = err?.data?.message || `${err?.status} Code: ${err?.originalStatus || "Call Master Joseph"}` || "An error occurred";
+                variant = "error";
+            }
+            finally {
+                enqueueSnackbar(message, {variant: variant, autoHideDuration: 5000});
+                setFormLoading(false);
+                navigate(-1);
+            }
         }, 1500);
+
     }
-
-    useEffect(() => {
-        if (success) {
-            setFormLoading(false);
-            reset();
-            formClearError();
-            history.back();
-        }
-    }, [success])
-
 
     return (
         <div className="container">
-            {unitLoad || categoryLoad ? (
+            {isLoading ? (
                 <Spinner />
             ) : (
                 <>
@@ -154,7 +166,12 @@ export default function MaterialForm({ config }) {
                         </div>
                     </form>
                     <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 mt-4 border-top">
-                        <button type='submit' className='btn btn-primary col-2' form={`add${Labels.PAGE_ENTITY}Form`} disabled={isSubmitting || !isDirty}>
+                        <button 
+                            type='submit'
+                            className='btn btn-primary col-2 submit-form-btn' 
+                            form={`add${Labels.PAGE_ENTITY}Form`} 
+                            disabled={isSubmitting || !isDirty}
+                        >
                             {FormLoading ? (
                                 <Spin
                                     indicator={
@@ -173,7 +190,7 @@ export default function MaterialForm({ config }) {
                             )}
                             Save
                         </button>
-                        <button type='button' onClick={() => history.back()} className='btn btn btn-outline-secondary'>Cancel</button>
+                        <button type='button' onClick={() => navigate(-1)} className='btn btn btn-outline-secondary'>Cancel</button>
                     </div>
                 </>
             )}

@@ -92,6 +92,7 @@ export default function InventoryForm({ config }) {
             const response = await addInventory(data).unwrap();
             message = response?.message;
             variant = "success";
+            reset();
         }
         catch (err) {
             console.log("Adding sales error: ", err);
@@ -102,7 +103,6 @@ export default function InventoryForm({ config }) {
             setTimeout(() => {
                 enqueueSnackbar(message, {variant: variant, autoHideDuration: 5000});
                 setFormLoading(false);
-                reset();
                 navigate(-1);
             }, 1500); 
         }
