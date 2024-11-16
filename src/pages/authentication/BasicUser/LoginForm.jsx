@@ -2,9 +2,13 @@ import { useForm } from 'react-hook-form';
 import InputField from '../../../components/CustomFields/InputField';
 import { FiMail, FiLock } from "react-icons/fi";
 import { useLoginMutation } from '../../../features/auth/authApiSlice';
+import { useState } from 'react';
+import { useSnackbar } from 'notistack';
 
 const LoginForm = () => {
     const [login, { isLoading, isError, error }] = useLoginMutation();
+    const [FormLoading, setFormLoading] = useState(false);
+    const { enqueueSnackbar } = useSnackbar();
 
     const {
         register,
@@ -14,12 +18,23 @@ const LoginForm = () => {
     } = useForm();
 
     const onSubmit = async (data) => {
-        try {
-            const userToken = await login(data).unwrap();
-            reset();
-        } catch (err) {
-            console.log("Login failed: ", err);
-        }
+        setFormLoading(true);
+
+        setTimeout( async () => {
+            try {
+                const userToken = await login(data).unwrap();
+                reset();
+                enqueueSnackbar("Login Successful", {variant: 'success', autoHideDuration: 5000});
+                console.log(userToken);
+            } catch (err) {
+                let message = err?.data?.message || `${err?.status} Code: ${err?.originalStatus || "Call Master Joseph"}` || "An error occurred";
+                enqueueSnackbar(message, {variant: 'error', autoHideDuration: 5000});
+                console.log("Login failed: ", err);
+            }
+            finally {
+                setFormLoading(false);
+            }
+        }, 1500);
     }
 
     return (
