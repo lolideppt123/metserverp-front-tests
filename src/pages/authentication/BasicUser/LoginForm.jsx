@@ -4,6 +4,8 @@ import { FiMail, FiLock } from "react-icons/fi";
 import { useLoginMutation } from '../../../features/auth/authApiSlice';
 import { useState } from 'react';
 import { useSnackbar } from 'notistack';
+import { Spin } from 'antd';
+import {LoadingOutlined} from '@ant-design/icons';
 
 const LoginForm = () => {
     const [login, { isLoading, isError, error }] = useLoginMutation();
@@ -77,7 +79,22 @@ const LoginForm = () => {
                 />
                 <div className="d-block-inline mb-2 mt-3">
                     <button className="btn form-control-lg btn-primary w-100 fw-normal mt-3 p-2 login-submit-btn">
-                        Sign In
+                    {FormLoading ? (
+                         <Spin
+                            indicator={
+                                <LoadingOutlined
+                                    style={{
+                                        fontSize: 18,
+                                        color: 'white',
+                                        margin: '0 8px 3px 0'
+                                    }}
+                                    spin
+                                />
+                            }
+                        />
+                    ): (
+                        "Sign In"
+                    )}
                     </button>
                 </div>
             </div>
