@@ -29,6 +29,7 @@ const SalesOrder = lazy(() => import('../pages/Sales/SalesOrder'))
 const AddSales = lazy(() => import('../pages/Sales/AddSales'))
 // const ViewSales = lazy(() => import('../pages/Sales/ViewSales'))
 const EditSales = lazy(() => import('../pages/Sales/EditSales'))
+const EditSalesOrder = lazy(() => import('../pages/Sales/SalesOrderEdit'))
 const SalesSummary = lazy(() => import('../pages/Sales/SalesSummary'))
 
 const Customer = lazy(() => import('../pages/Customer/Customer'))
@@ -199,6 +200,14 @@ const AppRouter = () => {
             element: (
                 <ProtectedRoute>
                     <SalesOrder />
+                </ProtectedRoute>
+            )
+        },
+        {
+            path: '/salesorder/:id/edit',
+            element: (
+                <ProtectedRoute>
+                    <EditSalesOrder />
                 </ProtectedRoute>
             )
         },

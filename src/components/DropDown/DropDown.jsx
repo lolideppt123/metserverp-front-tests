@@ -47,7 +47,7 @@ const DropDown = ({ showConfig, link2, editConfig, ShowCard, deleteConfig }) => 
                     <div className={`DD-item-text`}>Edit</div>
                 </NavLink>
             ),
-            icon: <FiEdit className={`DD-icon ${!link2 && "text-muted"}`} />,
+            icon: <FiEdit className={`DD-icon`} />,
             disabled: editDisabled
         },
         {

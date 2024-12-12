@@ -136,8 +136,8 @@ export default function SalesOrder() {
                                 cardWidth: 720
                             }}
                             editConfig={{
-                                editLink: ``,
-                                disabled: true
+                                editLink: `/salesorder/${record.id}/edit`,
+                                disabled: false
                             }}
                             deleteConfig={{
                                 message:    <DeleteMessage record={record} />,

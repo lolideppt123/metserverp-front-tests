@@ -298,7 +298,7 @@ export default function DraftForm({ config }) {
                                 <div className="d-flex gap-3">
                                     <div className="flex-fill mb-2">
                                         <label htmlFor="sales_dr" className="text-md text-gray-500">Delivery Receipt</label>
-                                        <input type="text" className={`form-control form-control-sm`} autoComplete='off' id='sales_dr' placeholder='0000' {...register("sales_dr", { maxLength: 4 })} />
+                                        <input type="text" className={`form-control form-control-sm`} autoComplete='off' id='sales_dr' placeholder='0000' {...register("sales_dr", { maxLength: 10 })} />
                                     </div>
                                     <div className="flex-fill mb-2">
                                         <label htmlFor="sales_invoice" className="text-md text-gray-500">Sales Invoice</label>

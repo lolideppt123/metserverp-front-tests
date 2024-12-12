@@ -1,6 +1,6 @@
 import { apiSlice } from "../../app/api/apiSlice";
 
-export const salesApiSlice = apiSlice.enhanceEndpoints({ addTagTypes: ['Sales', 'Inventory'] })
+export const salesApiSlice = apiSlice.enhanceEndpoints({ addTagTypes: ['Sales', 'Inventory', 'Invoice'] })
     .injectEndpoints({
         endpoints: (builder) => ({
             getAllSales: builder.query({ // returns all sales without any filter
@@ -45,7 +45,7 @@ export const salesApiSlice = apiSlice.enhanceEndpoints({ addTagTypes: ['Sales', 
                     method: 'POST',
                     body: sales,
                 }),
-                invalidatesTags: ['Sales', 'Inventory']
+                invalidatesTags: ['Sales', 'Inventory', 'Invoice']
             }),
             updateSalesItem: builder.mutation({
                 query: (sales) => ({
@@ -76,7 +76,8 @@ export const salesApiSlice = apiSlice.enhanceEndpoints({ addTagTypes: ['Sales', 
                     // this invalidates "getInventoryHistory"
                     return [
                         { type: 'Sales', id: 'LIST' },
-                        ...(product_pk ? [{ type: 'Inventory', id: product_pk }] : [])
+                        ...(product_pk ? [{ type: 'Inventory', id: product_pk }] : []),
+                        'Invoice'
                     ];
                 }
             }),
