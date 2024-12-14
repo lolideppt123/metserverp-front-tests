@@ -43,7 +43,7 @@ const persistUnitConfig = {
 }
 
 const salesPersistReducer = persistReducer(persistSalesConfig, salesReducer);
-const unitPersistReducer = persistReducer(persistSalesConfig, denominationReducer);
+const unitPersistReducer = persistReducer(persistUnitConfig, denominationReducer);
 
 export const store = configureStore({
     reducer: {

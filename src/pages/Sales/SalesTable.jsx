@@ -1,7 +1,7 @@
 import { memo, useMemo } from 'react';
 import { Table } from 'antd';
 import dayjs from "dayjs";
-import MoneyFormatter, { NumberFormatter } from "../../settings/MoneyFormatter";
+import MoneyFormatter from "../../settings/MoneyFormatter";
 import CSVExportByMonth from '../../components/Exports/CSVExportByMonth';
 import TableToggleButton from '../../components/CustomFields/TableToggleButton';
 
@@ -13,12 +13,6 @@ const SalesTable = ({ salesData, data_title, column, filters, setFilters, tableS
         sales_totals = {},
         sales_cummulative = {}
     } = salesData;
-
-    // Update filters when user applies them
-    const handleTableOnFilter = (pagination, newFilters, sorter, extra) => {
-        const filterQuery = { ...newFilters, dateFilter: filters.dateFilter };
-        setFilters(filterQuery);
-    };
 
     const summary = useMemo(() => {
         return (
@@ -149,7 +143,7 @@ const SalesTable = ({ salesData, data_title, column, filters, setFilters, tableS
                 <Table
                     columns={column}
                     dataSource={sales_list}
-                    onChange={handleTableOnFilter}
+                    onChange={setFilters}
                     rowKey={data => data.pk}
                     scroll={{ x: 'max-content', y: tableSize ? 600 : 'none' }}
                     pagination={false}

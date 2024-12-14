@@ -2,11 +2,10 @@ import { FiPlus } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import DropDownMenu from '../../components/DropDown/DropDownMenu';
 import DropDownItem from '../../components/DropDown/DropDownItem';
-import CSVExport from '../../components/Exports/CSVExport';
 
 import SalesYearMonthFilter from '../../components/Filter/SalesYearMonthFilter';
 
-export default function DataTablePageHeader({ Labels, type = null, salesFilter = null, setSalesFilter, data = [] }) {
+export default function DataTablePageHeader({ Labels, type = null }) {
     const navigate = useNavigate();
     return (
         <>
@@ -32,7 +31,7 @@ export default function DataTablePageHeader({ Labels, type = null, salesFilter =
                 ) : (
                     type == 'sales' ? (
                         <div className="col-md-4">
-                            <SalesYearMonthFilter setSalesFilter={setSalesFilter} />
+                            <SalesYearMonthFilter />
                         </div>
                     ) : (
                         <div className="col-md-8 ms-2 page-header-title-wrapper">
@@ -42,11 +41,6 @@ export default function DataTablePageHeader({ Labels, type = null, salesFilter =
                 )}
                 <div className="btn-toolbar page-header-action-wrapper">
                     <div className="d-grid gap-2 d-md-block">
-                        {type === 'sales' && data?.length > 0 && (
-                            <div className="btn btn-secondary me-2">
-                                <CSVExport data={data} year={salesFilter} />
-                            </div>
-                        )}
                         <button type='button' onClick={() => navigate(`/${Labels.NEW_ENTITY_URL}`)} className="btn btn-primary page-header-action-button">
                             <FiPlus className='header-action-button-icon icon' />
                             <span className='button-text'>{Labels.ADD_NEW_ENTITY}</span>

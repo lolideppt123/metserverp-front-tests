@@ -1,6 +1,7 @@
-import { useState, useEffect, memo } from "react";
-
+import { useState, memo } from "react";
 import { useGetSalesFilteredDataQuery } from "../../features/sales/salesApiSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { selectSalesFilters, updateSalesFilters } from "../../features/sales/salesSlice";
 
 import DataTablePageHeader from '../../modules/FspPanelModule/DataTablePageHeader';
 import dayjs from "dayjs";
@@ -20,17 +21,10 @@ import NoServerResponse from "../../components/Errors/NoServerResponse";
 
 
 const Sales = () => {
-    const currentYear = dayjs().year();
-    const currentMonth = dayjs().month() + 1;
-    const initialDateFilter = `${currentYear}-${currentMonth}`;
-
     const [tableSize, setTableSize] = useState(true);
-    const [filters, setFilters] = useState({
-        customer: null,
-        productName: null,
-        salesInvoice: null,
-        dateFilter: initialDateFilter
-    });
+
+    const salesFilter = useSelector(selectSalesFilters);
+    const dispatch = useDispatch();
 
     // Grabs initial data only once
     const { data: {
@@ -39,11 +33,7 @@ const Sales = () => {
         customer,
         supplier,
         data_title
-    } = {}, isLoading, isError, error, isSuccess, isFetching } = useGetSalesFilteredDataQuery(filters);
-
-    useEffect(() => {
-        // console.log('Current Filters:', filters);
-    }, [filters]);
+    } = {}, isLoading, isError, error, isSuccess, isFetching } = useGetSalesFilteredDataQuery(salesFilter);
 
     const invoiceOptions = [{ text: "With Invoice", value: "With Invoice" }, { text: "Without Invoice", value: "Without Invoice" }, { text: "Sample", value: "Sample" }];
     const productOptions = transformData(products, { text: 'product_name', value: 'product_name' });
@@ -68,7 +58,7 @@ const Sales = () => {
             fixed: "left",
             width: 100,
             filters: invoiceOptions,
-            // filteredValue: filteredInfo.salesInvoice || null,
+            filteredValue: salesFilter.salesInvoice || null,
             onFilter: (value, record) => {
                 const regex = /[a-zA-Z]/i;
                 if (value === "Without Invoice" && regex.test(record.sales_invoice)) {
@@ -136,7 +126,7 @@ const Sales = () => {
             fixed: "left",
             width: 200,
             filters: productOptions,
-            // filteredValue: filteredInfo.productName || null,
+            filteredValue: salesFilter.productName || null,
             onFilter: (value, record) => {
                 if (typeof (value) === 'number') {
                     return record.sales_transaction[0].supplier.id === value
@@ -163,7 +153,7 @@ const Sales = () => {
             dataIndex: "customer",
             width: 200,
             filters: customerOptions,
-            // filteredValue: filteredInfo.customer || null,
+            filteredValue: salesFilter.customer || null,
             onFilter: (value, record) => record.customer.includes(value),
             filterSearch: true,
             render: (text, record) => {
@@ -332,6 +322,11 @@ const Sales = () => {
         },
     ];
 
+    const handleTableOnFilter = (pagination, newFilters, sorter, extra) => {
+        const newSalesFilter = {...newFilters, dateFilter: salesFilter.dateFilter};
+        dispatch(updateSalesFilters(newSalesFilter));
+    };
+
     return (
         <>
             <DataTablePageHeader
@@ -342,8 +337,6 @@ const Sales = () => {
                     NEW_ENTITY_URL: "sales/add",
                     API_URL: "sales/",
                 }}
-                salesFilter={filters.dateFilter}
-                setSalesFilter={setFilters}
                 type={"sales"}
             />
             {isLoading || isFetching ? (
@@ -355,8 +348,8 @@ const Sales = () => {
                     <SalesTable
                         salesData={sales}
                         data_title={data_title}
-                        filters={filters}
-                        setFilters={setFilters}
+                        filters={salesFilter}
+                        setFilters={handleTableOnFilter}
                         tableSize={tableSize}
                         setTableSize={setTableSize}
                         column={dataTableColumn}
