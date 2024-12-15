@@ -82,30 +82,33 @@ export default function InventoryForm({ config }) {
         onProductNameChange();
     }
 
-    const onSubmit = async (data) => {
+    const onSubmit = (data) => {
         setFormLoading(true);
 
         let message = "";
         let variant = "";
 
-        try {
-            const response = await addInventory(data).unwrap();
-            message = response?.message;
-            variant = "success";
-            reset();
-        }
-        catch (err) {
-            console.log("Adding sales error: ", err);
-            message = err?.data?.message || `${err?.status} Code: ${err?.originalStatus || "Call Master Joseph"}` || "An error occurred";
-            variant = "error";
-        }
-        finally {
-            setTimeout(() => {
-                enqueueSnackbar(message, {variant: variant, autoHideDuration: 5000});
+        setTimeout( async () => {
+            try {
+                const response = await addInventory(data).unwrap();
+                message = response?.message;
+                variant = "success";
+                
+                if(response) {
+                    navigate(-1);
+                    reset();
+                }
+            }
+            catch (err) {
+                console.log("Adding sales error: ", err);
+                message = err?.data?.message || err?.data?.detail || `${err?.status} Code: ${err?.originalStatus || "Call Master Joseph"}` || "An error occurred";
+                variant = "error";
+            }
+            finally {
                 setFormLoading(false);
-                navigate(-1);
-            }, 1500); 
-        }
+                enqueueSnackbar(message, {variant: variant, autoHideDuration: 5000});
+            }
+        }, 1500); 
     }
 
     const onProductNameChange = async () => {

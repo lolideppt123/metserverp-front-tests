@@ -83,7 +83,7 @@ export default function ProductForm({ config }) {
         }
         catch (err) {
             console.log("Adding Product error :", err);
-            message = err?.data?.message || `${err?.status} Code: ${err?.originalStatus || "Call Master Joseph"}` || "An error occurred";
+            message = err?.data?.message || err?.data?.detail || `${err?.status} Code: ${err?.originalStatus || "Call Master Joseph"}` || "An error occurred";
             variant = "error";
         }
         finally {

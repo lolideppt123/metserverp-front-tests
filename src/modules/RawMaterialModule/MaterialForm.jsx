@@ -70,24 +70,28 @@ export default function MaterialForm({ config }) {
 
         setTimeout( async () => {
             try {
+                var response = null;
                 if(Labels.METHOD === 'post') {
-                    const response = await addMaterial(data).unwrap();
+                    response = await addMaterial(data).unwrap();
                     message = response?.message;
                 } else if (Labels.METHOD === 'put') {
-                    const response = await updateMaterial(data).unwrap();
+                    response = await updateMaterial(data).unwrap();
                     message = response?.message;
                 }
                 variant = "success";
+                if(response) {
+                    navigate(-1);
+                    reset();
+                }
             }
             catch (err) {
                 console.log(`${Labels.METHOD === 'put' ? "Adding" : "Updating"} material error: `, err);
-                message = err?.data?.message || `${err?.status} Code: ${err?.originalStatus || "Call Master Joseph"}` || "An error occurred";
+                message = err?.data?.message || err?.data?.detail || `${err?.status} Code: ${err?.originalStatus || "Call Master Joseph"}` || "An error occurred";
                 variant = "error";
             }
             finally {
                 enqueueSnackbar(message, {variant: variant, autoHideDuration: 5000});
                 setFormLoading(false);
-                navigate(-1);
             }
         }, 1500);
 

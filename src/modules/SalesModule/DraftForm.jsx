@@ -30,7 +30,7 @@ export default function DraftForm({ config }) {
     const dispatch = useDispatch();
 
     // Redux
-    const [adddSales] = useAddSalesMutation();
+    const [addSales] = useAddSalesMutation();
     const {enqueueSnackbar} = useSnackbar();
     const navigate = useNavigate();
 
@@ -190,29 +190,33 @@ export default function DraftForm({ config }) {
             })
     }
 
-    const onSubmit = async (data) => {
+    const onSubmit = (data) => {
         setFormLoading(true);
 
         let message = "";
         let variant = "";
 
-        try {
-            const response = await adddSales(data).unwrap();
-            message = response?.message;
-            variant = "success";
-        }
-        catch (err) {
-            console.log("Adding sales error: ", err);
-            message = err?.data?.message || `${err?.status} Code: ${err?.originalStatus || "Call Master Joseph"}` || "An error occurred";
-            variant = "error";
-        }
-        finally {
-            setTimeout(() => {
+        setTimeout( async () => {
+            try {
+                const response = await addSales(data).unwrap();
+                message = response?.message;
+                variant = "success";
+
+                if(response) {
+                    navigate(-1);
+                    reset();
+                }
+            }
+            catch (err) {
+                console.log("Adding sales error: ", err);
+                message = err?.data?.message || err?.data?.detail || `${err?.status} Code: ${err?.originalStatus || "Call Master Joseph"}` || "An error occurred";
+                variant = "error";
+            }
+            finally {
                 enqueueSnackbar(message, {variant: variant, autoHideDuration: 5000});
                 setFormLoading(false);
-                navigate(-1);
-            }, 1500); 
-        }
+            }
+        }, 1500);
     }
 
     const saveAsDraft = () => {

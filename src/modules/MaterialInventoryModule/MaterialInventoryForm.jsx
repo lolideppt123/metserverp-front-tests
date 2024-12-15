@@ -107,7 +107,7 @@ export default function MaterialInventoryEditForm({ config }) {
             variant = "success";
         } catch (err) {
             console.log("Adding sales error: ", err);
-            message = err?.data?.message || `${err?.status} Code: ${err?.originalStatus || "Call Master Joseph"}` || "An error occurred";
+            message = err?.data?.message || err?.data?.detail || `${err?.status} Code: ${err?.originalStatus || "Call Master Joseph"}` || "An error occurred";
             variant = "error";
         } finally {
             setTimeout(() => {
