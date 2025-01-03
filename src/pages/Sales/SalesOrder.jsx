@@ -95,34 +95,22 @@ export default function SalesOrder() {
                 if (open) setTimeout(() => searchInput.current?.select(), 100);
             },
         },
-        // render: (text) => (
-        //     searchedColumn === dataIndex && (
-        //         <div className={`fs-md fw-semibold text-center`}>
-        //             {text.length > 25 ? (
-        //                 <Tooltip className='pointer' title={text}>
-        //                     {text.substr(0, 25)}{text.length > 25 && '\u2026'}
-        //                 </Tooltip>
-        //             ) : (
-        //                 <>{text}</>
-        //             )}
-        //         </div>
-        //     )),
         render: (text) =>
-            searchedColumn === dataIndex ? (
-                <div className={`fs-md fw-semibold text-center`}>
-                    <Highlighter
-                    highlightStyle={{
-                        backgroundColor: '#ffc069',
-                        padding: 0,
-                    }}
-                    searchWords={[searchText]}
-                    autoEscape
-                    textToHighlight={text ? text.toString() : ''}
-                    />
-                </div>
-            ) : (
-                text
-            ),
+            <div className={`fs-md fw-semibold text-center`}>
+                {searchedColumn === dataIndex ? (
+                        <Highlighter
+                            highlightStyle={{
+                                backgroundColor: '#ffc069',
+                                padding: 0,
+                            }}
+                            searchWords={[searchText]}
+                            autoEscape
+                            textToHighlight={text ? text.toString() : ''}
+                        />
+                ) : (
+                    text
+                )}
+            </div>
         });
 
     const dataTableColumn = [
