@@ -1,4 +1,4 @@
-import { useState} from 'react';
+import { useRef, useState} from 'react';
 import dayjs from 'dayjs';
 import Spinner from '../../components/Fallback/Spinner';
 import MoneyFormatter from '../../settings/MoneyFormatter';
@@ -15,8 +15,17 @@ import { useGetAllSalesOrderQuery } from '../../features/sales/salesOrderApiSlic
 import NoServerResponse from '../../components/Errors/NoServerResponse';
 
 
+// Demo
+import { Button, Input, Space, Table } from 'antd';
+import {SearchOutlined} from '@ant-design/icons';
+import Highlighter from 'react-highlight-words';
+
+
 export default function SalesOrder() {
     const [Destroy, setDestroy] = useState(false);
+    const searchInput = useRef(null);
+    const [searchText, setSearchText] = useState('');
+    const [searchedColumn, setSearchedColumn] = useState('');
 
     const Labels = {
         PAGE_ENTITY: 'Sales Orders',
@@ -30,6 +39,91 @@ export default function SalesOrder() {
 
     // Redux
     const {data, isLoading, isError, error, isSuccess} = useGetAllSalesOrderQuery();
+
+
+    const handleSearch = (selectedKeys, confirm, dataIndex) => {
+        confirm();
+        setSearchText(selectedKeys[0]);
+        setSearchedColumn(dataIndex);
+    };
+
+    const handleReset = (clearFilters) => {
+        clearFilters();
+        setSearchText('');
+    };
+
+    const getColumnSearchProps = (dataIndex) => ({
+        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+            <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+                <Input
+                    ref={searchInput}
+                    placeholder={`Search ${dataIndex}`}
+                    value={selectedKeys[0]}
+                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+                    style={{ marginBottom: 8, display: 'block' }}
+                />
+                <Space>
+                    <Button
+                        type="primary"
+                        onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{ width: 90 }}
+                    >
+                        Search
+                    </Button>
+                    <Button onClick={() => clearFilters && handleReset(clearFilters)} size="small" style={{ width: 90 }}>
+                        Reset
+                    </Button>
+                    <Button type="link" size="small" onClick={() => confirm({ closeDropdown: false })}>
+                        Filter
+                    </Button>
+                    <Button type="link" size="small" onClick={() => close()}>
+                        Close
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: (filtered) => (
+            <SearchOutlined style={{ color: "#6610f2", fontSize: 18, fontWeight: 600}} />
+        ),
+        onFilter: (value, record) =>
+            record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+        filterDropdownProps: {
+            onOpenChange(open) {
+                if (open) setTimeout(() => searchInput.current?.select(), 100);
+            },
+        },
+        // render: (text) => (
+        //     searchedColumn === dataIndex && (
+        //         <div className={`fs-md fw-semibold text-center`}>
+        //             {text.length > 25 ? (
+        //                 <Tooltip className='pointer' title={text}>
+        //                     {text.substr(0, 25)}{text.length > 25 && '\u2026'}
+        //                 </Tooltip>
+        //             ) : (
+        //                 <>{text}</>
+        //             )}
+        //         </div>
+        //     )),
+        render: (text) =>
+            searchedColumn === dataIndex ? (
+                <div className={`fs-md fw-semibold text-center`}>
+                    <Highlighter
+                    highlightStyle={{
+                        backgroundColor: '#ffc069',
+                        padding: 0,
+                    }}
+                    searchWords={[searchText]}
+                    autoEscape
+                    textToHighlight={text ? text.toString() : ''}
+                    />
+                </div>
+            ) : (
+                text
+            ),
+        });
 
     const dataTableColumn = [
         {
@@ -63,17 +157,18 @@ export default function SalesOrder() {
             key: 'customer',
             dataIndex: 'customer',
             width: 275,
-            render: (text, record) => {
-                return <div className={`fs-md fw-semibold text-center`}>
-                    {text.length > 25 ? (
-                        <Tooltip className='pointer' title={text}>
-                            {text.substr(0, 25)}{text.length > 25 && '\u2026'}
-                        </Tooltip>
-                    ) : (
-                        <>{text}</>
-                    )}
-                </div>
-            }
+            ...getColumnSearchProps('customer')
+            // render: (text, record) => {
+            //     return <div className={`fs-md fw-semibold text-center`}>
+            //         {text.length > 25 ? (
+            //             <Tooltip className='pointer' title={text}>
+            //                 {text.substr(0, 25)}{text.length > 25 && '\u2026'}
+            //             </Tooltip>
+            //         ) : (
+            //             <>{text}</>
+            //         )}
+            //     </div>
+            // }
         },
         {
             title: <div className='fs-md fw-bold text-center'>Total</div>,

@@ -50,49 +50,10 @@ function SalesOrderEditForm({config}) {
         }
     });
 
-    // const onSubmit = async (data) => {
-    //     setFormLoading(true);
-
-    //     let message = "";
-    //     let variant = "";
-
-    //     let paid_date = dayjs(data.invoice_paid_date).isValid();
-    //     let isPaid = data.invoice_status === "PAID";
-
-    //     if(isPaid && !paid_date) {
-    //         formSetError('invoice_status', {type: 'custom', message: 'Enter a valid date'});
-    //         setFormLoading(false); // Stop loading if there’s an error
-    //         return;
-    //     } 
-    //     else if(!isPaid) {
-    //         data.invoice_paid_date = "";
-    //     }
-    //     console.log("FormData: ", data);
-
-    //     try {
-    //         const response = await updateInvoice(data).unwrap();
-    //         console.log("API Response:", response); // Log the response
-
-    //         message = response?.message;
-    //         variant = "success";
-    //     }
-    //     catch (err) {
-    //         console.log("Adding sales error: ", err);
-    //         message = err?.data?.message || `${err?.status} Code: ${err?.originalStatus || "Call Master Joseph"}` || "An error occurred";
-    //         variant = "error";
-    //     }
-    //     finally {
-    //         setTimeout(() => {
-    //             enqueueSnackbar(message, {variant: variant, autoHideDuration: 5000});
-    //             setFormLoading(false);
-    //             navigate(-1);
-    //         }, 1500); 
-    //     }
-
-    // };
-
     const onSubmit = (data) => {
         setFormLoading(true);
+
+        console.log("FOrm Data: ", data);
 
         let paid_date = dayjs(data.invoice_paid_date).isValid();
         let isPaid = data.invoice_status === "PAID";

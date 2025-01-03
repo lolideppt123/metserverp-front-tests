@@ -83,8 +83,7 @@ export default function DeleteModal({ deleteConfig }) {
             }
             catch (err) {
                 console.log(`Deleting ${component} error: `, err);
-                message = err?.data?.message || err || "An error occurred";
-
+                message = err?.data?.message || err?.data?.detail || `${err?.status} Code: ${err?.originalStatus || "Call Master Joseph"}` || "An error occurred";
                 variant = "error";
             }
             finally {
