@@ -1,0 +1,79 @@
+@media only screen and (max-width: 700px) {
+    .sales-card-title-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .sales-card-title-container span {
+        font-size: 16px;
+    }
+
+    .sales-card-title-left {
+        flex-basis: 100%;
+        justify-content: space-between;
+    }
+
+    .sales-card-record-id span,
+    .sales-card-dr span,
+    .sales-card-invoice span,
+    .sales-card-detail-content span,
+    .sales-card-detail-content-2 span,
+    .sales-card-pricing-container span,
+    .sales-card-footer span {
+        font-size: 14px !important;
+    }
+
+    .sales-card-detail-content {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+    }
+
+    .sales-card-detail-content-2 {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .sales-card-detail-content>.m-0,
+    .sales-card-detail-content-2>.m-0 {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+
+    .sales-card-pricing-container {
+        flex-direction: column;
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+
+    .sales-card-pricing-left,
+    .sales-card-pricing-right {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .unit-cost,
+    .gross-price,
+    .total-cost,
+    .selling-price {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .sales-card-footer-left {
+        display: none;
+    }
+
+    .sales-card-footer-right {
+        text-wrap: wrap;
+    }
+
+}

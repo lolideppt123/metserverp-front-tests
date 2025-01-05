@@ -1,0 +1,20 @@
+.sales-isMobile-show-btn,
+.sales-isMobile-delete-btn {
+    font-size: 14px;
+    height: 32px;
+}
+
+@media only screen and (max-width: 700px) {
+    .ant-table-summary {
+        display: none;
+    }
+
+    .sales-table-summary {
+        display: flex !important;
+        flex-direction: column;
+    }
+
+    .sales-table-summary span {
+        font-size: 14px;
+    }
+}

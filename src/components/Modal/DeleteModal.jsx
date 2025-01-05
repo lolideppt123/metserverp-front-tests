@@ -7,8 +7,6 @@ import useAxiosFunction from "../../hooks/useAxiosFunction";
 import { useSnackbar } from "notistack";
 
 // redux
-import { useSelector, useDispatch } from "react-redux";
-import { selectModalDelete, modalDelete } from "../../features/modal/modalSlice";
 import { useDeleteSalesMutation } from "../../features/sales/salesApiSlice";
 import { useDeleteInventoryProductMutation } from "../../features/inventory/inventoryApiSlice";
 import { useDeleteSalesOrderMutation } from "../../features/sales/salesOrderApiSlice";
@@ -25,13 +23,14 @@ export default function DeleteModal({ deleteConfig }) {
         notAllowed,
         api_url,
         setData,
+        classList,
         setDestroy,
         component = "",
         recordID = ""
     } = deleteConfig;
 
-    const myModal = useSelector(selectModalDelete);
-    const dispatch = useDispatch();
+    const [open, setOpen] = useState(false);
+
     const [deleteSales, {isLoading, isError, error}] = useDeleteSalesMutation();
     const [deleteInventory] = useDeleteInventoryProductMutation();
     const [deleteInvoice] = useDeleteSalesOrderMutation();
@@ -39,15 +38,8 @@ export default function DeleteModal({ deleteConfig }) {
     const [deleteRawMaterial] = useDeleteMaterialMutation();
     const [deleteProduct] = useDeleteProductMutation();
 
-    const { axiosFetch: dataFetch } = useAxiosFunction();
-    const { success, setSuccess, response: customer, axiosFetch: customerFetch } = useAxiosFunction();
     const [loading, setLoading] = useState(false);
     const {enqueueSnackbar} = useSnackbar();
-
-    const showModal = () => {
-        if (notAllowed) return
-        dispatch(modalDelete(true));
-    };
 
     const handleDelete = async () => {
 
@@ -91,19 +83,24 @@ export default function DeleteModal({ deleteConfig }) {
                 enqueueSnackbar(message, {variant: variant, autoHideDuration: 5000});
                 setLoading(false);
                 // Close modal
-                dispatch(modalDelete(false));
+                setOpen(false);
             }
         }, 1500);
     };
 
+    const showModal = () => {
+        if (notAllowed) return
+        setOpen(true);
+    };
+
     const handleCancel = () => {
-        dispatch(modalDelete(false));
+        setOpen(false);
     };
 
     return (
         <>
             <NavLink className={`DD-link ${notAllowed && 'not-allowed'}`} onClick={showModal}>
-                <div className={`DD-link ${notAllowed && "not-allowed text-muted"} DD-item-text`}>
+                <div className={classList}>
                     {buttonText}
                 </div>
             </NavLink>
@@ -115,7 +112,7 @@ export default function DeleteModal({ deleteConfig }) {
                     </div>
                 }
                 closeIcon={<FiX style={{ height: '24px', width: '24px', color: 'var(--bs-link-color)' }} />}
-                open={myModal}
+                open={open}
                 onOk={handleDelete}
                 onCancel={handleCancel}
                 footer={[

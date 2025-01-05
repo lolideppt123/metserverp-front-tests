@@ -16,7 +16,7 @@ import NoServerResponse from '../../components/Errors/NoServerResponse';
 
 
 // Demo
-import { Button, Input, Space, Table } from 'antd';
+import { Button, Input, Space } from 'antd';
 import {SearchOutlined} from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
 

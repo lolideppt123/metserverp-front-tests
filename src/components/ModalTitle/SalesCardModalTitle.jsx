@@ -3,8 +3,8 @@ import RenderText from "../Tooltip/RenderText";
 
 export default function SalesCardModalTitle({ cardData }) {
     return (
-        <div className="d-flex align-items-center justify-content-between mb-2 me-5">
-            <div className="d-flex align-items-center m-0">
+        <div className="sales-card-title-container d-flex align-items-center justify-content-between mb-2 me-5">
+            <div className="sales-card-title-left d-flex align-items-center m-0">
                 <span className="h5 m-0 me-2">
                     <RenderText text={cardData?.customer} maxLength={25} />
                 </span>
@@ -12,7 +12,7 @@ export default function SalesCardModalTitle({ cardData }) {
                     {cardData?.sales_status}
                 </span>
             </div>
-            <div className="d-flex align-items-center justify-content-end">
+            <div className="sales-card-title-right d-flex align-items-center justify-content-end">
                 <span className="h5 m-0">
                     {dayjs(cardData?.sales_date).format("MMM DD, YYYY")}
                 </span>

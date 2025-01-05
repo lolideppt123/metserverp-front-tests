@@ -62,14 +62,14 @@
     }
 }
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 800px) {
     .box-mid {
         grid-column: span 12;
         grid-row: span 2;
     }
 }
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 750px) {
     .box-sm {
         grid-column: span 12;
         grid-row: span 1;

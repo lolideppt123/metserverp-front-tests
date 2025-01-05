@@ -118,7 +118,7 @@ const Inventory = () => {
                     render: (text, record) => {
                         return (
                             <>
-                                <div className={`fs-md fw-semibold text-uppercase text-start`} style={{ fontSize: '16px' }}>
+                                <div className={`fs-md fw-semibold text-uppercase text-start`} style={{ fontSize: '14px' }}>
                                     <NavLink to={`transaction/${record.product_pk}/${encodeURIComponent(record.product_name)}`}>
                                         {<RenderText text={text} maxLength={20} />}
                                     </NavLink>

@@ -1,4 +1,4 @@
-import { useState, memo } from "react";
+import { useState, memo, useEffect } from "react";
 import { useGetSalesFilteredDataQuery } from "../../features/sales/salesApiSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { selectSalesFilters, updateSalesFilters } from "../../features/sales/salesSlice";
@@ -18,12 +18,19 @@ import SalesCardModalTitle from "../../components/ModalTitle/SalesCardModalTitle
 import SalesCard from "../../components/Cards/SalesCard";
 import { DeleteMessage } from "./utils/DeleteMessage";
 import NoServerResponse from "../../components/Errors/NoServerResponse";
+import { selectDrawerPlatform } from "../../features/drawer/drawerSlice";
+import { NavLink } from "react-router-dom";
+import { FiEdit, FiEye, FiTrash2 } from "react-icons/fi";
+import CardModal from "../../components/Modal/CardModal";
+import DeleteModal from "../../components/Modal/DeleteModal";
 
 
 const Sales = () => {
     const [tableSize, setTableSize] = useState(true);
 
+    const [newDataColumn, setNewDataColumn] = useState([]);
     const salesFilter = useSelector(selectSalesFilters);
+    const { isMobile } = useSelector(selectDrawerPlatform);
     const dispatch = useDispatch();
 
     // Grabs initial data only once
@@ -326,6 +333,108 @@ const Sales = () => {
         const newSalesFilter = {...newFilters, dateFilter: salesFilter.dateFilter};
         dispatch(updateSalesFilters(newSalesFilter));
     };
+    console.log(sales);
+    useEffect(() => {
+        if(isMobile) {
+            console.log("Is Mobile: ", isMobile);
+            setNewDataColumn([
+                {
+                    title: <div className="h6 fs-md fw-semibold text-center">{dayjs(salesFilter.dateFilter).format('MMMM YYYY')}</div>,
+                    key: "salesInvoice",
+                    dataIndex: "sales_invoice",
+                    render: (text, record) => {
+                        return (
+                            <div className="sales-isMobile-container my-2">
+                                <div className="d-flex flex-wrap align-items-center m-0 p-1">
+                                    <span className="fw-semibold m-0">Invoice:</span>
+                                    <span className="fw-0 fw-md ms-1">
+                                        <RenderText text={record.sales_invoice} maxLength={5} />
+                                    </span>
+                                    <span className="fw-semibold ms-auto m-0">Date:</span>
+                                    <span className="fw-md ms-1 text-end m-0 me-1">
+                                        {dayjs(record.sales_date).format('MMM DD, YYYY')}
+                                    </span>
+                                </div>
+                                <div className="d-flex flex-wrap align-items-center m-0 pt-0 px-1 pb-1">
+                                    <span className="fw-semibold m-0">DR:</span>
+                                    <span className="fw-0 fw-md ms-1">
+                                        <RenderText text={record.sales_dr} maxLength={5} />
+                                    </span>
+                                    {record.sales_status === "PAID" ? (
+                                        <>
+                                            <span className="fw-semibold ms-auto m-0">Date Paid:</span>
+                                            <span className="fw-md ms-1 text-end m-0 me-1 paid-status px-2 py-1">
+                                                {dayjs(record.sales_paid_date).format('MMM DD, YYYY')}
+                                            </span>
+                                        </>
+                                    ): (
+                                        <span style={{ fontSize: "12px" }} className="px-2 py-1 ms-auto me-1 unpaid-status">
+                                            {record.sales_status}
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="d-flex flex-wrap align-items-center m-0 p-1">
+                                    <span className="fw-0 fw-semibold text-primary">
+                                        <RenderText text={record.customer} maxLength={50} />
+                                    </span>
+                                </div>
+                                <div className="d-flex flex-wrap align-items-center m-0 p-1">
+                                    <span className="fw-0 fw-md">
+                                        <RenderText text={record.product_name} maxLength={50} />
+                                    </span>
+                                    <span className="fw-semibold ms-auto m-0">Qty:</span>
+                                    <span className="fw-md ms-1 text-end m-0 me-1">
+                                        {<NumberFormatter amount={record.sales_quantity} />}
+                                    </span>
+                                </div>
+                                <div className="d-flex flex-wrap align-items-center m-0 p-1 gap-2 mt-2">
+                                    <CardModal
+                                        classList="btn btn-outline-info d-flex align-items-center sales-isMobile-show-btn"
+                                        buttonText={
+                                            <>
+                                                <FiEye className="DD-icon me-1 align-items-center" />
+                                                <span className="DD-item-text" style={{fontSize: 12}}>Show</span>
+                                            </>
+                                        }
+                                        titleProp={<SalesCardModalTitle cardData={record} />}
+                                        setDestroy={() => false}
+                                    >
+                                        <SalesCard data={record} />
+                                    </CardModal>
+                                    <NavLink 
+                                        className="btn btn-outline-primary d-flex align-items-center"
+                                        to={`/sales/transaction/${record.pk}/edit`}
+                                        style={{fontSize: 12}}
+                                    >
+                                        <FiEdit className="DD-icon me-1 align-items-center" />
+                                        <span className="DD-item-text">Edit</span>
+                                    </NavLink>
+                                    <DeleteModal
+                                        deleteConfig={{
+                                            classList: "btn btn-outline-danger d-flex align-items-center sales-isMobile-delete-btn",
+                                            message: <DeleteMessage record={record} />,
+                                            component: "sales",
+                                            recordID: record.pk,
+                                            buttonText: (<>
+                                                <FiTrash2 className="DD-icon me-1 align-items-center" />
+                                                <span className="DD-item-text" style={{fontSize: 12}}>Delete</span>
+                                            </>),
+                                            linkExt: "",
+                                            setDestroy: () => false
+                                        }}
+                                    />
+                                </div>
+
+                            </div>
+                        );
+                    },
+                }
+            ])
+        }
+        else {
+            setNewDataColumn(dataTableColumn);
+        }
+    }, [isMobile])
 
     return (
         <>
@@ -347,12 +456,12 @@ const Sales = () => {
                 ) : (
                     <SalesTable
                         salesData={sales}
-                        data_title={data_title}
+                        data_title={isMobile ? "" : data_title}
                         filters={salesFilter}
                         setFilters={handleTableOnFilter}
                         tableSize={tableSize}
                         setTableSize={setTableSize}
-                        column={dataTableColumn}
+                        column={newDataColumn}
                     />
                 )
             )}

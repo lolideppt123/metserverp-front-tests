@@ -7,10 +7,13 @@
 @import './pages/Dictionary/main.css';
 @import './pages/Dictionary/Products.css';
 @import './pages/SalesOrders.css';
+@import './pages/Sales.css';
+/* @import './pages/Videos.css'; */
 /* Pages Style */
 @import './datatable/Datatable.css';
 @import './dropdown/datatableaction.css';
 @import './Modal/ModalForm.css';
+@import './Card/SalesCard.css';
 @import './Authentication/Form.css';
 @import './Fallback/getStartedTemplate.css';
 @import './AntD/modalOverride.css';
