@@ -333,13 +333,13 @@ const Sales = () => {
         const newSalesFilter = {...newFilters, dateFilter: salesFilter.dateFilter};
         dispatch(updateSalesFilters(newSalesFilter));
     };
-    console.log(sales);
+
     useEffect(() => {
         if(isMobile) {
             console.log("Is Mobile: ", isMobile);
             setNewDataColumn([
                 {
-                    title: <div className="h6 fs-md fw-semibold text-center">{dayjs(salesFilter.dateFilter).format('MMMM YYYY')}</div>,
+                    title: <div className="h6 fs-md fw-semibold text-center">Sales List</div>,
                     key: "salesInvoice",
                     dataIndex: "sales_invoice",
                     render: (text, record) => {
@@ -456,7 +456,7 @@ const Sales = () => {
                 ) : (
                     <SalesTable
                         salesData={sales}
-                        data_title={isMobile ? "" : data_title}
+                        data_title={data_title}
                         filters={salesFilter}
                         setFilters={handleTableOnFilter}
                         tableSize={tableSize}

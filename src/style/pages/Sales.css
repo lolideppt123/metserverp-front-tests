@@ -4,9 +4,59 @@
     height: 32px;
 }
 
+/* Sales AddForm */
+@media only screen and (max-width: 1250px) {
+    .addSales-form-details {
+        width: 90%;
+    }
+
+    .addSales-form-review {
+        display: none;
+    }
+
+    .addSales-form-review-drawer {
+        display: flex !important;
+        width: 10%;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    .addSales-form-review-drawer .DD-icon {
+        margin-bottom: 3px;
+        margin-right: 2px;
+    }
+}
+
+/* AddForm Buttons */
+@media only screen and (max-width: 900px) {
+    .addSales-button-container {
+        padding-top: 30px !important;
+        padding-bottom: 30px !important;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1.25rem !important;
+    }
+
+    .addSales-button-container .btn {
+        width: 100%;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    .addSales-form-container {
+        max-width: 720px;
+        width: 100%;
+        margin: 0;
+    }
+}
+
 @media only screen and (max-width: 700px) {
     .ant-table-summary {
         display: none;
+    }
+
+    .sales-table-header-title {
+        font-size: 18px;
     }
 
     .sales-table-summary {
@@ -16,5 +66,102 @@
 
     .sales-table-summary span {
         font-size: 14px;
+    }
+
+    /* Sales AddForm */
+    .addSales-form-container {
+        padding-top: 0 !important;
+    }
+
+    .addSales-form-details label {
+        font-size: 14px;
+    }
+
+    .addSales-form-invoice-row {
+        flex-direction: column;
+        gap: 0.25rem !important;
+    }
+
+    .addSales-product-item-container {
+        padding-right: 16px !important;
+    }
+
+    .addSales-product-item-card {
+        flex-direction: column;
+        gap: 0.25rem !important;
+    }
+
+    .addSales-product-item-card .flex-fill {
+        width: 100% !important;
+    }
+
+    .addSales-product-item-card-btn {
+        order: 1;
+        align-items: center;
+        justify-content: flex-end;
+        margin-left: 10px;
+        height: 30px;
+        margin-bottom: 0px !important;
+    }
+
+    .addSales-product-item-card-product {
+        order: 2;
+    }
+
+    .addSales-product-item-card-quantity {
+        order: 3;
+    }
+
+    .addSales-product-item-card-price {
+        order: 4;
+    }
+
+    .addSales-product-item-card-btn svg {
+        height: 22px !important;
+        width: 22px !important;
+        margin-top: 20px !important;
+    }
+
+    .addSales-button-container {
+        gap: 0.75rem !important;
+    }
+}
+
+/* Sales AddForm */
+@media only screen and (max-width: 550px) {
+    .addSales-form-review-drawer {
+        display: none !important;
+    }
+
+    .addSales-form-details {
+        width: 100%;
+        border: none !important;
+    }
+}
+
+/* Sales AddForm */
+@media only screen and (max-width: 500px) {
+
+    .addSales-form-gross-container>div:first-child,
+    .addSales-form-vat-container>div:first-child,
+    .addSales-form-total-container>div:first-child {
+        display: none;
+    }
+
+    .addSales-form-gross-container,
+    .addSales-form-vat-container,
+    .addSales-form-total-container {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+        /* Ensure the row takes full width */
+    }
+
+    .addSales-form-gross-container .col-6,
+    .addSales-form-gross-container .col-5,
+    .addSales-form-vat-container .col-4,
+    .addSales-form-vat-container .col-5,
+    .addSales-form-total-container .col-5 {
+        flex: 0 0 50%;
     }
 }

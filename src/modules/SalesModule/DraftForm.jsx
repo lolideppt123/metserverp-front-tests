@@ -24,10 +24,10 @@ import ConfirmationModal from '../../components/Modal/ConfirmationModal';
 import { useAddSalesMutation } from '../../features/sales/salesApiSlice';
 import { useSnackbar } from 'notistack';
 import { useNavigate } from "react-router-dom";
+import AddSalesReviewDrawer from '../../components/Drawer/AddSalesReviewDrawer';
 
 export default function DraftForm({ config }) {
-    const { saveFormAsDraft } = useAutoSaveForm();
-    const dispatch = useDispatch();
+    const { saveFormAsDraft, resetDraftForm } = useAutoSaveForm();
 
     // Redux
     const [addSales] = useAddSalesMutation();
@@ -37,7 +37,6 @@ export default function DraftForm({ config }) {
 
 
     const formState = useSelector(selectSalesFormState);
-    const { success, axiosFetch } = useAxiosFunction();
     const {
         Labels,
         customer,
@@ -230,9 +229,10 @@ export default function DraftForm({ config }) {
     }
 
     const loadDraftForm = () => {
+        // Function that loads Draft Form
+        // After loading drafts data. It should clear the saved draft.
         const newFormState = { ...formState };
 
-        delete newFormState['_persist'];
         const salesForm = newFormState['salesObj'];
 
         const stateKeys = Object.keys(salesForm);
@@ -249,20 +249,15 @@ export default function DraftForm({ config }) {
             if (isNaN(prices[index])) prices[index] = 0;
             setPriceList(prices)
         });
+
+        // Clearing saved draft
+        // Reset SalesObj
+        resetDraftForm();
     }
 
     // Watch & useEffects
     const [productItem, salesStatus, grossPrice, taxRate] = watch(['products', 'sales_status', 'gross_price', 'tax_percent']);
     const fieldData = watch();
-
-    useEffect(() => {
-        if (success) {
-            setFormLoading(false);
-            reset();
-            formClearError();
-            history.back();
-        }
-    }, [success])
 
     useEffect(() => {
         onUnitPriceChange();
@@ -274,9 +269,12 @@ export default function DraftForm({ config }) {
 
 
     useEffect(() => {
+        // There will always be '_persist' becaue of salesFilters
         if ('_persist' in formState) {
             const newFormState = { ...formState };
-            delete newFormState['_persist'];
+
+            // Makes a deep check here if salesObj is equal the default values of form
+            // If equal means that they're both at initial/default value.
             if (!_.isEqual(newFormState['salesObj'], fieldData)) {
                 setLoadDraft(true);
             }
@@ -284,7 +282,7 @@ export default function DraftForm({ config }) {
     }, [])
 
     return (
-        <div className="container pt-3">
+        <div className="addSales-form-container container pt-3">
             {isLoading ? (
                 <Spinner />
             ) : (
@@ -298,8 +296,8 @@ export default function DraftForm({ config }) {
 
                     <form id={`add${Labels.PAGE_ENTITY}Form`} onSubmit={handleSubmit(onSubmit)}>
                         <div className="row">
-                            <div className="col-md-6 border-end border-secondary">
-                                <div className="d-flex gap-3">
+                            <div className="addSales-form-details col-md-6 border-end border-secondary">
+                                <div className="addSales-form-invoice-row d-flex gap-3">
                                     <div className="flex-fill mb-2">
                                         <label htmlFor="sales_dr" className="text-md text-gray-500">Delivery Receipt</label>
                                         <input type="text" className={`form-control form-control-sm`} autoComplete='off' id='sales_dr' placeholder='0000' {...register("sales_dr", { maxLength: 10 })} />
@@ -356,12 +354,12 @@ export default function DraftForm({ config }) {
 
                                 </div>
 
-                                <div className='mb-4'>
+                                <div className='addSales-product-list-container mb-4'>
                                     {fields.map((field, index) => {
                                         return (
-                                            <div key={field.id} className="card card-header mb-2 ps-3 pe-1">
-                                                <div className="d-flex gap-3">
-                                                    <div className="flex-fill mb-2" style={{ width: '60%' }}>
+                                            <div key={field.id} className="addSales-product-item-container card card-header mb-2 ps-3 pe-1">
+                                                <div className="addSales-product-item-card d-flex gap-3">
+                                                    <div className="addSales-product-item-card-product flex-fill mb-2" style={{ width: '60%' }}>
                                                         <label htmlFor={`products.${index}.product`} className="text-md text-gray-500">Product Name</label>
                                                         <div className="input-group">
                                                             <select className="form-select form-select-sm" autoComplete='off' id='product_name' style={{ overflow: 'hidden', textOverflow: 'ellipsis' }} disabled={getValues(`products.${index}.product`) == "" ? false : true} required
@@ -390,7 +388,7 @@ export default function DraftForm({ config }) {
                                                             </select>
                                                         </div>
                                                     </div>
-                                                    <div className="flex-fill mb-2" style={{ width: '25%' }}>
+                                                    <div className="addSales-product-item-card-quantity flex-fill mb-2" style={{ width: '25%' }}>
                                                         <label htmlFor={`products.${index}.sales_quantity`} className="text-md text-gray-500">Quantity</label>
                                                         <input type="number" className={`form-control form-control-sm`} autoComplete='off' min={0.01} step={0.01} required
                                                             {...register(`products.${index}.sales_quantity`, {
@@ -403,7 +401,7 @@ export default function DraftForm({ config }) {
                                                             )} />
                                                     </div>
 
-                                                    <div className="flex-fill mb-2" style={{ width: '35%' }}>
+                                                    <div className="addSales-product-item-card-price flex-fill mb-2" style={{ width: '35%' }}>
                                                         <label htmlFor={`products.${index}.unit_price`} className="text-md text-gray-500">
                                                             Unit Price
                                                             <Tooltip title={getValues('tax_percent') == 12 ? `Unit Price INCLUDES VAT of 12%` : `0% Tax`}>
@@ -420,7 +418,7 @@ export default function DraftForm({ config }) {
                                                             )}
                                                         />
                                                     </div>
-                                                    <div className="btn-group mb-2">
+                                                    <div className="addSales-product-item-card-btn btn-group mb-2">
                                                         <a type='button' className='text-danger' onClick={() => {
                                                             handleRemoveItem(index)
                                                             remove(index)
@@ -460,7 +458,7 @@ export default function DraftForm({ config }) {
 
                                 <Divider />
 
-                                <div className="row">
+                                <div className="addSales-form-gross-container row">
                                     <div className="col-1 align-self-start"></div>
                                     <div className="col-6 align-self-center text-end">
                                         <label htmlFor="gross_price" className="fw-bold text-md text-gray-500 col-form-label">
@@ -484,7 +482,7 @@ export default function DraftForm({ config }) {
                                             } />
                                     </div>
                                 </div>
-                                <div className="row mt-2">
+                                <div className="addSales-form-vat-container row mt-2">
                                     <div className="col-3 align-self-start"></div>
                                     <div className="col-4 align-self-center text-end">
                                         <select className='form-select form-select-sm' defaultValue={12}
@@ -507,7 +505,7 @@ export default function DraftForm({ config }) {
                                             } />
                                     </div>
                                 </div>
-                                <div className="row mt-2">
+                                <div className="addSales-form-total-container row mt-2">
                                     <div className="col-2 align-self-start"></div>
                                     <div className="col-5 align-self-center text-end">
                                         <label htmlFor="total_price" className="fw-bold text-md text-gray-500 col-form-label">Total:</label>
@@ -516,7 +514,7 @@ export default function DraftForm({ config }) {
                                         <input type="number" className={`form-control form-control-sm`} autoComplete='off' id='total_price' min={0} step={0.01}
                                             {
                                             ...register("total_price", {
-                                                required: "Total Selling Price is Required",
+                                                required: "Total Selling Price is Required",    
                                                 valueAsNumber: true,
                                                 min: 0,
                                             })
@@ -535,7 +533,7 @@ export default function DraftForm({ config }) {
                                     </textarea>
                                 </div>
                             </div>
-                            <div className="col-md-6">
+                            <div className="addSales-form-review col-md-6">
                                 {ResponseData?.map((item, index) => (
                                     <div key={`${item[0]?.product}.${index}`}>
                                         <h6 className="fw-semibold text-center px-3 mt-4 mb-1">{item[0]?.product}</h6>
@@ -588,11 +586,65 @@ export default function DraftForm({ config }) {
                                 }
 
                             </div>
+
+                            <AddSalesReviewDrawer>
+                                {ResponseData?.map((item, index) => (
+                                    <div key={`${item[0]?.product}.${index}`}>
+                                        <h6 className="fw-semibold text-center px-3 mt-4 mb-1">{item[0]?.product}</h6>
+                                        <table key={index} className="table table-sm mb-3">
+                                            <thead>
+                                                <tr>
+                                                    <th scope='col col-sm'>Date</th>
+                                                    <th scope='col col-sm'>Bought</th>
+                                                    <th scope='col col-sm'>Remaining</th>
+                                                    <th scope='col col-sm'>Deduct</th>
+                                                    <th scope='col col-sm'>Left</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {item?.map((elem, i) => (
+                                                    <tr key={i}>
+                                                        <td>{elem.date}</td>
+                                                        <td>{elem.quantity_bought}</td>
+                                                        <td>{elem.quantity_remaining}</td>
+                                                        <td>({elem.quantity_deduct})</td>
+                                                        <td>{elem.quantity_left}</td>
+                                                    </tr>
+
+                                                ))}
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ))}
+
+                                {ResponseData.length !== 0 &&
+                                    <CardModal
+                                        titleProp={<></>}
+                                        modalWidth={800}
+                                        classList={"d-flex justify-content-center flex-md-nowrap align-items-center pt-2 mt-4"}
+                                        buttonText={
+                                            <button
+                                                type='button'
+                                                className='btn btn-primary col-6'
+                                                disabled={!isDirty || errors['products'] || errors['sales_invoice']}
+                                            >
+                                                <HiOutlineDocumentMagnifyingGlass style={{ height: '18px', width: '18px', margin: '0 6px 3px 0' }} />
+                                                Review
+                                            </button>
+                                        }
+                                        setDestroy={() => []}
+                                    >
+                                        <AddSalesReviewModalBody salesData={ResponseData} avgCost={productItem} />
+                                    </CardModal>
+                                }
+                            </AddSalesReviewDrawer>
+
                         </div>
                     </form >
 
-                    <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 mt-4 border-top">
-                        <button type='submit' className='btn btn-primary col-2' form={`add${Labels.PAGE_ENTITY}Form`} disabled={isSubmitting || !isDirty || !isValid || errors['products'] || errors['sales_invoice']}>
+                    <div className="addSales-button-container d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 mt-4 border-top gap-5">
+                        <button type='submit' className='btn btn-primary col-3' form={`add${Labels.PAGE_ENTITY}Form`} disabled={isSubmitting || !isDirty || !isValid || errors['products'] || errors['sales_invoice']}>
                             {FormLoading ? (
                                 <Spin
                                     indicator={
@@ -611,7 +663,7 @@ export default function DraftForm({ config }) {
                             )}
                             Save
                         </button>
-                        <button type='button' className='btn btn-outline-primary col-2' onClick={saveAsDraft} disabled={!isDirty}>
+                        <button type='button' className='btn btn-outline-primary col-3' onClick={saveAsDraft} disabled={!isDirty}>
                             {DraftLoading ? (
                                 <Spin
                                     indicator={
@@ -630,7 +682,7 @@ export default function DraftForm({ config }) {
                             )}
                             Save as draft
                         </button>
-                        <button type='button' onClick={() => navigate(-1)} className='btn btn btn-outline-secondary'>Cancel</button>
+                        <button type='button' onClick={() => navigate(-1)} className='btn btn btn-outline-secondary col-3'>Cancel</button>
                     </div>
                 </>
 

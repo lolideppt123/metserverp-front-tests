@@ -120,7 +120,7 @@ const SalesTable = ({ salesData, data_title, column, filters, setFilters, tableS
             <div className="app-table multi-app-table mt-5">
                 <div className="d-flex justify-content-center align-items-center">
                     <h5
-                        className="fw-semibold text-center px-3  mb-2"
+                        className="sales-table-header-title fw-semibold text-center px-3 mb-2"
                         style={{ marginLeft: "auto" }}
                     >
                         {dayjs(

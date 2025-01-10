@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { saveForm, selectSalesFormState } from '../features/sales/salesSlice';
+import { salesFormReset, saveForm, selectSalesFormState } from '../features/sales/salesSlice';
 import { useSnackbar } from 'notistack';
 import _ from 'lodash';
 
@@ -23,5 +23,7 @@ export default function useAutoSaveForm() {
         }
     }
 
-    return { saveFormAsDraft }
+    const resetDraftForm = () => dispatch(salesFormReset());
+
+    return { saveFormAsDraft, resetDraftForm }
 }

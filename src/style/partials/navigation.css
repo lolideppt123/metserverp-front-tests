@@ -159,9 +159,9 @@ body {
 
     /* hides mobile navbar */
     .mobile-nav-button,
-    .ant-drawer-content-wrapper,
-    .ant-drawer-mask {
-        display: none;
+    .mobile-nav-wrapper,
+    .mobile-nav-drawer {
+        display: none !important;
     }
 
 }
