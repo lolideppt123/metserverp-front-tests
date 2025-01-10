@@ -37,6 +37,7 @@ export default function InvoiceCardModalTitle({ cardData }) {
 
         const data = { 
             ...cardData,
+            sales_invoice: cardData.invoice_num,
             invoice_status: Selected, 
             invoice_paid_date: Selected == "PAID" ? Paydate : null 
         };

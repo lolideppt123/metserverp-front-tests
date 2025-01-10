@@ -8,7 +8,7 @@ export default function MobileNavButton(props) {
     return (
         <div className="mobile-nav-button">
             <button
-                onClick={() => dispatch(navbar(!navbarSelector))}
+                onClick={() => dispatch(navbar(true))}
                 className="sideBar-btn"
             >
                 <FiMenu style={{ fontSize: '24px', color: 'var(--bs-indigo-500)' }} />

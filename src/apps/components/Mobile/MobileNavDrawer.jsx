@@ -11,12 +11,13 @@ export default function MobileNavDrawer(props) {
             <Drawer
                 placement={'left'}
                 closable={false}
-                onClose={() => dispatch(navbar(!navbarSelector))}
+                onClose={() => dispatch(navbar(false))}
                 open={navbarSelector}
                 key={'left'}
                 width={250}
                 destroyOnClose={true}
                 mask={true}
+                className="mobile-nav-drawer"
             >
                 {props.children}
             </Drawer>

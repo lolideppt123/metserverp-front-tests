@@ -1,17 +1,16 @@
 import { NavLink } from 'react-router-dom';
 import { Tooltip } from 'antd';
-import { useSelector, useDispatch } from 'react-redux';
-import { selectDrawerNavBar, navbar } from '../../features/drawer/drawerSlice';
+import { useDispatch } from 'react-redux';
+import { navbar } from '../../features/drawer/drawerSlice';
 
 export default function NavItem({ expanded = true, icon, text, url }) {
-    const navbarSelector = useSelector(selectDrawerNavBar);
     const dispatch = useDispatch();
     return (
         <li className="nav-item">
             {expanded ? (
                 <NavLink
                     className={`d-flex justify-content-${expanded ? "start" : "center"} align-items-center nav-link`}
-                    onClick={() => dispatch(navbar(!navbarSelector))}
+                    onClick={() => dispatch(navbar(false))}
                     to={url}
                 >
                     {icon}

@@ -41,14 +41,6 @@ export default function FspApp() {
 
     // Check here if app is mobile
     useEffect(() => {
-        // const resizeW = () => {
-        //     if (window.innerWidth <= 768) {
-        //         setExpanded(false);
-        //     }
-        //     if (window.innerWidth >= 1024) {
-        //         setExpanded(true);
-        //     }
-        // }
         if (window.innerWidth <= 700) {
             dispatch(platform(true));
         }
@@ -83,7 +75,5 @@ export default function FspApp() {
                 <AppRouter />
             </MainContainer>
         </div>
-
-
     )
 }
