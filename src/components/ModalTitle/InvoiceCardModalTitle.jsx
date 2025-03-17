@@ -52,7 +52,7 @@ export default function InvoiceCardModalTitle({ cardData }) {
         const data = {
             ...cardData,
             sales_invoice: cardData.invoice_num,
-            sales_date: invoice_date,
+            sales_date: cardData.invoice_date,
             invoice_status: Selected,
             invoice_paid_date: Selected == "PAID" ? Paydate : null,
         };
@@ -130,13 +130,19 @@ export default function InvoiceCardModalTitle({ cardData }) {
                         <OnSubmitSpin spincolor={"var(--bs-indigo-700)"} />
                     </NavLink>
                 ) : IsEdit ? (
-                    <NavLink
-                        className={`ms-auto`}
-                        onClick={() => onSubmit()}
-                        to=""
+                    <button
+                        className="btn btn-link pe-0 pb-1 ms-auto"
+                        onClick={onSubmit}
                     >
                         <FiSave className="nav-link-icon" />
-                    </NavLink>
+                    </button>
+                    // <NavLink
+                    //     className={`ms-auto`}
+                    //     onClick={() => onSubmit()}
+                    //     to=""
+                    // >
+                    //     <FiSave className="nav-link-icon" />
+                    // </NavLink>
                 ) : IsSaved ? (
                     <NavLink
                         className={`ms-auto`}
